@@ -21,13 +21,8 @@ Qatar 2022 Comparison — a to-scale comparison of travel and emissions against 
 
 Predictions — Monte Carlo qualification probabilities and title odds from an Elo-based simulation that re-runs in the browser as results come in.
 
-**Methodology**
+**Methodology** - Emissions use UK DESNZ 2025 factors with radiative forcing (0.14253 kgCO₂e/pax-km for flights, 0.02776 for coach travel), assuming a 45-person travelling party. Qualification probabilities come from 4,000 simulations per group. All figures are modelled estimates, not predictions of any single outcome.
 
-Emissions use UK DESNZ 2025 factors with radiative forcing (0.14253 kgCO₂e/pax-km for flights, 0.02776 for coach travel), assuming a 45-person travelling party. Qualification probabilities come from 4,000 simulations per group. All figures are modelled estimates, not predictions of any single outcome.
+**Usage** - Open the HTML file in any modern browser. No installation, server, or dependencies beyond the CDN-loaded D3/TopoJSON libraries (cached locally after first load).
 
-**Usage**
-
-Open the HTML file in any modern browser. No installation, server, or dependencies beyond the CDN-loaded D3/TopoJSON libraries (cached locally after first load).
-
-**Tech**
-Single-file HTML · JavaScript · D3.js · TopoJSON · responsive (desktop & mobile) · light/dark theme
+**Tech** - Single-file HTML · JavaScript · D3.js · TopoJSON · responsive (desktop & mobile) · light/dark theme
