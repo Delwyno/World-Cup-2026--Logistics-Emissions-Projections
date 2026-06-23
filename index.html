@@ -2743,7 +2743,7 @@ function groupClinchStatus(teams){
   const remaining=allPairs.filter(p=>!playedSet.has([...p].sort().join("|")));
 
   const status={};
-  teams.forEach(t=>{status[t]={clinched:false,eliminated:false};});
+  teams.forEach(t=>{status[t]={clinched:false,eliminated:false,clinchedPos:null};});
   if(remaining.length>4){return status;} // safety valve; real groups have ≤3 left
 
   // Per-match candidate scorelines: draws of differing magnitude plus wins for
@@ -2757,7 +2757,12 @@ function groupClinchStatus(teams){
 
   const baseRes=groupResults(teams);
   const everIn2={}, everOut2={}, everTop3={};
-  teams.forEach(t=>{everIn2[t]=false;everOut2[t]=false;everTop3[t]=false;});
+  // Track the SET of finishing positions each team can still occupy. If a team
+  // can only ever finish (say) 1st across every remaining scenario, its 1st place
+  // is mathematically locked — which is what the bracket needs to know before it
+  // can honestly say "this team IS 1I" rather than "currently 1st".
+  const posSet={};
+  teams.forEach(t=>{everIn2[t]=false;everOut2[t]=false;everTop3[t]=false;posSet[t]=new Set();});
 
   // Iterate the cartesian product of scorelines across the remaining matches.
   const counts=remaining.map(()=>SCORELINES.length);
@@ -2773,6 +2778,7 @@ function groupClinchStatus(teams){
     const order=tbl.map(t=>t.team);
     const top2=new Set(order.slice(0,2));
     const top3=new Set(order.slice(0,3));
+    order.forEach((t,idx)=>posSet[t].add(idx+1)); // record finishing position (1-based)
     teams.forEach(t=>{
       if(top2.has(t))everIn2[t]=true; else everOut2[t]=true;
       if(top3.has(t))everTop3[t]=true;
@@ -2781,6 +2787,8 @@ function groupClinchStatus(teams){
   teams.forEach(t=>{
     status[t].clinched   = everIn2[t] && !everOut2[t]; // top-2 in EVERY scenario
     status[t].eliminated = !everTop3[t];               // top-3 in NO scenario
+    // If only one finishing position is ever possible, that exact place is locked.
+    status[t].clinchedPos = posSet[t].size===1 ? [...posSet[t]][0] : null;
   });
   return status;
 }
@@ -3726,14 +3734,24 @@ function buildBracket(){
     const td=t?allTeams.find(x=>x.team===t.team):null;
     const lbl=slotLabel(slot);
     if(t){
-      // Is this team mathematically through, or only provisionally in this slot
-      // on current standings? Show a ✓ for confirmed, and a faint ~ for provisional.
+      // Is this team mathematically locked into THIS slot, or only provisionally
+      // here on current standings? A slot like "1I" means first place specifically
+      // — so we check whether the team has clinched that exact position, not just
+      // top-2 qualification. (France currently leads Group I but Norway could still
+      // overtake them for 1st, so France is NOT confirmed as "1I" yet.)
       const grp=teamGroup(t.team);
       const cl=(groupClinchStatus(GROUPS[grp]||[])||{})[t.team]||{};
-      const mark=cl.clinched
-        ? `<span class="kb-qmark conf" title="Qualified — mathematically confirmed">✓</span>`
-        : `<span class="kb-qmark prov" title="Currently in this position, not yet mathematically confirmed">~</span>`;
-      return `<div class="kb-team filled${cl.clinched?' kb-confirmed':''}" onclick="openDrawer('${t.team.replace(/'/g,"\\'")}')" title="${lbl} — ${cl.clinched?'qualified (confirmed)':'provisional, on current standings'}">
+      // The position this slot demands: 1 for "1X", 2 for "2X"; thirds handled below.
+      const slotPos=(!slot.startsWith("3rd-")) ? parseInt(slot[0]) : null;
+      // Confirmed only if the team's exact finishing position is locked AND matches
+      // the slot. For 3rd-place slots, "confirmed" means the group is fully decided.
+      const posLocked = slotPos!=null
+        ? (cl.clinchedPos===slotPos)
+        : (groupMatchesPlayed(GROUPS[grp]||[])>=6);
+      const mark=posLocked
+        ? `<span class="kb-qmark conf" title="Confirmed in this position — mathematically locked">✓</span>`
+        : `<span class="kb-qmark prov" title="Currently in this position on standings, but it could still change">~</span>`;
+      return `<div class="kb-team filled${posLocked?' kb-confirmed':''}" onclick="openDrawer('${t.team.replace(/'/g,"\\'")}')" title="${lbl} — ${posLocked?'confirmed in this position':'provisional, could still change'}">
         <span class="kb-src">${lbl}</span>
         <span class="kb-sw" style="background:${td?td.color:"#888"}"></span>
         <span class="kb-name">${td?flagOf(t.team):""} ${t.team}</span>
@@ -3778,7 +3796,7 @@ function buildBracket(){
   const LSF=BRACKET_SF.slice(0,1), RSF=BRACKET_SF.slice(1,2);
 
   const html=`
-  <div class="kb-title">Knockout Bracket <span class="kb-legend"><span class="kb-qmark conf">✓</span> confirmed through · <span class="kb-qmark prov">~</span> provisional (on current standings)</span></div>
+  <div class="kb-title">Knockout Bracket <span class="kb-legend"><span class="kb-qmark conf">✓</span> position locked · <span class="kb-qmark prov">~</span> provisional (could still change)</span></div>
   <div class="contenders">
     <div class="contenders-head">
       <span class="contenders-title">🏆 Title Contenders</span>
