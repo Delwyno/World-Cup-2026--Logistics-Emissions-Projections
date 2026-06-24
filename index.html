@@ -199,6 +199,12 @@ body.light .tab.on{color:#1a1205}
 .mleg.collapsed .mleg-chev{transform:rotate(-90deg)}
 .mleg.collapsed{padding-bottom:5px}
 .mhint{position:absolute;top:10px;right:10px;background:rgba(8,17,30,.8);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--dim);pointer-events:none}
+.mapview-toggle{position:absolute;top:10px;left:10px;display:flex;background:rgba(8,17,30,.92);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:8px;padding:3px;gap:2px;z-index:5}
+.mapview-toggle button{font-family:inherit;font-size:11px;font-weight:600;color:var(--dim);background:transparent;border:none;border-radius:6px;padding:4px 11px;cursor:pointer;transition:all .12s}
+.mapview-toggle button:hover{color:var(--text);background:rgba(255,255,255,.06)}
+.mapview-toggle button.on{background:#f0b429;color:#1a1205}
+body.light .mapview-toggle{background:rgba(255,255,255,.95)}
+body.light .mapview-toggle button.on{background:#f0b429;color:#1a1205}
 
 /* TOOLTIP */
 #tip{position:fixed;pointer-events:none;background:rgba(6,13,22,.97);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;line-height:1.65;padding:9px 12px;display:none;z-index:9999;max-width:280px;box-shadow:0 8px 32px rgba(0,0,0,.6)}
@@ -340,7 +346,7 @@ table.ctable td.gold{color:var(--accent);font-weight:600;font-variant-numeric:ta
 .arc-anim{stroke-dasharray:8,4;stroke-dashoffset:120;animation:dash 2.5s linear infinite}
 
 /* GROUPS / STANDINGS / TRAVEL PANELS */
-#pStandings,#pTravel,#pFixtures{flex-direction:column;background:var(--bg)}
+#pStandings,#pTravel,#pFixtures,#pKotravel,#pFantravel{flex-direction:column;background:var(--bg)}
 .grp-wrap{flex:1;overflow-y:auto;padding:10px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;align-content:start}
 .grp-wrap::-webkit-scrollbar{width:4px}
 .grp-wrap::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
@@ -448,6 +454,66 @@ body.light .gu-head{background:rgba(0,0,0,.06)}
 .gu-head .gu-dpts,.gu-head .gu-drel{color:var(--dim);font-weight:700;font-size:8px}
 
 .grp-stand-status{padding:4px 10px;font-size:8px;color:var(--dim);font-style:italic;text-align:center;background:rgba(0,0,0,.1)}
+/* ── Knockout Travel tab ── */
+.kol-head,.kol-row{display:grid;grid-template-columns:64px minmax(0,1fr) 58px 56px;gap:6px;align-items:center;padding:5px 11px;font-size:10.5px}
+.kol-head{background:rgba(0,0,0,.18);font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim)}
+body.light .kol-head{background:rgba(0,0,0,.06)}
+.kol-row{border-bottom:1px solid var(--border)}
+.kol-row:last-of-type{border-bottom:none}
+.kol-round{font-weight:700;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.3px}
+.kol-path{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.kol-path b{color:var(--text);font-weight:700}
+.kol-status{display:inline-block;width:12px;font-weight:800;text-align:center;margin-right:2px}
+.kol-km{text-align:right;font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}
+.kol-co2{text-align:right;font-variant-numeric:tabular-nums;color:var(--leaf);white-space:nowrap;font-size:9.5px}
+.kol-head .kol-km,.kol-head .kol-co2{color:var(--dim)}
+/* Flown legs: solid, confident. Projected legs: dimmed + dashed left edge. */
+.kol-row.kol-actual{box-shadow:inset 2px 0 0 var(--leaf)}
+.kol-row.kol-actual .kol-status{color:var(--leaf)}
+.kol-row.kol-proj{opacity:.72}
+.kol-row.kol-proj .kol-path{border-left:0}
+.kol-row.kol-proj .kol-status{color:var(--dim)}
+.kol-row.kol-proj b{font-weight:600}
+/* ── Knockout Travel tab: controls + improved cards ── */
+#kotravelWrap{display:block}            /* override grp-wrap grid; inner grid handles cards */
+.kotravel-controls{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.kotravel-filter,.kotravel-sort{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.kotravel-sort-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-right:2px}
+.kotravel-controls button{font-family:inherit;font-size:10.5px;font-weight:600;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:4px 11px;cursor:pointer;transition:all .12s}
+.kotravel-controls button:hover{color:var(--text);border-color:var(--border2)}
+.kotravel-controls button.on{background:var(--accent);color:#1a1205;border-color:var(--accent)}
+.kotravel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;align-content:start}
+@media(max-width:560px){.kotravel-grid{grid-template-columns:1fr}}
+/* Round-progress dots */
+.kol-progress{display:flex;gap:4px;padding:8px 11px 2px}
+.kol-dot{font-size:8px;font-weight:800;letter-spacing:.2px;padding:2px 6px;border-radius:4px;background:rgba(128,128,128,.14);color:var(--dim);min-width:22px;text-align:center}
+.kol-dot.won{background:var(--leaf);color:#06281a}
+.kol-dot.lost{background:rgba(248,113,113,.85);color:#2a0a0a}
+.kol-dot.proj{background:rgba(128,128,128,.12);color:var(--dim)}
+/* Headline total per card */
+.kol-headline{display:flex;align-items:baseline;gap:8px;padding:4px 11px 9px;flex-wrap:wrap}
+.kol-headline-v{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:26px;font-weight:800;color:var(--accent);line-height:1}
+.kol-headline-u{font-size:12px;font-weight:600;color:var(--muted);margin-left:2px}
+.kol-headline-c{font-size:12px;font-weight:700;color:var(--leaf)}
+.kol-headline-l{font-size:9px;color:var(--dim);margin-left:auto;text-transform:uppercase;letter-spacing:.4px}
+/* Group + knockout + full-tournament totals at the foot of each card */
+.kol-grandtotal{border-top:1px solid var(--border2);padding:7px 11px 8px;font-size:10px}
+.kol-gt-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 0}
+.kol-gt-l{color:var(--muted);font-weight:600}
+.kol-gt-sub{color:var(--dim);font-weight:400;font-size:8.5px}
+.kol-gt-v{font-variant-numeric:tabular-nums;color:var(--text);white-space:nowrap}
+.kol-gt-grand{border-top:1px dashed var(--border2);margin-top:3px;padding-top:5px;font-weight:800}
+.kol-gt-grand .kol-gt-l{color:var(--text);font-weight:800}
+.kol-gt-grand .kol-gt-v{color:var(--accent);font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:13px;font-weight:800}
+/* ── Fan Travel tab ── */
+.fan-est-tag{font-size:9px;font-weight:800;letter-spacing:.8px;background:rgba(240,180,41,.18);color:var(--accent);border:1px solid rgba(240,180,41,.4);border-radius:4px;padding:2px 6px;vertical-align:middle;margin-left:6px}
+.fan-from{font-size:9.5px;color:var(--muted);padding:0 11px 7px}
+.fan-from b{color:var(--text)}
+.fan-leg-tag{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--dim);background:rgba(128,128,128,.14);border-radius:3px;padding:1.5px 5px}
+.fan-leg-tag.inbound{background:rgba(96,165,250,.18);color:#60a5fa}
+.fan-leg-tag.ko{background:rgba(240,180,41,.16);color:var(--accent)}
+/* Fan rows have 3 columns (leg · journey · km), not 4 — no per-leg CO₂ column. */
+#fantravelWrap .kol-head,#fantravelWrap .kol-row{grid-template-columns:74px minmax(0,1fr) 64px}
 body.light .grp-stand-status{background:rgba(0,0,0,.03)}
 /* Results strip in standings cards */
 .gr-res-wrap{display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px;border-top:1px solid var(--border);background:rgba(0,0,0,.08)}
@@ -467,6 +533,12 @@ body.light .bracket-slot.q1{background:rgba(22,163,74,.07)}
 body.light .bracket-slot.q2{background:rgba(37,99,235,.05)}
 .cmp-note{background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 15px;margin-bottom:14px;font-size:11.5px;line-height:1.7;color:var(--muted)}
 body.light .cmp-note{background:#f8fafc}
+/* Centred variant: text centred, left-accent border removed, content vertically
+   centred when it sits in the stretched split column. */
+.cmp-note-centered{text-align:left;border-left:1px solid var(--border2);border-radius:10px;display:flex;flex-direction:column;justify-content:center}
+.cmp-note-centered p{margin:9px 0 0}
+.cmp-note-centered p:last-child{margin-bottom:0}
+.cmp-note-centered strong{white-space:normal}
 
 body.light #teamDrawer{background:#fff;border-left-color:#e2e8f0}
 body.light .drawer-stat{background:#f8fafc}
@@ -481,6 +553,7 @@ body.light .drawer-game{background:#f8fafc}
   /* Header: stack brand on top, stats below */
   header{min-height:auto;padding:8px 12px;gap:6px}
   .hleft{width:100%;flex-direction:column;align-items:flex-start;gap:6px}
+  .hctrl{width:100%;justify-content:flex-start;flex-wrap:wrap}
   .brand{width:100%;gap:8px}
   .trophy{width:34px;height:34px;font-size:18px}
   .brand h1{font-size:17px}
@@ -686,26 +759,37 @@ body.light .bracket-slot.q2{background:rgba(37,99,235,.05)}
 
 /* ── Comparison bars: make the gulf between the two tournaments visible ── */
 .cmp-bars{background:var(--surface);border:1px solid var(--border2);border-radius:14px;padding:18px 20px;margin-bottom:18px;box-shadow:0 4px 20px rgba(0,0,0,.12)}
+/* Two-column row: bars on the left (wider), a compact flight-equivalence box on
+   the right, vertically centred beside the chart. */
+.cmp-split{display:grid;grid-template-columns:7fr 2fr;gap:18px;margin-bottom:18px;align-items:stretch}
+.cmp-split-l,.cmp-split-r{min-width:0;display:flex;flex-direction:column}
+.cmp-split .cmp-bars,.cmp-split .cmp-metaphor{margin-bottom:0}
+.cmp-split-l .cmp-bars{height:100%}
+.cmp-split-r .cmp-metaphor{flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.cmp-split-r .cmp-metaphor-txt{font-size:11.5px;line-height:1.6}
+@media(max-width:760px){.cmp-split{grid-template-columns:1fr;gap:14px}}
 .cmp-bars-title{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:16px;font-weight:800;letter-spacing:.5px;color:var(--text);margin-bottom:3px;text-transform:uppercase}
 .cmp-bars-sub{font-size:11px;color:var(--muted);margin-bottom:18px}
-.cmp-barblock{margin-bottom:22px}
+.cmp-barblocks{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.cmp-barblock{margin-bottom:0}
 .cmp-barblock:last-child{margin-bottom:0}
-.cmp-barblock-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:13px;flex-wrap:wrap}
+@media(max-width:560px){.cmp-barblocks{grid-template-columns:1fr;gap:14px}}
+.cmp-barblock-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:7px;flex-wrap:wrap}
 .cmp-barblock-t{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.4px}
-.cmp-barblock-mult{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:21px;font-weight:800;color:#f87171;letter-spacing:.3px;white-space:nowrap;line-height:1}
+.cmp-barblock-mult{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:19px;font-weight:800;color:#f87171;letter-spacing:.3px;white-space:nowrap;line-height:1}
 .cmp-barblock-mult small{font-size:10.5px;font-weight:600;color:var(--muted);letter-spacing:0}
 /* Each bar is a labelled row; name + value sit ABOVE the track so they're always
    legible no matter how thin the bar is (the Qatar bar is a sliver by design). */
-.cmp-barrow{margin-bottom:13px}
+.cmp-barrow{margin-bottom:7px}
 .cmp-barrow:last-child{margin-bottom:0}
-.cmp-barrow-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:5px}
-.cmp-barrow-name{font-size:11.5px;font-weight:700;color:var(--text)}
+.cmp-barrow-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:3px}
+.cmp-barrow-name{font-size:11px;font-weight:700;color:var(--text)}
 .cmp-barrow-name .cmp-tag{font-size:8.5px;font-weight:600;color:var(--dim);letter-spacing:.3px;margin-left:6px}
-.cmp-barrow-val{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:15px;font-weight:800;letter-spacing:.3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cmp-barrow-val{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:14px;font-weight:800;letter-spacing:.3px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .cmp-barrow-val.qatar{color:#ef6b6b}
 .cmp-barrow-val.wc26{color:#5b9bf3}
-.cmp-bartrack{position:relative;height:15px;background:rgba(128,128,128,.13);border-radius:8px;overflow:hidden}
-.cmp-barfill{position:absolute;inset:0 auto 0 0;width:0;border-radius:8px;transition:width 1.15s cubic-bezier(.22,1,.36,1)}
+.cmp-bartrack{position:relative;height:12px;background:rgba(128,128,128,.13);border-radius:7px;overflow:hidden}
+.cmp-barfill{position:absolute;inset:0 auto 0 0;width:0;border-radius:7px;transition:width 1.15s cubic-bezier(.22,1,.36,1)}
 .cmp-barfill.qatar{background:linear-gradient(90deg,#b91c1c,#ef4444);min-width:6px}
 .cmp-barfill.wc26{background:linear-gradient(90deg,#1d4ed8,#3b82f6)}
 
@@ -787,7 +871,11 @@ body.light .dr-bar-track{background:rgba(0,0,0,.08)}
 .dr-ko-l{font-size:9px;color:var(--muted)}
 .dr-ko-legs-head{display:grid;grid-template-columns:38px 1fr 36px 64px;gap:8px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);padding-top:4px;border-top:1px solid var(--border2)}
 .dr-ko-legs-head span:nth-child(3),.dr-ko-legs-head span:nth-child(4){text-align:right}
-.dr-ko-leg{display:grid;grid-template-columns:38px 1fr 36px 64px;gap:8px;align-items:center;font-size:11px;padding:4px 0;border-top:1px solid var(--border)}
+.dr-ko-leg{display:grid;grid-template-columns:96px 1fr 52px 64px;gap:8px;align-items:center;font-size:11px;padding:4px 0;border-top:1px solid var(--border)}
+.dr-ko-leg.actual{box-shadow:inset 2px 0 0 var(--leaf);padding-left:6px}
+.dr-ko-leg.actual .dr-ko-round{color:var(--leaf)}
+.dr-ko-leg.proj{opacity:.66}
+.dr-ko-statusline{font-size:10.5px;color:var(--muted);padding:2px 0 8px;line-height:1.4}
 .dr-ko-round{font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent)}
 .dr-ko-venue{color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dr-ko-alt{font-size:8.5px;font-weight:700;white-space:nowrap}
@@ -1045,6 +1133,14 @@ window.addEventListener("unhandledrejection",function(e){
       <p>Host cities range from sea level to Mexico City at ~2,240m. At altitude there's less oxygen, so teams not acclimatised tire faster and the ball travels further through thinner air. We measure each team's "exposure" as the climb from its training base to its match venues — only upward jumps count, and the effect is weighted to reflect that altitude barely matters below ~1,000m but rises steeply above ~1,500m. A team based high (e.g. in Mexico) faces no shock playing at altitude, mirroring how acclimatisation works in reality. It's an exposure indicator, not a performance prediction.</p>
     </div>
     <div class="method-sec">
+      <h4>Knockout-stage travel</h4>
+      <p>Once the group stage ends, knockout travel is modelled differently. Teams no longer return to a fixed base between games — they tour onward from city to city — so knockout legs are <strong>one-way hops</strong> (last group venue → Round-of-32 city → Round-of-16 city → …), not round trips. Each team's path follows the official bracket. A leg shows as <strong>projected</strong> until its fixture is played, then converts to <strong>actual</strong> as results are entered. The map only draws knockout flights once a game has genuinely been played.</p>
+    </div>
+    <div class="method-sec">
+      <h4>What's not included: fan travel</h4>
+      <p>Every figure here measures <strong>team</strong> travel only. Spectator travel — fans flying in from around the world — is far larger (independent estimates put it at the overwhelming majority of a World Cup's transport footprint) but depends on assumptions about crowd numbers and origins that can't be known precisely in advance, so it's deliberately left out rather than guessed. Keep in mind that team travel, while the focus of this tool, is the small part of the real picture.</p>
+    </div>
+    <div class="method-sec">
       <h4>Sources &amp; caveats</h4>
       <p>Fixtures, venues and training-camp locations from FIFA's published 2026 schedule. Emission factors from UK DESNZ 2025. This is an independent analysis for illustration — actual team logistics (charter routing, exact squad sizes, road vs air choices) will vary. Treat the numbers as well-grounded estimates, not official figures.</p>
     </div>
@@ -1083,6 +1179,12 @@ window.addEventListener("unhandledrejection",function(e){
     </div>
     <div class="hstats" id="hstats"></div>
   </div>
+  <div class="hctrl">
+    <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme">☀️ <span class="ib-label">Theme</span></button>
+    <button class="icon-btn" id="csvBtn" title="Download data as CSV">⬇ <span class="ib-label">CSV</span></button>
+    <button class="icon-btn" id="pngBtn" title="Save map as PNG image">📷 <span class="ib-label">PNG</span></button>
+    <button class="icon-btn" id="infoBtn" title="Methodology &amp; data sources">ⓘ <span class="ib-label">About</span></button>
+  </div>
 </header>
 
 <div class="tabbar">
@@ -1094,13 +1196,9 @@ window.addEventListener("unhandledrejection",function(e){
     <div class="tab" data-tab="standings"><span class="tab-full">⚽ Standings</span><span class="tab-short">⚽ Table</span></div>
     <div class="tab" data-tab="fixtures"><span class="tab-full">📅 Fixtures</span><span class="tab-short">📅 Fixtures</span></div>
     <div class="tab" data-tab="bracket"><span class="tab-full">🏆 WC Bracket</span><span class="tab-short">🏆 Bracket</span></div>
+    <div class="tab" data-tab="kotravel"><span class="tab-full">🛫 Knockout Travel</span><span class="tab-short">🛫 KO Travel</span></div>
+    <div class="tab" data-tab="fantravel"><span class="tab-full">🧳 Fan Travel</span><span class="tab-short">🧳 Fans</span></div>
     <div class="tab" data-tab="compare"><span class="tab-full">📊 Qatar Comparison</span><span class="tab-short">📊 Qatar</span></div>
-  </div>
-  <div class="hctrl">
-    <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme">☀️ <span class="ib-label">Theme</span></button>
-    <button class="icon-btn" id="csvBtn" title="Download data as CSV">⬇ <span class="ib-label">CSV</span></button>
-    <button class="icon-btn" id="pngBtn" title="Save map as PNG image">📷 <span class="ib-label">PNG</span></button>
-    <button class="icon-btn" id="infoBtn" title="Methodology &amp; data sources">ⓘ <span class="ib-label">About</span></button>
   </div>
 </div>
 
@@ -1110,6 +1208,11 @@ window.addEventListener("unhandledrejection",function(e){
   <div id="mapRow">
   <div id="mapWrap">
     <svg id="mapSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div class="mapview-toggle" id="mapviewToggle" title="Choose which flights to show">
+      <button data-view="group" onclick="setMapView('group')">Group</button>
+      <button data-view="both" class="on" onclick="setMapView('both')">Both</button>
+      <button data-view="knockout" onclick="setMapView('knockout')">Knockout</button>
+    </div>
     <div id="loader"><div class="spin"></div><div class="load-txt">Loading map…</div></div>
     <div class="mleg collapsed" id="mleg">
       <button class="mleg-toggle" id="mlegToggle" title="Show/hide map key">Key <span class="mleg-chev">▾</span></button>
@@ -1129,6 +1232,9 @@ window.addEventListener("unhandledrejection",function(e){
       </div>
       <div class="lr">
         <svg width="24" height="8" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="18" y2="4" stroke="#555" stroke-width="1.2" stroke-dasharray="3,2"/><polygon points="17,1.5 23,4 17,6.5" fill="#555"/></svg>Return
+      </div>
+      <div class="lr">
+        <svg width="24" height="8" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="18" y2="4" stroke="#f0b429" stroke-width="2.2" stroke-dasharray="5,3"/><polygon points="17,1 23,4 17,7" fill="#f0b429"/></svg>Knockout (played)
       </div>
       <div class="ltitle">Timezone Bands (June/July DST)</div>
       <div class="lr"><span class="tz-swatch" style="background:#7c3aed"></span>UTC−4 Eastern</div>
@@ -1306,6 +1412,35 @@ window.addEventListener("unhandledrejection",function(e){
     <button id="brkFitBtn" class="brk-fit-btn" onclick="toggleBracketFit()" title="Scale the bracket to fit your screen">⤢ Fit</button>
   </div>
   <div class="cit-body" id="bracketWrap" style="display:block"></div>
+</div>
+
+<!-- KNOCKOUT TRAVEL TAB -->
+<div class="panel" id="pKotravel">
+  <div class="cit-header" style="flex-shrink:0">
+    <div>
+      <div class="cit-h1" style="color:#f0b429">🛫 Knockout Stage Travel &amp; Emissions</div>
+      <div class="cit-sub">Each team's knockout journey as one-way city-to-city hops (teams tour between venues rather than returning to a base). <b>Solid = flown</b> (a played result); <b>dashed = projected</b> path on the current bracket. Updates as knockout results are entered. Click any team to highlight its routes on the map.</div>
+    </div>
+    <div class="cit-pills" id="kotravelPills"></div>
+    <div class="zoomctl" data-zoom-target="kotravelWrap" title="Zoom the table">
+      <button class="zoomctl-btn" data-zoom="out" aria-label="Zoom out">−</button>
+      <span class="zoomctl-val">100%</span>
+      <button class="zoomctl-btn" data-zoom="in" aria-label="Zoom in">+</button>
+    </div>
+  </div>
+  <div class="grp-wrap" id="kotravelWrap"></div>
+</div>
+
+<!-- FAN TRAVEL TAB -->
+<div class="panel" id="pFantravel">
+  <div class="cit-header" style="flex-shrink:0">
+    <div>
+      <div class="cit-h1" style="color:#f0b429">🧳 Fan Travel &amp; Emissions <span class="fan-est-tag">ESTIMATE</span></div>
+      <div class="cit-sub">A manual, assumption-driven estimate of <b>supporter</b> travel — separate from the precise team figures elsewhere. Each team's travelling fans make a one-way tour: <b>home nation → each venue</b> (group + knockout), following the team, never returning to base. Distances scale by your estimated fan count. Edit the <code>FAN_DATA</code> block to add teams.</div>
+    </div>
+    <div class="cit-pills" id="fantravelPills"></div>
+  </div>
+  <div class="grp-wrap" id="fantravelWrap"></div>
 </div>
 
 <!-- COMPARE TAB -->
@@ -1847,10 +1982,22 @@ const totalCo2All=allTeams.reduce((s,t)=>s+t.totalCo2,0);
 
   const mostTZ=allTeams.slice().sort((a,b)=>b.totalTZ-a.totalTZ)[0];
 
+  // Knockout travel actually flown so far (0 until R32 begins). Only surfaced as
+  // a headline stat once there's something real to show, so the header stays
+  // clean during the group stage.
+  let koFlownKm=0,koFlownCo2=0;
+  try{
+    allTeams.forEach(t=>{const k=knockoutTravel(t.team);if(k.inKO){koFlownKm+=k.actualKm;koFlownCo2+=k.actualCo2;}});
+  }catch(e){/* knockoutTravel not ready at first paint — ignore */}
+
   const items=[
     {v:"48",l:"Teams"},{v:"16",l:"Host cities"},
     {v:Math.round(totalKm).toLocaleString()+" km",l:"Total km flown"},
     {v:(totalCo2All/1000).toFixed(1)+" tCO\u2082e",l:"Total tCO₂e (all 48 teams)"},
+    ...(koFlownKm>0?[
+      {v:Math.round(koFlownKm).toLocaleString()+" km",l:"Knockout km flown"},
+      {v:((totalCo2All+koFlownCo2)/1000).toFixed(1)+" tCO\u2082e",l:"Total tCO₂e (group + knockout)"},
+    ]:[]),
     {v:allTeams[allTeams.length-1].team,l:"Least tCO\u2082e team"},
     {v:allTeams[0].team,l:"Most tCO\u2082e team"},
     {v:cityCo2[0].city,l:"Most tCO\u2082e city"},
@@ -1868,7 +2015,9 @@ if(fsel)teamList.forEach(t=>{const o=document.createElement("option");o.value=t;
 const mapWrap=document.getElementById("mapWrap");
 const svgEl=d3.select("#mapSvg");
 const tip=document.getElementById("tip");
-let proj,pathGen,flSel,retSel,hlTeam=null;
+let proj,pathGen,flSel,retSel,hlTeam=null,koFlightG=null,mapView="both";
+// Full round names for knockout-flight tooltips.
+function ROUND_FULL(r){return {R32:"Round of 32",R16:"Round of 16",QF:"Quarter-final",SF:"Semi-final",Final:"Final"}[r]||r;}
 
 function getSize(){const r=mapWrap.getBoundingClientRect();return{w:Math.max(r.width,300),h:Math.max(r.height,300)};}
 function mkProj(){const{w,h}=getSize();const sc=Math.min(w*0.8,h*1.35);proj=d3.geoMercator().center([-96,34]).scale(sc).translate([w*0.5,h*0.5]);pathGen=d3.geoPath().projection(proj);}
@@ -1995,6 +2144,10 @@ async function initMap(){
   defs.append("marker").attr("id","arr").attr("viewBox","0 0 10 10").attr("refX","9").attr("refY","5")
     .attr("markerWidth","4").attr("markerHeight","4").attr("orient","auto")
     .append("path").attr("d","M0,0 L10,5 L0,10 z").attr("fill","currentColor");
+  // Knockout-flight arrowhead — fixed amber, slightly larger so KO arcs stand out.
+  defs.append("marker").attr("id","arrKo").attr("viewBox","0 0 10 10").attr("refX","9").attr("refY","5")
+    .attr("markerWidth","5").attr("markerHeight","5").attr("orient","auto")
+    .append("path").attr("d","M0,0 L10,5 L0,10 z").attr("fill","#f0b429");
 
   /* ── Build leg data ── */
   const legs=[];
@@ -2088,6 +2241,71 @@ async function initMap(){
     });
 
 
+  /* ── KNOCKOUT FLIGHTS ───────────────────────────────────────────────────
+     Only legs that have ACTUALLY been played (a KO_RESULTS entry exists) are
+     drawn — never projected ones — so the map stays factual. These are one-way
+     hops between host cities, styled distinctly from the group-stage arcs:
+     a brighter amber, heavier dashed line with its own arrowhead. Rebuilt by
+     refreshKnockoutFlights() whenever results change or the view toggles. */
+  koFlightG=svgEl.append("g").attr("class","ko-flight-layer");
+  function buildKoLegs(){
+    const out=[];
+    for(const td of allTeams){
+      const kt=knockoutTravel(td.team);
+      if(!kt.inKO)continue;
+      for(const leg of kt.legs){
+        if(!leg.actual)continue;              // factual only
+        const A=CITY_DATA[leg.from],B=CITY_DATA[leg.to];
+        if(!A||!B)continue;
+        const pa=proj([A.lng,A.lat]),pb=proj([B.lng,B.lat]);
+        if(!pa||!pb)continue;
+        out.push({team:td.team,color:td.color,round:leg.round,from:leg.from,to:leg.to,
+          km:Math.round(leg.km),co2:leg.co2,won:leg.won,
+          x1:pa[0],y1:pa[1],x2:pb[0],y2:pb[1]});
+      }
+    }
+    return out;
+  }
+  function refreshKnockoutFlights(){
+    if(!koFlightG)return;
+    koFlightG.selectAll("*").remove();
+    if(mapView==="group"){return;}            // hidden in group-only view
+    const koLegs=buildKoLegs();
+    // slightly higher arc so KO flights sit visually above group arcs
+    koFlightG.selectAll("path").data(koLegs).join("path")
+      .attr("d",d=>arc(d.x1,d.y1,d.x2,d.y2,42))
+      .attr("fill","none")
+      .attr("stroke","#f0b429")
+      .attr("stroke-width",d=>(hlTeam&&hlTeam!==d.team)?1.1:2.4)
+      .attr("stroke-opacity",d=>(hlTeam&&hlTeam!==d.team)?.12:.92)
+      .attr("stroke-dasharray","7,4")
+      .attr("marker-end","url(#arrKo)")
+      .attr("class","ko-arc")
+      .style("cursor","pointer")
+      .on("mouseenter",(e,d)=>{
+        if(hlTeam&&hlTeam!==d.team)return;
+        d3.select(e.target).attr("stroke-width",3.4).attr("stroke-opacity",1);
+        showArcLabel({x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2,km:d.km,tz:0,color:"#f0b429"});
+        const resStr=d.won===false?"Lost — eliminated":d.won?"Won — advanced":"";
+        showTip(e,`<div class="th">${flagOf(d.team)} ${d.team}</div><div class="tdiv"></div>
+          <div class="tr"><span>🏆 ${ROUND_FULL(d.round)}</span><span>${resStr}</span></div>
+          <div class="tr"><span>✈ ${d.from} → ${d.to}</span><span></span></div>
+          <div class="tdiv"></div>
+          <div class="tr"><span>One-way</span><span class="tk">${d.km.toLocaleString()} km</span></div>
+          <div class="tr"><span>🌿 tCO₂e</span><span class="tc2">${fco2(d.co2)}</span></div>`);
+      })
+      .on("click",(e,d)=>openDrawer(d.team))
+      .on("mousemove",moveTip)
+      .on("mouseleave",(e,d)=>{
+        const hl=hlTeam===d.team;
+        d3.select(e.target).attr("stroke-width",hl?2.8:2.4).attr("stroke-opacity",hl?1:.92);
+        hideArcLabel();hideTip();
+      });
+  }
+  // expose so the view toggle / result entry can re-draw without a full re-init
+  window._refreshKnockoutFlights=refreshKnockoutFlights;
+  refreshKnockoutFlights();
+
   /* Training camps */
   const seenTc=new Set();
   const tcG=svgEl.append("g");
@@ -2174,6 +2392,22 @@ function showTip(e,h){tip.style.display="block";tip.innerHTML=h;moveTip(e);}
 function moveTip(e){const x=e.clientX+15,y=e.clientY-10,tw=tip.offsetWidth||250;tip.style.left=Math.min(x,window.innerWidth-tw-8)+"px";tip.style.top=y+"px";}
 function hideTip(){tip.style.display="none";}
 
+/* ═══════════════ MAP VIEW TOGGLE (group / knockout / both) ═══════════════ */
+function setMapView(view){
+  mapView=view;
+  // Show/hide the group-stage arc layers. We toggle display so hit-testing and
+  // the animated shimmer also switch off cleanly in knockout-only view.
+  const groupOn = (view==="group"||view==="both");
+  if(flSel) flSel.style("display",groupOn?null:"none");
+  if(retSel) retSel.style("display",groupOn?null:"none");
+  const anim=document.querySelector(".arc-anim");
+  document.querySelectorAll(".arc-anim").forEach(el=>el.style.display=groupOn?"":"none");
+  // Knockout layer is rebuilt (it internally hides itself when view==="group").
+  if(typeof window._refreshKnockoutFlights==="function")window._refreshKnockoutFlights();
+  // Button states
+  document.querySelectorAll("#mapviewToggle button").forEach(b=>b.classList.toggle("on",b.dataset.view===view));
+}
+
 /* ═══════════════ HIGHLIGHT ═══════════════ */
 function applyHL(team){
   hlTeam=team||null;
@@ -2182,6 +2416,8 @@ function applyHL(team){
        .attr("stroke-width",d=>!team?(routeFreq(d.tc,d.gc)>=4?2.8:1.0):(d.team===team?3.2:.6));
     retSel.attr("stroke-opacity",d=>!team?.13:(d.team===team?.4:.01));
   }
+  // Knockout flights brighten/dim with the selected team too.
+  if(typeof window._refreshKnockoutFlights==="function")window._refreshKnockoutFlights();
   const _clr=document.getElementById("clrbtn");if(_clr)_clr.style.display=team?"inline-block":"none";
   document.querySelectorAll(".row").forEach(r=>r.classList.toggle("on",r.dataset.team===team));
   setURLParam("team",team||"");
@@ -2258,32 +2494,41 @@ function openDrawer(teamName){
 
   // Projected knockout-path travel (if the team is currently in a qualifying position)
   let koHtml="";
-  const ko=knockoutPath(teamName);
-  if(ko.qualified && ko.path.length){
-    const rounds=ko.path.map(p=>
-      `<div class="dr-ko-leg">
-        <span class="dr-ko-round">${p.round}</span>
-        <span class="dr-ko-venue">🏟 ${p.venue}${p.vElev>=1500?` <span class="dr-ko-alt" style="color:${altTier(p.vElev).c}" title="${p.venue} sits at ${p.vElev}m — ${altTier(p.vElev).t.toLowerCase()} altitude">⛰ ${p.vElev}m</span>`:""}</span>
-        <span class="dr-ko-prob" title="Modelled chance of reaching this round">${Math.round(p.reachP*100)}%</span>
-        <span class="dr-ko-km">+${p.rtKm.toLocaleString()} km</span>
-      </div>`
-    ).join("");
-    const grandKm=total+ko.extraKm, grandCo2=totalCo2+ko.extraCo2;
-    const expGrandKm=total+ko.expKm, expGrandCo2=totalCo2+ko.expCo2;
+  const kt=knockoutTravel(teamName);
+  if(kt.inKO && kt.legs.length){
+    const ROUND_LBL={R32:"Round of 32",R16:"Round of 16",QF:"Quarter-final",SF:"Semi-final",Final:"Final"};
+    const legRows=kt.legs.map(l=>{
+      const cls=l.actual?"dr-ko-leg actual":"dr-ko-leg proj";
+      const icon=l.actual?(l.won===false?"✗":"✓"):"·";
+      const tag=l.actual?(l.won===false?"played · lost":"played · won"):"projected";
+      return `<div class="${cls}">
+        <span class="dr-ko-round">${icon} ${ROUND_LBL[l.round]||l.round}</span>
+        <span class="dr-ko-venue">${l.from} → 🏟 ${l.to}</span>
+        <span class="dr-ko-prob" style="font-size:8px">${tag}</span>
+        <span class="dr-ko-km">${Math.round(l.km).toLocaleString()} km</span>
+      </div>`;
+    }).join("");
+    const koKm=kt.actualKm+kt.projKm, koCo2=kt.actualCo2+kt.projCo2;
+    const grandKm=total+koKm, grandCo2=totalCo2+koCo2;
+    const statusLine = kt.eliminated
+      ? `<span style="color:#f87171;font-weight:700">Eliminated</span> — flew ${Math.round(kt.actualKm).toLocaleString()} km in the knockouts`
+      : kt.actualKm>0
+      ? `<span style="color:var(--leaf);font-weight:700">Still in</span> — ${Math.round(kt.actualKm).toLocaleString()} km flown, ${Math.round(kt.projKm).toLocaleString()} km projected ahead`
+      : `Projected path on the current bracket (no knockout games played yet)`;
     koHtml=`
     <div class="drawer-section">
-      <div class="drawer-section-title">Projected Knockout Travel</div>
+      <div class="drawer-section-title">Knockout Travel ${kt.actualKm>0?'<span style="font-size:9px;color:var(--leaf)">• live</span>':'<span style="font-size:9px;color:var(--dim)">• projected</span>'}</div>
       <div class="dr-ko">
+        <div class="dr-ko-statusline">${statusLine}</div>
         <div class="dr-ko-sum">
-          <div><span class="dr-ko-v">+${Math.round(ko.expKm).toLocaleString()} km</span><span class="dr-ko-l">expected added travel<br>(weighted by how far they're likely to go)</span></div>
-          <div><span class="dr-ko-v leaf">+${fco2(ko.expCo2)}</span><span class="dr-ko-l">expected added emissions</span></div>
+          <div><span class="dr-ko-v">${Math.round(koKm).toLocaleString()} km</span><span class="dr-ko-l">knockout travel<br>(flown + projected, one-way hops)</span></div>
+          <div><span class="dr-ko-v leaf">${fco2(koCo2)}</span><span class="dr-ko-l">knockout emissions</span></div>
         </div>
-        <div class="dr-ko-legs-head"><span>Round</span><span>Venue</span><span title="Chance of reaching">reach</span><span>round-trip</span></div>
-        ${rounds}
-        <div class="dr-ko-total"><b>Expected</b> full-tournament total: <b>${Math.round(expGrandKm).toLocaleString()} km</b> · <b>${fco2(expGrandCo2)}</b></div>
-        <div class="dr-ko-total dim">If they win it all (max): ${Math.round(grandKm).toLocaleString()} km · ${fco2(grandCo2)}</div>
+        <div class="dr-ko-legs-head"><span>Round</span><span>Journey</span><span>status</span><span>one-way</span></div>
+        ${legRows}
+        <div class="dr-ko-total"><b>Full tournament</b> (group + knockout): <b>${Math.round(grandKm).toLocaleString()} km</b> · <b>${fco2(grandCo2)}</b></div>
       </div>
-      <div class="dr-ko-note">Each leg's distance is weighted by the team's modelled chance of reaching that round, so the <b>expected</b> figure reflects their likely run, not a guaranteed march to the final. Path follows the official bracket from current standings; venues fixed by FIFA; distances are round trips from the previous host city.</div>
+      <div class="dr-ko-note">Knockout legs are <b>one-way hops</b> between host cities (teams tour onward rather than returning to a base). <b>✓/✗ legs have been played</b>; <b>· legs are projected</b> on the current bracket and convert to actual as results come in. Group-stage total above uses round trips (camp→game→camp).</div>
     </div>`;
   }
 
@@ -2529,7 +2774,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "23 June 2026";
+const RESULTS_AS_OF = "24 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -2594,8 +2839,67 @@ const RESULTS = [
   {a:"France", b:"Iraq", ga:3, gb:0},
   {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
+  {a:"England", b:"Ghana", ga:0, gb:0},
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   // ── Other groups: add results here as matches are played ──
 ];
+
+// ─────────────────────────────────────────────────────────────────────────
+// KNOCKOUT RESULTS — add a line here as each knockout game is PLAYED.
+// Format mirrors the group results but also carries the match number `m`
+// (so it slots into the bracket) and the host city `venue` (so the map and
+// the knockout-travel tab know where the game was actually played).
+//
+//   {m:73, a:"TeamA", b:"TeamB", ga:2, gb:1, venue:"Los Angeles", d:"2026-06-28"}
+// Knockouts can't end level — if a game is drawn after extra time and decided on
+// penalties, record the 120-minute score and add `pso` with the shootout winner:
+//   {m:73, a:"TeamA", b:"TeamB", ga:1, gb:1, pso:"TeamB", venue:"...", d:"..."}
+//
+// PENALTY SHOOTOUTS: knockout games can't be drawn. If the score is level after
+// extra time and it's decided on penalties, record the level score AND add a
+// `pso` field naming the shootout winner, e.g.:
+//   {m:73, a:"Brazil", b:"Spain", ga:1, gb:1, pso:"Brazil", venue:"Dallas", d:"2026-06-28"}
+//
+// Knockouts begin 28 June, so this stays empty until then. Everything in the
+// Knockout Travel tab is "projected" until real results appear here, at which
+// point each played leg flips from projected to actual.
+// Match numbers: R32 = 73-88, R16 = 89-96, QF = 97-100, SF = 101-102,
+// 3rd-place = 103, Final = 104.
+// ─────────────────────────────────────────────────────────────────────────
+const KO_RESULTS = [
+  // (no knockout games played yet — add them here as they happen)
+];
+// Quick lookup: match number -> knockout result (or undefined)
+function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
+// Winner of a played knockout match (handles either team order), or null.
+// A level score must carry a `pso` (penalty-shootout winner); if it's missing we
+// warn and fall back to the home team so the bracket still advances someone.
+function koWinner(m){
+  const r=koResultByMatch(m);
+  if(!r)return null;
+  if(r.ga>r.gb)return r.a;
+  if(r.gb>r.ga)return r.b;
+  // level score → must be penalties
+  if(r.pso){
+    if(r.pso!==r.a && r.pso!==r.b){
+      console.warn("[KO] match "+m+": pso winner '"+r.pso+"' isn't one of the two teams");
+    }
+    return r.pso;
+  }
+  console.warn("[KO] match "+m+" is level ("+r.ga+"-"+r.gb+") but has no `pso` shootout winner — defaulting to home team "+r.a);
+  return r.a;
+}
+
+// One-way great-circle km between two host cities (knockouts are a continuous
+// tour — teams hop city-to-city rather than flying back to a base each time, so
+// these legs are ONE-WAY, unlike the group stage's camp→game→camp round trips).
+function venueOneWay(cityA,cityB){
+  const A=CITY_DATA[cityA],B=CITY_DATA[cityB];
+  if(!A||!B)return 0;
+  return hav(A.lat,A.lng,B.lat,B.lng);
+}
 
 // Disciplinary card totals per team, for the FIFA fair-play tiebreaker.
 //   y  = single yellow cards
@@ -3587,6 +3891,152 @@ function knockoutPath(team){
   return{qualified:true,path,extraKm,extraCo2,expKm,expCo2};
 }
 
+// ── KNOCKOUT TRAVEL (one-way tour model) ──────────────────────────────────
+// Builds a team's knockout journey as a sequence of ONE-WAY city hops, starting
+// from its last group-stage venue. Each leg is tagged "actual" (a real result
+// exists in KO_RESULTS) or "projected" (still to come / model-based). A team is
+// only included once it has reached the knockouts (currently slotted into R32).
+// `eliminated` flips true once the team has lost a played knockout match — its
+// projected onward legs are then dropped.
+// Returns:
+//   {inKO, legs:[{round,from,to,km,co2,actual,won}], actualKm, actualCo2,
+//    projKm, projCo2, eliminated, lastActualCity}
+function knockoutTravel(team){
+  const r32=teamR32Match(team);
+  if(!r32)return{inKO:false,legs:[],actualKm:0,actualCo2:0,projKm:0,projCo2:0,eliminated:false};
+  const td=allTeams.find(t=>t.team===team);
+  let prevCity=td&&td.legs.length?td.legs[td.legs.length-1].venue:td?.tc;
+
+  // Walk the bracket: which match this team plays each round, and where.
+  const steps=[];
+  steps.push({round:"R32",m:r32.m,venue:r32.venue});
+  const r16=_R16_OF[r32.m]; if(r16)steps.push({round:"R16",m:r16.m,venue:LATER_VENUE[r16.m]});
+  const qf=r16&&_QF_OF[r16.m]; if(qf)steps.push({round:"QF",m:qf.m,venue:LATER_VENUE[qf.m]});
+  const sf=qf&&_SF_OF[qf.m]; if(sf)steps.push({round:"SF",m:sf.m,venue:LATER_VENUE[sf.m]});
+  if(sf)steps.push({round:"Final",m:104,venue:LATER_VENUE.FINAL});
+
+  const legs=[];
+  let actualKm=0,actualCo2=0,projKm=0,projCo2=0,eliminated=false,lastActualCity=null;
+  for(const step of steps){
+    const km=venueOneWay(prevCity,step.venue);
+    const c=co2(km);
+    const res=koResultByMatch(step.m);
+    // A leg is "actual" only if this team actually played that match (its result
+    // exists AND the team is one of the two participants).
+    const playedHere = res && (res.a===team||res.b===team);
+    if(playedHere){
+      const won = koWinner(step.m)===team;
+      legs.push({round:step.round,from:prevCity,to:step.venue,km,co2:c,actual:true,won});
+      actualKm+=km; actualCo2+=c; lastActualCity=step.venue;
+      prevCity=step.venue;
+      if(!won){eliminated=true;break;}   // lost → tour ends here, no projected onward legs
+    }else{
+      // Projected leg — only show if the team hasn't already been eliminated.
+      legs.push({round:step.round,from:prevCity,to:step.venue,km,co2:c,actual:false,won:null});
+      projKm+=km; projCo2+=c;
+      prevCity=step.venue;
+    }
+  }
+  return{inKO:true,legs,actualKm,actualCo2,projKm,projCo2,eliminated,lastActualCity};
+}
+
+// Convenience: combined group + knockout totals for a team (actual where known).
+function fullTournamentTravel(team){
+  const td=allTeams.find(t=>t.team===team);
+  const groupKm=td?td.total:0, groupCo2=td?td.totalCo2:0;
+  const ko=knockoutTravel(team);
+  return{
+    groupKm, groupCo2,
+    koActualKm:ko.actualKm, koActualCo2:ko.actualCo2,
+    koProjKm:ko.projKm, koProjCo2:ko.projCo2,
+    totalActualKm:groupKm+ko.actualKm, totalActualCo2:groupCo2+ko.actualCo2,
+    totalWithProjKm:groupKm+ko.actualKm+ko.projKm,
+    totalWithProjCo2:groupCo2+ko.actualCo2+ko.projCo2,
+    inKO:ko.inKO, eliminated:ko.eliminated, legs:ko.legs
+  };
+}
+
+// ═══════════════════════ FAN TRAVEL (manual estimate) ═══════════════════════
+// A deliberately SEPARATE, clearly-labelled estimate of supporter travel — NOT
+// the precise team figures shown elsewhere. You enter the assumptions by hand.
+//
+// Model (agreed): each team's travelling fans make a ONE-WAY tour —
+//   home nation → group venue 1 → 2 → 3 → knockout venues (as the team plays /
+//   is projected to) — never returning to a base, and NO final flight home.
+// Distance per hop comes from the same one-way engine as the knockout tab; the
+// total is multiplied by the number of travelling fans. Emissions use the same
+// DESNZ flight factor as everything else (per-fan, so we don't apply the 45-pax
+// squad divisor — each fan is their own passenger).
+//
+// To add a team: one line below with the team name, an estimated number of
+// travelling fans, and the fans' home city + coordinates (for the inbound leg).
+// Teams with no entry simply don't appear, so you can fill these in gradually.
+// Figures are order-of-magnitude estimates — document your sources as you go.
+const FAN_DATA = [
+  // {team:"Mexico",        fans:35000, home:"Mexico City",    lat:19.4326, lng:-99.1332},
+  // {team:"United States", fans:50000, home:"Washington DC",  lat:38.9072, lng:-77.0369},
+  // {team:"Argentina",     fans:25000, home:"Buenos Aires",   lat:-34.6037,lng:-58.3816},
+  // {team:"England",       fans:20000, home:"London",         lat:51.5074, lng:-0.1278},
+  // {team:"Brazil",        fans:22000, home:"Brasília",       lat:-15.7939,lng:-47.8828},
+  // {team:"Germany",       fans:18000, home:"Berlin",         lat:52.5200, lng:13.4050},
+];
+function fanDataFor(team){return FAN_DATA.find(f=>f.team===team);}
+
+// Per-fan one-way great-circle km between an arbitrary origin (lat/lng) and a host city.
+function fanHopFromCoord(lat,lng,city){
+  const B=CITY_DATA[city];
+  if(B==null||lat==null||lng==null)return 0;
+  return hav(lat,lng,B.lat,B.lng);
+}
+
+// Build a team's fan journey: home → each group venue → each knockout venue,
+// one-way. Returns per-fan distance, the leg list, and the scaled totals.
+function fanTravel(team){
+  const fd=fanDataFor(team);
+  if(!fd)return{has:false};
+  const td=allTeams.find(t=>t.team===team);
+  if(!td)return{has:false};
+
+  const legs=[];
+  let perFanKm=0;
+  // 1) inbound: home nation → first group venue
+  const groupVenues=(td.legs||[]).map(l=>l.venue);
+  let prevCity=null;
+  if(groupVenues.length){
+    const km=fanHopFromCoord(fd.lat,fd.lng,groupVenues[0]);
+    legs.push({kind:"inbound",from:fd.home,to:groupVenues[0],km,actual:true});
+    perFanKm+=km; prevCity=groupVenues[0];
+  }
+  // 2) between group venues (one-way hops)
+  for(let i=1;i<groupVenues.length;i++){
+    const km=venueOneWay(prevCity,groupVenues[i]);
+    legs.push({kind:"group",from:prevCity,to:groupVenues[i],km,actual:true});
+    perFanKm+=km; prevCity=groupVenues[i];
+  }
+  // 3) knockout venues — reuse the team's knockout leg path (actual + projected)
+  const ko=knockoutTravel(team);
+  if(ko.inKO){
+    for(const kl of ko.legs){
+      // kl.from may equal prevCity already; use venueOneWay from our running city
+      const fromCity=prevCity||kl.from;
+      const km=venueOneWay(fromCity,kl.to);
+      legs.push({kind:"knockout",round:kl.round,from:fromCity,to:kl.to,km,actual:kl.actual,won:kl.won});
+      perFanKm+=km; prevCity=kl.to;
+      if(kl.actual&&kl.won===false)break; // team (and following fans) eliminated
+    }
+  }
+
+  const fans=fd.fans||0;
+  const totalKm=perFanKm*fans;
+  // Per-fan emissions: each fan is ONE passenger, so use the per-passenger-km
+  // factor EF directly (NOT CO2_KG_KM, which bakes in the 45-person squad size).
+  const perFanCo2=Math.round(perFanKm*EF);
+  const totalCo2=perFanCo2*fans;
+  return{has:true, fans, home:fd.home, perFanKm, totalKm, perFanCo2, totalCo2, legs,
+         eliminated:ko.eliminated, inKO:ko.inKO};
+}
+
+
 // Simulate one full group to a final ranked table (returns sorted team names + the standings objects)
 function simGroupOnce(grp, resultsArr){
   resultsArr = resultsArr || RESULTS;
@@ -3698,6 +4148,245 @@ function championBaseline(iters){
   if(_champBaseline)return _champBaseline;
   _champBaseline=championProbabilities(iters||3000, []); // empty results = pre-tournament
   return _champBaseline;
+}
+
+// ─────── KNOCKOUT TRAVEL TAB ───────
+// One card per team currently in the knockouts. Each shows the team's journey as
+// one-way hops: legs already flown (solid) and projected onward legs (dashed),
+// with per-leg and total distance + emissions. Eliminated teams show only what
+// they actually flew. Updates automatically as KO_RESULTS entries are added.
+let _koSort="dist", _koFilter="all";
+function buildKnockoutTravelPanel(){
+  const wrap=document.getElementById("kotravelWrap");
+  if(!wrap)return;
+  wrap.innerHTML="";
+
+  // Teams currently in the knockouts (slotted into R32 on the live bracket).
+  let koTeams=allTeams
+    .map(t=>({team:t.team, color:t.color, group:t.group, kt:knockoutTravel(t.team)}))
+    .filter(x=>x.kt.inKO);
+
+  if(!koTeams.length){
+    wrap.innerHTML=`<div style="grid-column:1/-1;padding:26px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6">
+      <div style="font-size:30px;margin-bottom:8px">🛫</div>
+      No teams are in the knockout stage yet.<br>
+      Once the group stage resolves, each qualifier's projected knockout journey will appear here —
+      then convert to actual travel as the Round-of-32 games (28 June onward) are played.
+    </div>`;
+    return;
+  }
+
+  const ROUND_LBL={R32:"Round of 32",R16:"Round of 16",QF:"Quarter-final",SF:"Semi-final",Final:"Final"};
+  const ROUND_SHORT={R32:"R32",R16:"R16",QF:"QF",SF:"SF",Final:"F"};
+  const ROUND_SEQ=["R32","R16","QF","SF","Final"];
+
+  // Whole-field totals.
+  let totActualKm=0,totActualCo2=0,totProjKm=0,totProjCo2=0,stillIn=0,elimd=0;
+  koTeams.forEach(x=>{
+    totActualKm+=x.kt.actualKm;totActualCo2+=x.kt.actualCo2;
+    totProjKm+=x.kt.projKm;totProjCo2+=x.kt.projCo2;
+    if(x.kt.eliminated)elimd++; else stillIn++;
+  });
+  const anyActual=totActualKm>0;
+  // Furthest-travelling team (by total KO distance) — the headline insight.
+  const furthest=koTeams.slice().sort((a,b)=>(b.kt.actualKm+b.kt.projKm)-(a.kt.actualKm+a.kt.projKm))[0];
+
+  const pills=document.getElementById("kotravelPills");
+  if(pills)pills.innerHTML=[
+    {v:koTeams.length+"",l:"In knockouts"},
+    ...(anyActual?[{v:stillIn+"",l:"Still in"}]:[]),
+    {v:anyActual?Math.round(totActualKm).toLocaleString()+" km":"—",l:"Flown so far"},
+    {v:furthest?furthest.team:"—",l:"Furthest path"},
+  ].map(s=>`<div class="spill"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
+
+  // ── Controls: filter + sort (only worth showing once games are played) ──
+  const controls=document.createElement("div");
+  controls.className="kotravel-controls";
+  controls.innerHTML=`
+    <div class="kotravel-filter">
+      ${anyActual?`<button data-f="all" class="${_koFilter==='all'?'on':''}">All (${koTeams.length})</button>
+      <button data-f="in" class="${_koFilter==='in'?'on':''}">Still in (${stillIn})</button>
+      <button data-f="out" class="${_koFilter==='out'?'on':''}">Eliminated (${elimd})</button>`:''}
+    </div>
+    <div class="kotravel-sort">
+      <span class="kotravel-sort-lbl">Sort</span>
+      <button data-s="dist" class="${_koSort==='dist'?'on':''}">Distance</button>
+      <button data-s="round" class="${_koSort==='round'?'on':''}">Round reached</button>
+      <button data-s="name" class="${_koSort==='name'?'on':''}">Name</button>
+    </div>`;
+  wrap.appendChild(controls);
+  controls.querySelectorAll(".kotravel-filter button").forEach(b=>b.onclick=()=>{_koFilter=b.dataset.f;buildKnockoutTravelPanel();});
+  controls.querySelectorAll(".kotravel-sort button").forEach(b=>b.onclick=()=>{_koSort=b.dataset.s;buildKnockoutTravelPanel();});
+
+  // Apply filter
+  if(_koFilter==="in")koTeams=koTeams.filter(x=>!x.kt.eliminated);
+  else if(_koFilter==="out")koTeams=koTeams.filter(x=>x.kt.eliminated);
+
+  // How far a team has actually progressed (index into ROUND_SEQ of last actual leg).
+  const reachedIdx=kt=>{let i=-1;kt.legs.forEach(l=>{if(l.actual)i=Math.max(i,ROUND_SEQ.indexOf(l.round));});return i;};
+
+  // Apply sort
+  koTeams.sort((a,b)=>{
+    if(_koSort==="name")return a.team.localeCompare(b.team);
+    if(_koSort==="round"){const d=reachedIdx(b.kt)-reachedIdx(a.kt);if(d)return d;}
+    return (b.kt.actualKm+b.kt.projKm)-(a.kt.actualKm+a.kt.projKm);
+  });
+
+  // Card grid container (so controls sit above the grid)
+  const grid=document.createElement("div");
+  grid.className="kotravel-grid";
+  wrap.appendChild(grid);
+
+  koTeams.forEach(({team,color,group,kt})=>{
+    const td=allTeams.find(t=>t.team===team);
+    const legRows=kt.legs.map(l=>{
+      const cls=l.actual?"kol-actual":"kol-proj";
+      const statusIcon=l.actual?(l.won===false?"✗":"✓"):"·";
+      const statusTitle=l.actual?(l.won===false?"Played — lost (eliminated)":"Played — won"):"Projected";
+      return `<div class="kol-row ${cls}" title="${statusTitle}">
+        <span class="kol-round">${ROUND_LBL[l.round]||l.round}</span>
+        <span class="kol-path"><span class="kol-status">${statusIcon}</span>${l.from} → <b>${l.to}</b></span>
+        <span class="kol-km">${Math.round(l.km).toLocaleString()}<span class="gu-unit">km</span></span>
+        <span class="kol-co2">${fco2(l.co2)}</span>
+      </div>`;
+    }).join("");
+
+    const koTotalKm=kt.actualKm+kt.projKm, koTotalCo2=kt.actualCo2+kt.projCo2;
+    // Group-stage travel already accumulated by this team (round trips camp↔venue).
+    const groupKm=td?td.total:0, groupCo2=td?td.totalCo2:0;
+    // Full-tournament total = group stage + knockout (actual + projected).
+    const grandKm=groupKm+koTotalKm, grandCo2=groupCo2+koTotalCo2;
+    const statusBadge = kt.eliminated
+      ? `<span class="grp-badge" style="background:rgba(248,113,113,.18);color:#f87171">Eliminated</span>`
+      : kt.actualKm>0
+      ? `<span class="grp-badge" style="background:rgba(74,222,128,.18);color:var(--leaf)">Still in</span>`
+      : `<span class="grp-badge">Projected</span>`;
+
+    // Round-progress dots: one per round, filled green (won), red (lost), or faint (projected).
+    const rIdx=reachedIdx(kt);
+    const dots=ROUND_SEQ.map((r,i)=>{
+      const leg=kt.legs.find(l=>l.round===r);
+      let st="proj";
+      if(leg&&leg.actual)st=leg.won===false?"lost":"won";
+      return `<span class="kol-dot ${st}" title="${ROUND_LBL[r]}">${ROUND_SHORT[r]}</span>`;
+    }).join("");
+
+    const flownStr = kt.actualKm>0 ? `Flown ${Math.round(kt.actualKm).toLocaleString()} km · ${fco2(kt.actualCo2)}` : "";
+    const projStr = kt.projKm>0 ? `Projected +${Math.round(kt.projKm).toLocaleString()} km · ${fco2(kt.projCo2)}` : "";
+    const footer = [flownStr,projStr].filter(Boolean).join("  ·  ") || "Path projected on current bracket";
+
+    const card=document.createElement("div");
+    card.className="grp-card kotravel-card";
+    card.innerHTML=`
+      <div class="grp-card-head">
+        <span class="grp-name" style="font-size:13px;display:flex;align-items:center;gap:6px"><span class="gu-sw" style="background:${color}"></span>${td?flagOf(team):""} ${team} <span style="font-size:9px;color:var(--dim)">${group}</span></span>
+        ${statusBadge}
+      </div>
+      <div class="kol-progress">${dots}</div>
+      <div class="kol-headline">
+        <span class="kol-headline-v">${Math.round(koTotalKm).toLocaleString()}<span class="kol-headline-u">km</span></span>
+        <span class="kol-headline-c">${fco2(koTotalCo2)}</span>
+        <span class="kol-headline-l">${kt.eliminated?"flown (eliminated)":kt.actualKm>0?"flown + projected":"projected path"}</span>
+      </div>
+      <div class="kol-head">
+        <span class="kol-round">Round</span>
+        <span class="kol-path">Journey (one-way hop)</span>
+        <span class="kol-km">km</span>
+        <span class="kol-co2">tCO₂e</span>
+      </div>
+      ${legRows}
+      <div class="kol-grandtotal">
+        <div class="kol-gt-row"><span class="kol-gt-l">Group stage <span class="kol-gt-sub">(round trips)</span></span><span class="kol-gt-v">${Math.round(groupKm).toLocaleString()} km · ${fco2(groupCo2)}</span></div>
+        <div class="kol-gt-row"><span class="kol-gt-l">Knockouts <span class="kol-gt-sub">(${kt.eliminated?"flown":kt.actualKm>0?"flown + proj.":"projected"})</span></span><span class="kol-gt-v">${Math.round(koTotalKm).toLocaleString()} km · ${fco2(koTotalCo2)}</span></div>
+        <div class="kol-gt-row kol-gt-grand"><span class="kol-gt-l">Full tournament</span><span class="kol-gt-v">${Math.round(grandKm).toLocaleString()} km · ${fco2(grandCo2)}</span></div>
+      </div>
+      <div class="grp-stand-status">${footer}</div>`;
+    card.querySelector(".grp-name").style.cursor="pointer";
+    card.querySelector(".grp-name").onclick=()=>gotoTeamOnMap(team);
+    grid.appendChild(card);
+  });
+}
+
+// ─────── FAN TRAVEL TAB (manual estimate) ───────
+function buildFanTravelPanel(){
+  const wrap=document.getElementById("fantravelWrap");
+  if(!wrap)return;
+  wrap.innerHTML="";
+
+  const fanTeams=allTeams
+    .map(t=>({team:t.team,color:t.color,group:t.group,ft:fanTravel(t.team)}))
+    .filter(x=>x.ft.has);
+
+  if(!fanTeams.length){
+    wrap.innerHTML=`<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7;max-width:620px;margin:0 auto">
+      <div style="font-size:32px;margin-bottom:10px">🧳</div>
+      <b>No fan data entered yet.</b><br>
+      This tab estimates <b>supporter</b> travel — separate from the precise team figures. It's driven by assumptions you set by hand, so it starts empty.<br><br>
+      To populate it, edit the <code>FAN_DATA</code> block near the top of the file: add one line per team with an estimated number of travelling fans and their home city's coordinates. Each team then shows a one-way fan journey (home → venues) scaled by that fan count.<br><br>
+      <span style="font-size:11px;color:var(--dim)">Fan figures are order-of-magnitude estimates — document your sources (past-tournament ticket allocations, federation travel data) as you fill them in.</span>
+    </div>`;
+    const pills=document.getElementById("fantravelPills");if(pills)pills.innerHTML="";
+    return;
+  }
+
+  // Totals
+  let totKm=0,totCo2=0,totFans=0;
+  fanTeams.forEach(x=>{totKm+=x.ft.totalKm;totCo2+=x.ft.totalCo2;totFans+=x.ft.fans;});
+
+  const pills=document.getElementById("fantravelPills");
+  if(pills)pills.innerHTML=[
+    {v:fanTeams.length+"",l:"Teams with fan data"},
+    {v:totFans.toLocaleString(),l:"Travelling fans"},
+    {v:Math.round(totKm).toLocaleString()+" km",l:"Total fan km"},
+    {v:fco2(totCo2),l:"Total fan tCO₂e"},
+  ].map(s=>`<div class="spill"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
+
+  // Sort by total fan emissions (the headline) descending
+  fanTeams.sort((a,b)=>b.ft.totalCo2-a.ft.totalCo2);
+
+  const KIND_LBL={inbound:"Home → 1st venue",group:"Group hop",knockout:"Knockout hop"};
+
+  fanTeams.forEach(({team,color,group,ft})=>{
+    const td=allTeams.find(t=>t.team===team);
+    const legRows=ft.legs.map(l=>{
+      const tag=l.kind==="inbound"?`<span class="fan-leg-tag inbound">inbound</span>`
+        :l.kind==="knockout"?`<span class="fan-leg-tag ko">${l.round}${l.actual?"":" (proj)"}</span>`
+        :`<span class="fan-leg-tag">group</span>`;
+      return `<div class="kol-row">
+        <span class="kol-round">${tag}</span>
+        <span class="kol-path">${l.from} → <b>${l.to}</b></span>
+        <span class="kol-km">${Math.round(l.km).toLocaleString()}<span class="gu-unit">km</span></span>
+      </div>`;
+    }).join("");
+
+    const card=document.createElement("div");
+    card.className="grp-card kotravel-card";
+    card.innerHTML=`
+      <div class="grp-card-head">
+        <span class="grp-name" style="font-size:13px;display:flex;align-items:center;gap:6px"><span class="gu-sw" style="background:${color}"></span>${td?flagOf(team):""} ${team} <span style="font-size:9px;color:var(--dim)">${group}</span></span>
+        <span class="grp-badge" style="background:rgba(240,180,41,.16);color:var(--accent)">${ft.fans.toLocaleString()} fans</span>
+      </div>
+      <div class="kol-headline">
+        <span class="kol-headline-v">${Math.round(ft.totalKm).toLocaleString()}<span class="kol-headline-u">km</span></span>
+        <span class="kol-headline-c">${fco2(ft.totalCo2)}</span>
+        <span class="kol-headline-l">${ft.fans.toLocaleString()} fans × ${Math.round(ft.perFanKm).toLocaleString()} km each</span>
+      </div>
+      <div class="fan-from">From <b>${ft.home}</b> · one-way tour following the team${ft.eliminated?" (until elimination)":""}</div>
+      <div class="kol-head">
+        <span class="kol-round">Leg</span>
+        <span class="kol-path">Journey (per fan, one-way)</span>
+        <span class="kol-km">km</span>
+      </div>
+      ${legRows}
+      <div class="kol-grandtotal">
+        <div class="kol-gt-row"><span class="kol-gt-l">Per fan</span><span class="kol-gt-v">${Math.round(ft.perFanKm).toLocaleString()} km · ${(ft.perFanCo2/1000).toFixed(2)} tCO₂e</span></div>
+        <div class="kol-gt-row kol-gt-grand"><span class="kol-gt-l">All ${ft.fans.toLocaleString()} fans</span><span class="kol-gt-v">${Math.round(ft.totalKm).toLocaleString()} km · ${fco2(ft.totalCo2)}</span></div>
+      </div>
+      <div class="grp-stand-status">Estimate — fans assumed to follow the team one-way from home, no return flight counted.</div>`;
+    card.querySelector(".grp-name").style.cursor="pointer";
+    card.querySelector(".grp-name").onclick=()=>gotoTeamOnMap(team);
+    wrap.appendChild(card);
+  });
 }
 
 function buildBracket(){
@@ -4439,11 +5128,6 @@ function buildCompare(){
     </div>
   </div>`;
 
-  const noteHTML=`<div class="cmp-note">
-    <strong style="color:var(--accent)">📌 The scale of the difference.</strong>
-    Qatar 2022's entire 32-team group stage produced about <strong style="color:#4ade80">${totalCo2.toFixed(1)} tonnes</strong> of CO₂e from team travel — everyone moved by coach within a 50 km radius of Doha. WC 2026's group stage produces roughly <strong style="color:#f87171">${wc26Co2.toFixed(0)} tonnes</strong> — around <strong>${co2Mult}× more</strong>. That comes from two compounding effects: teams travel about <strong>${kmMult}× further</strong>, and flying emits roughly 5× more CO₂e per passenger-km than a coach. Bus emission factor: 0.02776 kgCO₂e per passenger-km (UK DESNZ coach); flight factor: 0.14253 (international, with radiative forcing).
-  </div>`;
-
   // ── Comparison bars: WC 2026 fills the track; Qatar shown to true scale.
   //    Labels and values sit ABOVE each bar so they're readable at any width. ──
   const kmPctQ=Math.max(totalKm/wc26Km*100,0.6);
@@ -4451,6 +5135,7 @@ function buildCompare(){
   const barsHTML=`<div class="cmp-bars">
     <div class="cmp-bars-title">📊 Seeing the gap to scale</div>
     <div class="cmp-bars-sub">Both tournaments' group stages, drawn to the same scale. The Qatar bar is tiny on purpose — that's the point.</div>
+    <div class="cmp-barblocks">
     <div class="cmp-barblock">
       <div class="cmp-barblock-h">
         <span class="cmp-barblock-t">✈ Total team travel</span>
@@ -4479,6 +5164,7 @@ function buildCompare(){
         <div class="cmp-bartrack"><div class="cmp-barfill wc26" data-w="100"></div></div>
       </div>
     </div>
+    </div>
   </div>`;
 
   // ── Scale metaphor: translate the extra CO₂ into something tangible ──
@@ -4495,7 +5181,9 @@ function buildCompare(){
     </span>
   </div>`;
 
-  wrap.innerHTML = heroHTML + barsHTML + metaphorHTML + noteHTML + mapHTML;
+  wrap.innerHTML = heroHTML
+    + `<div class="cmp-split"><div class="cmp-split-l">${barsHTML}</div><div class="cmp-split-r">${metaphorHTML}</div></div>`
+    + mapHTML;
 
   // Animate the count-up multipliers and grow the bars once laid out.
   animateCompare(kmMult, co2Mult);
@@ -4609,7 +5297,7 @@ function buildFairness(){
 
 
 /* ═══════════════ TABS ═══════════════ */
-let _builtStandings=false,_builtTravel=false;
+let _builtStandings=false,_builtTravel=false,_builtKoTravel=false,_builtFanTravel=false;
 // Placeholder shown while the prediction simulations run on first tab open.
 function shimmerHTML(){
   let cards="";
@@ -4640,7 +5328,7 @@ function switchTab(tabName){
   if(panel)panel.classList.add("on");
   // Document mode for table-heavy tabs: let the page grow/scroll so zooming keeps
   // tables full-size. Other tabs (map especially) use the fixed-height layout.
-  const docTabs=["standings","fixtures","travel","fairness"];
+  const docTabs=["standings","fixtures","travel","fairness","kotravel","fantravel"];
   if(docTabs.includes(tabName)){
     document.documentElement.classList.add("docmode");
   }else{
@@ -4663,6 +5351,8 @@ function switchTab(tabName){
   if(tabName==="fixtures"){buildFixturesPanel();startFixturesLiveTimer();}
   if(tabName==="travel"){_rafBuild("travelWrap",buildTravelPanel,_builtTravel);_builtTravel=true;}
   if(tabName==="bracket")buildBracket();
+  if(tabName==="kotravel"){_rafBuild("kotravelWrap",buildKnockoutTravelPanel,_builtKoTravel);_builtKoTravel=true;}
+  if(tabName==="fantravel"){_rafBuild("fantravelWrap",buildFanTravelPanel,_builtFanTravel);_builtFanTravel=true;}
   if(tabName==="compare")buildCompare();
   if(tabName==="fairness")buildFairness();
   // Returning to the map: the container may have been resized while hidden — the
