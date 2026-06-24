@@ -424,6 +424,9 @@ body.light .gu-head{background:rgba(0,0,0,.06)}
 .gu-status{flex-shrink:0;font-size:7.5px;font-weight:800;letter-spacing:.4px;padding:1.5px 5px;border-radius:4px;white-space:nowrap}
 .gu-status.qual{background:var(--leaf);color:#06281a}
 .gu-status.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.gu-status.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
+.gu-status.projthird{background:rgba(240,180,41,.16);color:var(--accent);border:1px solid rgba(240,180,41,.4)}
+.gu-row.row-projthird{background:rgba(240,180,41,.07)}
 .gu-row.row-clinched{background:rgba(74,222,128,.12)}
 .gu-row.row-elim{opacity:.62}
 .gu-row.row-elim .gu-tname{text-decoration:line-through;text-decoration-color:rgba(248,113,113,.5)}
@@ -727,6 +730,10 @@ body.light .bracket-slot.q2{background:rgba(37,99,235,.05)}
 .bs-badge{flex-shrink:0;font-size:7px;font-weight:800;letter-spacing:.3px;padding:1.5px 4px;border-radius:4px;white-space:nowrap;margin-left:auto}
 .bs-badge.qual{background:var(--leaf);color:#06281a}
 .bs-badge.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
+.bs-badge.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
+.bs-badge.projthird{background:rgba(240,180,41,.16);color:var(--accent);border:1px solid rgba(240,180,41,.4)}
+.badge-sub{font-size:.82em;opacity:.85;font-weight:700}
+.bracket-slot.row-projthird{background:rgba(240,180,41,.08)}
 .bracket-slot.row-clinched{background:rgba(74,222,128,.12)}
 .bracket-slot.row-elim{opacity:.62}
 .bracket-slot.row-elim .bs-tname{text-decoration:line-through;text-decoration-color:rgba(248,113,113,.5)}
@@ -3329,10 +3336,23 @@ function buildStandingsPanel(){
         `Q% ${basePct}% → ${nowPct}% · ${dPct>=0?"+":""}${dPct} pts (${dRel===null?"n/a":(dRel>=0?"+":"")+dRel+"%"} relative) since the tournament started`;
       const safeTeam=s.team.replace(/'/g,"\\'");
       const cl=clinch[s.team]||{};
-      const badge = cl.clinched ? `<span class="gu-status qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`
-        : cl.eliminated ? `<span class="gu-status elim" title="Cannot finish in the top 3, so cannot qualify (neither automatically nor as a best third-placed team)">✗ OUT</span>`
-        : "";
-      return `<div class="gu-s gu-row ${qualCls} ${cl.clinched?'row-clinched':''} ${cl.eliminated?'row-elim':''} ${_justPlayed.has(s.team)?'just-played':''}" data-team="${s.team}" onclick="gotoTeamOnMap('${safeTeam}')">
+      const qs=teamQualStatus(s.team);
+      let badge="", rowCls="";
+      if(qs.state==="qualified"){
+        badge=qs.asThird
+          ? `<span class="gu-status qual" title="Through to the knockouts as one of the 8 best third-placed teams">✓ QUALIFIED <span class="badge-sub">3rd</span></span>`
+          : `<span class="gu-status qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
+        rowCls="row-clinched";
+      } else if(qs.state==="out"){
+        badge=`<span class="gu-status elim" title="Cannot qualify — neither in the top 2 nor among the 8 best third-placed teams">✗ OUT</span>`;
+        rowCls="row-elim";
+      } else if(qs.state==="projThird"){
+        badge=`<span class="gu-status projthird" title="Currently 3rd and inside the 8 best third-placed teams — projected to qualify, but not yet confirmed">~ PROJ. (3rd)</span>`;
+        rowCls="row-projthird";
+      } else if(qs.state==="projQual"){
+        badge=`<span class="gu-status projqual" title="Currently in the top 2 — on course to qualify, but not yet mathematically confirmed">~ PROJ.</span>`;
+      }
+      return `<div class="gu-s gu-row ${qualCls} ${rowCls} ${_justPlayed.has(s.team)?'just-played':''}" data-team="${s.team}" onclick="gotoTeamOnMap('${safeTeam}')">
         <span class="gu-pos">${idx+1}</span>
         <span class="gu-team"><span class="gu-sw" style="background:${td?td.color:'#888'}"></span>${td?flagOf(s.team):""} <span class="gu-tname">${s.team}</span>${badge}</span>
         <span class="gu-pld">${s.pld}</span>
@@ -3804,6 +3824,60 @@ function thirdSlotAssignment(){
   }
   _thirdAssignCache=assign; _thirdAssignKey=key;
   return assign;
+}
+
+// ── Unified qualification status for a team ────────────────────────────────
+// Combines the per-group clinch (top-2 guaranteed / eliminated) with the CROSS-
+// group third-place picture, so we can correctly label every team that's through
+// — including teams qualifying as one of the 8 best third-placed sides, which a
+// single-group check can't see. Returns:
+//   state: "qualified" | "out" | "projQual" | "projThird" | "contention"
+//   pos:   current finishing position in their group (1..4)
+//   asThird: true if their route through is via the best-thirds, not top-2
+// "qualified"  = mathematically through (top-2 clinched, OR already-decided group
+//                and currently a qualifying third).
+// "out"        = cannot finish top-3, or finishes 3rd but outside the best 8.
+// "projQual"   = currently top-2 but not yet mathematically locked.
+// "projThird"  = currently 3rd AND currently inside the best-8 thirds (projected
+//                to qualify as a third-placed team), not yet locked.
+// "contention" = still alive but neither qualifying nor out on current standings.
+let _qualStatusCache=null,_qualStatusKey="";
+function teamQualStatus(team){
+  const key=RESULTS.length+":"+resultsSeed(RESULTS);
+  if(_qualStatusCache && _qualStatusKey===key) return _qualStatusCache[team]||{state:"contention",pos:null,asThird:false};
+  // Build for all teams once (cheap relative to the clinch brute force per group).
+  const out={};
+  const qualifyingThirdTeams=new Set(bestThirdPlace().map(t=>t.team)); // current best-8 thirds
+  Object.entries(GROUPS).forEach(([g,teams])=>{
+    const clinch=groupClinchStatus(teams);
+    const standings=groupStandings(teams);
+    const groupDone=groupMatchesPlayed(teams)>=6;
+    standings.forEach((s,idx)=>{
+      const t=s.team, cl=clinch[t]||{};
+      const pos=idx+1;
+      let state, asThird=false;
+      if(cl.clinched){
+        state="qualified";                                  // top-2 guaranteed
+      } else if(cl.eliminated){
+        state="out";                                        // can't reach top-3 at all
+      } else if(groupDone){
+        // Group finished: position is final. 1st/2nd through; 3rd through iff best-8.
+        if(pos<=2){state="qualified";}
+        else if(pos===3){
+          if(qualifyingThirdTeams.has(t)){state="qualified";asThird=true;}
+          else{state="out";}                                // 3rd but outside best-8
+        } else {state="out";}
+      } else {
+        // Group still live, not yet clinched/eliminated:
+        if(pos<=2){state="projQual";}                       // currently top-2, not locked
+        else if(pos===3 && qualifyingThirdTeams.has(t)){state="projThird";asThird=true;}
+        else {state="contention";}
+      }
+      out[t]={state,pos,asThird};
+    });
+  });
+  _qualStatusCache=out; _qualStatusKey=key;
+  return out[team]||{state:"contention",pos:null,asThird:false};
 }
 
 function resolveSlot(slot){
@@ -4601,12 +4675,23 @@ function buildBracket(){
       const qualCls=i<2?"q"+(i+1):i===2?"q3":"";
       const srcTag=i===0?"1"+grp:i===1?"2"+grp:i===2?"3"+grp:"";
       const cl=clinch[s.team]||{};
-      const badge = cl.clinched
-        ? `<span class="bs-badge qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`
-        : cl.eliminated
-        ? `<span class="bs-badge elim" title="Cannot finish in the top 3, so cannot qualify">✗ OUT</span>`
-        : "";
-      return `<div class="bracket-slot ${qualCls} ${cl.clinched?'row-clinched':''} ${cl.eliminated?'row-elim':''}" onclick="openDrawer('${s.team.replace(/'/g,"\\'")}')">
+      const qs=teamQualStatus(s.team);
+      let badge="", rowCls="";
+      if(qs.state==="qualified"){
+        badge=qs.asThird
+          ? `<span class="bs-badge qual" title="Through as one of the 8 best third-placed teams">✓ QUAL <span class="badge-sub">3rd</span></span>`
+          : `<span class="bs-badge qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
+        rowCls="row-clinched";
+      } else if(qs.state==="out"){
+        badge=`<span class="bs-badge elim" title="Cannot qualify — neither top-2 nor among the 8 best thirds">✗ OUT</span>`;
+        rowCls="row-elim";
+      } else if(qs.state==="projThird"){
+        badge=`<span class="bs-badge projthird" title="Currently 3rd and inside the best 8 thirds — projected to qualify, not yet confirmed">~ PROJ. 3rd</span>`;
+        rowCls="row-projthird";
+      } else if(qs.state==="projQual"){
+        badge=`<span class="bs-badge projqual" title="Currently top-2 — on course to qualify, not yet confirmed">~ PROJ.</span>`;
+      }
+      return `<div class="bracket-slot ${qualCls} ${rowCls}" onclick="openDrawer('${s.team.replace(/'/g,"\\'")}')">
         <span class="bs-pos ${i===0?"p1":i===1?"p2":"p3"}">${srcTag||i+1}</span>
         <span class="bs-team"><span class="bs-sw" style="background:${td?td.color:"#888"}"></span>${td?flagOf(s.team):""} <span class="bs-tname">${s.team}</span>${badge}</span>
         <span class="bs-pts">${s.pts}pts${s.pld>0?" "+(s.gd>=0?"+":"")+s.gd:""}</span>
