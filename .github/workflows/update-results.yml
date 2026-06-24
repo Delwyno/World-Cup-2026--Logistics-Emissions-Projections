@@ -1,0 +1,56 @@
+name: Update World Cup results
+
+# WHAT THIS DOES
+#   Runs update_results.py on a schedule. If index.html changed (new completed
+#   results), it commits the change back to the repo. GitHub Pages then
+#   redeploys automatically, so the live site updates with no manual work.
+#
+#   It only ever touches completed group results (the script enforces that and
+#   has a guard that refuses to shrink the data). Knockouts stay manual.
+
+on:
+  schedule:
+    # Runs at minutes past every 3rd hour (UTC). GitHub cron is best-effort and
+    # may be delayed by a few minutes under load — fine for completed results.
+    # Cron is UTC. WC matches run across US/Can/Mex evenings, so this spread
+    # catches finished games a few hours after they end.
+    - cron: "20 */3 * * *"
+  # Lets you trigger it by hand from the Actions tab too (handy for testing).
+  workflow_dispatch:
+
+# The job needs permission to push the commit back to the repo.
+permissions:
+  contents: write
+
+# Avoid overlapping runs if one is slow.
+concurrency:
+  group: update-results
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run updater
+        run: python update_results.py
+
+      - name: Commit if changed
+        run: |
+          if [[ -n "$(git status --porcelain index.html)" ]]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add index.html
+            git commit -m "Auto-update results ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git push
+            echo "Committed updated results."
+          else
+            echo "No changes to commit."
+          fi
