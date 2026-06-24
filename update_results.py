@@ -56,6 +56,7 @@ NAME_MAP = {
     "democratic republic of the congo": "Congo DR",
     "usa": "United States",
     "united states": "United States",
+    "czech republic": "Czechia",
     "iran": "Iran",
     "ir iran": "Iran",
     "bosnia and herzegovina": "Bosnia and Herzegovina",
