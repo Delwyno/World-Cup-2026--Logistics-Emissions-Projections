@@ -113,12 +113,16 @@ def extract_matches(payload):
     Return a list of completed group matches as dicts:
         {"a": <canonical>, "b": <canonical>, "ga": int, "gb": int}
 
-    The API shape isn't documented here, so this is defensive: it walks the
-    payload, finds list(s) of match-like objects, and reads fields by trying
-    several common key names. On your FIRST test run, if something looks off,
-    print `payload` and adjust the key names below to match reality.
+    Tuned to the worldcup26.ir response shape, e.g.:
+        {
+          "id":"6", "home_score":"2", "away_score":"0",
+          "group":"D", "matchday":"1", "type":"group",
+          "finished":"TRUE", "time_elapsed":"finished",
+          "home_team_name_en":"Australia", "away_team_name_en":"Turkey", ...
+        }
+    Scores arrive as strings; finished is the string "TRUE".
     """
-    # Find the list of matches inside whatever wrapper the API uses.
+    # The matches live under "games"; stay defensive about the wrapper anyway.
     candidates = []
     if isinstance(payload, list):
         candidates = payload
@@ -129,7 +133,6 @@ def extract_matches(payload):
                 candidates = v
                 break
         else:
-            # fall back: first list value found
             for v in payload.values():
                 if isinstance(v, list):
                     candidates = v
@@ -141,11 +144,13 @@ def extract_matches(payload):
                 return d[k]
         return None
 
-    def team_name(val):
-        # team field might be a string or a nested object
-        if isinstance(val, dict):
-            return first(val, "name", "team", "title", "en", "short")
-        return val
+    def is_finished(m):
+        # primary: finished == "TRUE"; backup: time_elapsed == "finished"
+        fin = str(first(m, "finished") or "").strip().lower()
+        if fin in ("true", "1", "yes"):
+            return True
+        te = str(first(m, "time_elapsed", "status", "state") or "").strip().lower()
+        return te in ("finished", "ft", "full-time", "ended", "complete")
 
     out = []
     unmapped = set()
@@ -153,28 +158,23 @@ def extract_matches(payload):
         if not isinstance(m, dict):
             continue
 
-        status = str(first(m, "status", "state", "phase", "time") or "").lower()
-        # treat as completed only if clearly finished
-        finished = any(s in status for s in
-                       ("finished", "ft", "full", "ended", "complete", "played", "fin"))
+        # group matches only
+        mtype = str(first(m, "type") or "").strip().lower()
+        if mtype and mtype != "group":
+            continue
 
-        home = team_name(first(m, "home_team", "home", "team_home", "homeTeam", "teamA", "a"))
-        away = team_name(first(m, "away_team", "away", "team_away", "awayTeam", "teamB", "b"))
+        if not is_finished(m):
+            continue
 
-        # scores: try flat fields, then nested {home,away}
-        ga = first(m, "home_score", "score_home", "ga", "homeGoals", "goals_home")
-        gb = first(m, "away_score", "score_away", "gb", "awayGoals", "goals_away")
+        home = first(m, "home_team_name_en", "home_team", "home", "homeTeam")
+        away = first(m, "away_team_name_en", "away_team", "away", "awayTeam")
+
+        ga = first(m, "home_score", "score_home", "homeGoals", "ga")
+        gb = first(m, "away_score", "score_away", "awayGoals", "gb")
         if ga is None or gb is None:
-            score = first(m, "score", "goals", "result")
-            if isinstance(score, dict):
-                ga = first(score, "home", "ga", "a") if ga is None else ga
-                gb = first(score, "away", "gb", "b") if gb is None else gb
-
-        # Skip anything without a clean finished score
-        if not finished or ga is None or gb is None:
             continue
         try:
-            ga, gb = int(ga), int(gb)
+            ga, gb = int(str(ga).strip()), int(str(gb).strip())
         except (TypeError, ValueError):
             continue
 
@@ -186,7 +186,7 @@ def extract_matches(payload):
         if ca is None or cb is None:
             continue
 
-        # group match only (both teams in the same group)
+        # both teams must be in the same group (sanity)
         if TEAM_GROUP.get(ca) and TEAM_GROUP.get(ca) == TEAM_GROUP.get(cb):
             out.append({"a": ca, "b": cb, "ga": ga, "gb": gb})
 
