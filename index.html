@@ -2790,67 +2790,66 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
   {a:"Qatar", b:"Switzerland", ga:1, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
   // ── Group C ──
-  {a:"Brazil", b:"Morocco", ga:1, gb:1},
   {a:"Haiti", b:"Scotland", ga:0, gb:1},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Morocco", ga:1, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
   // ── Group D ──
-  {a:"United States", b:"Paraguay", ga:4, gb:1},
   {a:"Australia", b:"Türkiye", ga:2, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"United States", b:"Paraguay", ga:4, gb:1},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
   // ── Group E ──
-  {a:"Germany", b:"Curaçao", ga:7, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
   {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
+  {a:"Germany", b:"Curaçao", ga:7, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Japan", ga:2, gb:2},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
   {a:"Sweden", b:"Tunisia", ga:5, gb:1},
+  {a:"Netherlands", b:"Japan", ga:2, gb:2},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
   // ── Group G ──
-  {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
   {a:"Iran", b:"New Zealand", ga:2, gb:2},
+  {a:"Belgium", b:"Egypt", ga:1, gb:1},
   // ── Group H ──
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
   {a:"Austria", b:"Jordan", ga:3, gb:1},
+  {a:"Argentina", b:"Algeria", ga:3, gb:0},
   // ── Group K ──
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Ghana", b:"Panama", ga:1, gb:0},
-  // ── Matchday 2 ──
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
-  {a:"England", b:"Ghana", ga:0, gb:0},
   {a:"Panama", b:"Croatia", ga:0, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
-  // ── Other groups: add results here as matches are played ──
+  {a:"Ghana", b:"Panama", ga:1, gb:0},
+  {a:"England", b:"Ghana", ga:0, gb:0},
+  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
