@@ -422,7 +422,8 @@ body.light .gu-head{background:rgba(0,0,0,.06)}
 .flag-img{display:inline-block;width:18px;height:11px;border-radius:2px;vertical-align:-1px;object-fit:cover;box-shadow:0 0 0 .5px rgba(0,0,0,.15)}
 .dr-title-flag .flag-img{width:30px;height:20px;border-radius:3px;vertical-align:-3px}
 .gu-tname{overflow:hidden;text-overflow:ellipsis}
-.gu-status{flex-shrink:0;font-size:7.5px;font-weight:800;letter-spacing:.4px;padding:1.5px 5px;border-radius:4px;white-space:nowrap}
+.gu-status{flex-shrink:0;margin-left:auto;font-size:7.5px;font-weight:800;letter-spacing:.4px;padding:1.5px 5px;border-radius:4px;white-space:nowrap}
+.gu-team .gu-tname{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .gu-status.qual{background:var(--leaf);color:#06281a}
 .gu-status.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
 .gu-status.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
@@ -2885,7 +2886,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "25 June 2026";
+const RESULTS_AS_OF = "24 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -2894,72 +2895,67 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3982,6 +3978,61 @@ function thirdSlotAssignment(){
   return assign;
 }
 
+// ── Which 3rd-placed teams are MATHEMATICALLY CERTAIN to be a top-8 third? ──
+// A third from a COMPLETED group is only guaranteed through if, even in the best
+// case for every other group, at most 7 other thirds could outrank it. For groups
+// still in progress we assume the most favourable third they could still produce
+// (max points, max GD) — the worst case for our team. If fewer than 8 thirds can
+// possibly rank at or above team T, T is locked in.
+function thirdPlaceBestPossible(teams){
+  // Upper-bound line for the eventual 3rd-placed team of an in-progress group:
+  // the strongest plausible third = current 3rd-place line + winning all its
+  // remaining games (a generous but valid ceiling for ranking-out purposes).
+  const st=groupStandings(teams);
+  const third=st[2]; if(!third) return null;
+  const played=groupMatchesPlayed(teams);
+  const gamesLeft=Math.max(0,3-third.pld);
+  // ceiling: third could still win remaining games → +3 pts and +GD each
+  return {pts:third.pts+gamesLeft*3, gd:third.gd+gamesLeft*3, gf:third.gf+gamesLeft*2};
+}
+function thirdRankKeyWorseThan(a,b){
+  // returns true if line a ranks strictly BELOW line b (b is better)
+  if(b.pts!==a.pts) return b.pts>a.pts;
+  if(b.gd !==a.gd ) return b.gd >a.gd;
+  return b.gf>a.gf;
+}
+let _thirdCertainCache=null,_thirdCertainKey="";
+function thirdPlaceCertainQualifiers(){
+  const key=RESULTS.length+":"+resultsSeed(RESULTS);
+  if(_thirdCertainCache && _thirdCertainKey===key) return _thirdCertainCache;
+  const certain=new Set();
+  const groups=Object.entries(GROUPS);
+  // Build each group's current third line + whether the group is done.
+  const info=groups.map(([g,teams])=>{
+    const st=groupStandings(teams);
+    const done=groupMatchesPlayed(teams)>=6;
+    return {g, teams, third:st[2]||null, done};
+  });
+  info.forEach(me=>{
+    if(!me.third || !me.done) return;            // only completed-group thirds can lock
+    const myLine={pts:me.third.pts,gd:me.third.gd,gf:me.third.gf};
+    // Count how many OTHER groups' thirds could end up ranked at/above me.
+    let couldOutrank=0;
+    info.forEach(other=>{
+      if(other.g===me.g || !other.third) return;
+      const otherCeil = other.done
+        ? {pts:other.third.pts,gd:other.third.gd,gf:other.third.gf}   // fixed
+        : thirdPlaceBestPossible(other.teams);                        // best case
+      // "at or above me" = NOT strictly worse than me
+      if(!thirdRankKeyWorseThan(otherCeil,myLine)) couldOutrank++;
+    });
+    // If at most 7 others can be at/above me, I'm guaranteed top-8.
+    if(couldOutrank<=7) certain.add(me.third.team);
+  });
+  _thirdCertainCache=certain; _thirdCertainKey=key;
+  return certain;
+}
+
 // ── Unified qualification status for a team ────────────────────────────────
 // Combines the per-group clinch (top-2 guaranteed / eliminated) with the CROSS-
 // group third-place picture, so we can correctly label every team that's through
@@ -4004,6 +4055,7 @@ function teamQualStatus(team){
   // Build for all teams once (cheap relative to the clinch brute force per group).
   const out={};
   const qualifyingThirdTeams=new Set(bestThirdPlace().map(t=>t.team)); // current best-8 thirds
+  const certainThirds=thirdPlaceCertainQualifiers();                   // mathematically locked thirds
   Object.entries(GROUPS).forEach(([g,teams])=>{
     const clinch=groupClinchStatus(teams);
     const standings=groupStandings(teams);
@@ -4017,10 +4069,13 @@ function teamQualStatus(team){
       } else if(cl.eliminated){
         state="out";                                        // can't reach top-3 at all
       } else if(groupDone){
-        // Group finished: position is final. 1st/2nd through; 3rd through iff best-8.
+        // Group finished: 1st/2nd through. A 3rd is "qualified" ONLY if it's
+        // mathematically locked into the best-8 (other groups can't bump it);
+        // otherwise it's still only projected, even though its group is done.
         if(pos<=2){state="qualified";}
         else if(pos===3){
-          if(qualifyingThirdTeams.has(t)){state="qualified";asThird=true;}
+          if(certainThirds.has(t)){state="qualified";asThird=true;}
+          else if(qualifyingThirdTeams.has(t)){state="projThird";asThird=true;}
           else{state="out";}                                // 3rd but outside best-8
         } else {state="out";}
       } else {
