@@ -52,6 +52,7 @@
   --text:#e8eef4;--muted:#7a8fa3;--dim:#4a5f73;
   --accent:#f0b429;--accent2:#e8831a;--red:#ef4444;--leaf:#4ade80;
   --purple:#c084fc;
+  --dom:#f0843a;--intl:#3b82f6;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden}
@@ -517,6 +518,77 @@ body.light .kol-head{background:rgba(0,0,0,.06)}
 .fan-leg-tag.ko{background:rgba(240,180,41,.16);color:var(--accent)}
 /* Fan rows have 3 columns (leg · journey · km), not 4 — no per-leg CO₂ column. */
 #fantravelWrap .kol-head,#fantravelWrap .kol-row{grid-template-columns:74px minmax(0,1fr) 64px}
+/* Fan summary card (full-width, sits above the per-team cards) */
+.fan-summary{grid-column:1/-1;padding:15px 16px 17px}
+.fan-sum-head{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px}
+.fan-sum-lede{font-size:11.5px;line-height:1.6;color:var(--muted);margin-bottom:12px;max-width:760px}
+.fan-sum-lede b{color:var(--text)}
+.fan-split-bar{display:flex;height:30px;border-radius:7px;overflow:hidden;margin-bottom:8px;border:1px solid var(--border)}
+.fan-split-seg{display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;min-width:0;font-variant-numeric:tabular-nums}
+.fan-split-seg.dom{background:var(--dom)}
+.fan-split-seg.intl{background:var(--intl)}
+.fan-legend{display:flex;gap:16px;font-size:10.5px;color:var(--muted);margin-bottom:16px}
+.fan-legend span{display:flex;align-items:center;gap:5px}
+.fan-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;display:inline-block}
+.fan-dot.dom{background:var(--dom)}
+.fan-dot.intl{background:var(--intl)}
+.fan-bar-chart-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:8px}
+.fan-bar-chart{display:flex;flex-direction:column;gap:3px}
+.fan-bar-row{display:grid;grid-template-columns:128px minmax(0,1fr) 92px;align-items:center;gap:8px;cursor:pointer;padding:1px 3px;border-radius:4px;transition:background .1s}
+.fan-bar-row:hover{background:var(--surface3)}
+.fan-bar-team{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--text);white-space:nowrap;overflow:hidden}
+.fan-bar-name{overflow:hidden;text-overflow:ellipsis}
+.fan-bar-track{display:flex;height:13px;border-radius:3px;overflow:hidden;background:var(--surface2)}
+.fan-bar-seg{height:100%}
+.fan-bar-seg.dom{background:var(--dom)}
+.fan-bar-seg.intl{background:var(--intl)}
+.fan-bar-val{font-size:11px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
+.fan-bar-val .gu-unit{font-size:8.5px;color:var(--dim);margin-left:2px}
+/* Per-team card: split bar + two rows */
+.fan-card-split{display:flex;height:11px;border-radius:3px;overflow:hidden;margin:0 11px 9px}
+.fan-card-rows{padding:0 11px 9px;display:flex;flex-direction:column;gap:5px}
+.fan-cr{display:grid;grid-template-columns:13px 1fr auto;align-items:center;gap:7px;font-size:11px}
+.fan-cr-l{color:var(--muted)}
+.fan-cr-v{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.fan-cr-sep{height:1px;background:var(--border);margin:3px 0}
+.fan-cr-sub .fan-cr-l{color:var(--dim);font-size:10.5px}
+.fan-cr-sub{grid-template-columns:1fr auto}
+.fan-ko-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--accent);margin-top:2px;display:flex;align-items:baseline;gap:5px}
+.fan-ko-note{font-size:8.5px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--dim)}
+.fan-ko-tag{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border-radius:3px;padding:1.5px 5px;justify-self:start}
+.fan-ko-tag.act{background:rgba(74,222,128,.16);color:var(--leaf)}
+.fan-ko-tag.proj{background:rgba(240,180,41,.16);color:var(--accent)}
+.fan-cr:has(.fan-ko-tag){grid-template-columns:auto 1fr auto}
+body.light .fan-summary,body.light .fan-bar-track{background:#fff}
+@media(max-width:560px){.fan-bar-row{grid-template-columns:104px minmax(0,1fr) 80px}}
+/* ── Fan table (replaces per-team cards) ── */
+.fan-table-wrap{grid-column:1/-1;overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.fan-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:820px}
+.fan-th{text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim);padding:9px 10px;border-bottom:1px solid var(--border2);cursor:pointer;white-space:nowrap;user-select:none;position:sticky;top:0;background:var(--surface);z-index:1}
+.fan-th:hover{color:var(--muted)}
+.fan-th.active{color:var(--accent)}
+.fan-th.num{text-align:right}
+.fan-tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.fan-tr:hover{background:var(--surface3)}
+.fan-tr:last-child{border-bottom:none}
+.fan-table td{padding:7px 10px;vertical-align:middle}
+.fan-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:var(--text)}
+.fan-td-team{display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:150px}
+.fan-td-name{font-weight:600;color:var(--text)}
+.fan-td-grp{font-size:8.5px;color:var(--dim);background:var(--surface2);border-radius:3px;padding:1px 4px}
+.fan-td-tot{font-weight:800!important;color:var(--accent)!important}
+.fan-td-pct{color:var(--dom)!important;font-weight:700!important}
+.fan-dash{color:var(--dim)}
+.fan-proj{color:var(--accent);font-weight:600}
+.fan-td-proj{color:var(--accent)!important}
+.fan-td-split{min-width:170px}
+.fan-tbar{display:flex;height:11px;border-radius:3px;overflow:hidden;background:var(--surface2);max-width:130px;margin-bottom:3px}
+.fan-tbar .fan-bar-seg.dom{background:var(--dom)}
+.fan-tbar .fan-bar-seg.intl{background:var(--intl)}
+.fan-td-splitnums{font-size:10px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--muted)}
+.fan-table-foot{grid-column:1/-1;font-size:10px;line-height:1.6;color:var(--dim);padding:4px 4px 0;max-width:820px}
+.fan-table-foot b{color:var(--accent)}
+body.light .fan-table-wrap,body.light .fan-th{background:#fff}
 body.light .grp-stand-status{background:rgba(0,0,0,.03)}
 /* Results strip in standings cards */
 .gr-res-wrap{display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px;border-top:1px solid var(--border);background:rgba(0,0,0,.08)}
@@ -668,6 +740,7 @@ body.light{
   --text:#15202b;--muted:#566879;--dim:#8a9bab;
   --accent:#d97706;--accent2:#b45309;--red:#dc2626;--leaf:#16a34a;
   --purple:#9333ea;
+  --dom:#ea7317;--intl:#2563eb;
 }
 body.light .mleg{background:rgba(255,255,255,.92)}
 body.light #tip{background:rgba(255,255,255,.98);color:#15202b}
@@ -2792,68 +2865,67 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3118,7 +3190,48 @@ function standingsFor(teams, results){
     if(r.ga>r.gb)A.pts+=3;else if(r.ga<r.gb)B.pts+=3;else{A.pts++;B.pts++;}
   });
   Object.values(tbl).forEach(t=>t.gd=t.gf-t.ga);
-  return Object.values(tbl).sort((x,y)=>y.pts-x.pts||y.gd-x.gd||y.gf-x.gf||x.team.localeCompare(y.team));
+
+  // FIFA 2026 tiebreakers: HEAD-TO-HEAD first (pts, GD, GF among the tied teams),
+  // THEN overall GD, overall GF, then fair play / ranking. Overall GD is NOT the
+  // primary separator any more — this mirrors groupStandings() so the clinch
+  // brute-force and the simulation rank scenarios by the real rules.
+  function h2hMini(cluster, res){
+    const names=new Set(cluster.map(t=>t.team));
+    const mini={};
+    cluster.forEach(t=>{mini[t.team]={pts:0,gd:0,gf:0};});
+    res.forEach(r=>{
+      if(!names.has(r.a)||!names.has(r.b))return;
+      const A=mini[r.a],B=mini[r.b];
+      A.gf+=r.ga;A.gd+=r.ga-r.gb;B.gf+=r.gb;B.gd+=r.gb-r.ga;
+      if(r.ga>r.gb)A.pts+=3; else if(r.ga<r.gb)B.pts+=3; else {A.pts++;B.pts++;}
+    });
+    return mini;
+  }
+  function rankCluster(cluster){
+    if(cluster.length===1) return cluster;
+    const mini=h2hMini(cluster, results);
+    cluster.sort((x,y)=>
+      (mini[y.team].pts-mini[x.team].pts) ||
+      (mini[y.team].gd -mini[x.team].gd ) ||
+      (mini[y.team].gf -mini[x.team].gf ) ||
+      (y.gd-x.gd) ||
+      (y.gf-x.gf) ||
+      (fairPlayPts(y.team)-fairPlayPts(x.team)) ||
+      (teamStrength(y.team)-teamStrength(x.team)) ||
+      x.team.localeCompare(y.team)
+    );
+    return cluster;
+  }
+  // Sort by points, then resolve each points-tied block by the full ladder.
+  const byPoints=Object.values(tbl).sort((x,y)=>y.pts-x.pts);
+  const out=[];
+  for(let i=0;i<byPoints.length;){
+    let j=i+1;
+    while(j<byPoints.length && byPoints[j].pts===byPoints[i].pts) j++;
+    out.push(...rankCluster(byPoints.slice(i,j)));
+    i=j;
+  }
+  return out;
 }
 
 /* ═══════════════ GROUPS TABLE ═══════════════ */
@@ -3197,15 +3310,10 @@ function simulateGroup(grp, iters, resultsArr){
   resultsArr = resultsArr || RESULTS;
   const teams=GROUPS[grp];
   const rem=remainingFixtures(teams, resultsArr);
-  const baseStats={};
-  // seed with actual results so far
-  teams.forEach(t=>baseStats[t]={pts:0,gd:0,gf:0});
-  resultsArr.forEach(r=>{
-    if(!teams.includes(r.a)||!teams.includes(r.b))return;
-    baseStats[r.a].gf+=r.ga;baseStats[r.b].gf+=r.gb;
-    baseStats[r.a].gd+=r.ga-r.gb;baseStats[r.b].gd+=r.gb-r.ga;
-    if(r.ga>r.gb)baseStats[r.a].pts+=3;else if(r.ga<r.gb)baseStats[r.b].pts+=3;else{baseStats[r.a].pts++;baseStats[r.b].pts++;}
-  });
+  // Actual results so far within this group (kept as result objects so the
+  // simulation can rank with the real 2026 head-to-head tiebreakers).
+  const baseResults=resultsArr.filter(r=>teams.includes(r.a)&&teams.includes(r.b))
+    .map(r=>({a:r.a,b:r.b,ga:r.ga,gb:r.gb}));
   const count={};teams.forEach(t=>count[t]={first:0,second:0,third:0,qual:0});
   // Seed from the current results so the qualification %s are stable on refresh
   // (but still move when a new score is added). The group name is folded in so
@@ -3214,16 +3322,16 @@ function simulateGroup(grp, iters, resultsArr){
   for(let i=0;i<grp.length;i++){_gSeed=(Math.imul(_gSeed,31)+grp.charCodeAt(i))>>>0;}
   seedRng(_gSeed);
   for(let it=0;it<iters;it++){
-    const s={};teams.forEach(t=>s[t]={pts:baseStats[t].pts,gd:baseStats[t].gd,gf:baseStats[t].gf,team:t});
+    const simResults=baseResults.slice();
     rem.forEach(([a,b])=>{
       const [pa,pd,pb]=matchProbs(a,b);
       const r=rng();
       // simulate a plausible scoreline
-      if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[a].pts+=3;s[a].gd+=g-c;s[b].gd-=g-c;s[a].gf+=g;s[b].gf+=c;}
-      else if(r<pa+pd){const g=Math.floor(rng()*3);s[a].gf+=g;s[b].gf+=g;s[a].pts++;s[b].pts++;}
-      else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[b].pts+=3;s[b].gd+=g-c;s[a].gd-=g-c;s[b].gf+=g;s[a].gf+=c;}
+      if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:g,gb:c});}
+      else if(r<pa+pd){const g=Math.floor(rng()*3);simResults.push({a,b,ga:g,gb:g});}
+      else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:c,gb:g});}
     });
-    const table=Object.values(s).sort((x,y)=>y.pts-x.pts||y.gd-x.gd||y.gf-x.gf||(rng()-0.5));
+    const table=standingsFor(teams, simResults);
     count[table[0].team].first++;
     count[table[1].team].second++;
     count[table[2].team].third++;
@@ -4050,67 +4158,116 @@ function fullTournamentTravel(team){
 // Teams with no entry simply don't appear, so you can fill these in gradually.
 // Figures are order-of-magnitude estimates — document your sources as you go.
 const FAN_DATA = [
-  // {team:"Mexico",        fans:35000, home:"Mexico City",    lat:19.4326, lng:-99.1332},
-  // {team:"United States", fans:50000, home:"Washington DC",  lat:38.9072, lng:-77.0369},
-  // {team:"Argentina",     fans:25000, home:"Buenos Aires",   lat:-34.6037,lng:-58.3816},
-  // {team:"England",       fans:20000, home:"London",         lat:51.5074, lng:-0.1278},
-  // {team:"Brazil",        fans:22000, home:"Brasília",       lat:-15.7939,lng:-47.8828},
-  // {team:"Germany",       fans:18000, home:"Berlin",         lat:52.5200, lng:13.4050},
+  {team:"Argentina", home:"Buenos Aires", fans:70000, km:9731, co2:101575, naDom:11861, intl:89714},
+  {team:"England", home:"London", fans:60000, km:10430, co2:89844, naDom:19589, intl:70254},
+  {team:"Japan", home:"Tokyo", fans:45000, km:12073, co2:84024, naDom:17416, intl:66608},
+  {team:"Germany", home:"Berlin", fans:52000, km:11218, co2:83977, naDom:20400, intl:63576},
+  {team:"Korea Republic", home:"Seoul", fans:40000, km:12308, co2:72409, naDom:5915, intl:66493},
+  {team:"Brazil", home:"Brasília", fans:60000, km:8607, co2:71236, naDom:12656, intl:58580},
+  {team:"Australia", home:"Canberra", fans:30000, km:14077, co2:59018, naDom:4513, intl:54505},
+  {team:"Scotland", home:"Glasgow", fans:55000, km:6883, co2:55144, naDom:13875, intl:41269},
+  {team:"United States", home:"Washington DC", fans:70000, km:6810, co2:49876, naDom:27799, intl:22076},
+  {team:"Spain", home:"Madrid", fans:38000, km:9317, co2:49139, naDom:11530, intl:37610},
+  {team:"Netherlands", home:"Amsterdam", fans:35000, km:9342, co2:47208, naDom:7694, intl:39514},
+  {team:"Colombia", home:"Bogotá", fans:50000, km:6081, co2:43612, naDom:21049, intl:22562},
+  {team:"Türkiye", home:"Ankara", fans:25000, km:11647, co2:42111, naDom:7124, intl:34988},
+  {team:"Saudi Arabia", home:"Riyadh", fans:20000, km:14089, co2:41486, naDom:7282, intl:34204},
+  {team:"South Africa", home:"Pretoria", fans:15000, km:18540, co2:38770, naDom:7562, intl:31208},
+  {team:"France", home:"Paris", fans:40000, km:6380, co2:37160, naDom:3894, intl:33267},
+  {team:"Morocco", home:"Rabat", fans:32000, km:7590, co2:32918, naDom:6282, intl:26636},
+  {team:"Portugal", home:"Lisbon", fans:25000, km:9250, co2:32393, naDom:4945, intl:27448},
+  {team:"Belgium", home:"Brussels", fans:20000, km:11314, co2:31225, naDom:8945, intl:22280},
+  {team:"Switzerland", home:"Bern", fans:18000, km:11626, co2:30154, naDom:6109, intl:24044},
+  {team:"Croatia", home:"Zagreb", fans:18000, km:11495, co2:29824, naDom:6745, intl:23080},
+  {team:"Mexico", home:"Mexico City", fans:120000, km:967, co2:26450, naDom:26193, intl:257},
+  {team:"Sweden", home:"Stockholm", fans:15000, km:10047, co2:22818, naDom:3535, intl:19282},
+  {team:"Austria", home:"Vienna", fans:12000, km:12696, co2:22076, naDom:5585, intl:16491},
+  {team:"Qatar", home:"Doha", fans:10000, km:14530, co2:20291, naDom:1746, intl:18545},
+  {team:"Czechia", home:"Prague", fans:10000, km:14616, co2:20166, naDom:5810, intl:14356},
+  {team:"Canada", home:"Ottawa", fans:40000, km:3713, co2:18382, naDom:17169, intl:1212},
+  {team:"Uruguay", home:"Montevideo", fans:13000, km:9665, co2:17443, naDom:4054, intl:13389},
+  {team:"Paraguay", home:"Asunción", fans:12000, km:9695, co2:17108, naDom:1389, intl:15718},
+  {team:"Egypt", home:"Cairo", fans:11000, km:11032, co2:17049, naDom:60, intl:16989},
+  {team:"Bosnia and Herzegovina", home:"Sarajevo", fans:10000, km:12394, co2:16923, naDom:6466, intl:10457},
+  {team:"Ghana", home:"Accra", fans:11000, km:9806, co2:16418, naDom:2759, intl:13659},
+  {team:"Ecuador", home:"Quito", fans:15000, km:7873, co2:16083, naDom:6529, intl:9554},
+  {team:"Algeria", home:"Algiers", fans:9000, km:12896, co2:15909, naDom:5521, intl:10388},
+  {team:"Congo DR", home:"Kinshasa", fans:7000, km:15906, co2:15494, naDom:3276, intl:12218},
+  {team:"Iraq", home:"Baghdad", fans:8000, km:10322, co2:12430, naDom:1746, intl:10684},
+  {team:"Norway", home:"Oslo", fans:15000, km:6200, co2:12312, naDom:228, intl:12084},
+  {team:"Uzbekistan", home:"Tashkent", fans:5000, km:15521, co2:10889, naDom:1502, intl:9386},
+  {team:"New Zealand", home:"Wellington", fans:6000, km:12547, co2:10576, naDom:1342, intl:9234},
+  {team:"Tunisia", home:"Tunis", fans:5000, km:11541, co2:8109, naDom:1011, intl:7097},
+  {team:"Jordan", home:"Amman", fans:3500, km:14285, co2:7007, naDom:1036, intl:5971},
+  {team:"Cote d'Ivoire", home:"Abidjan", fans:3500, km:9110, co2:4875, naDom:873, intl:4002},
+  {team:"Senegal", home:"Dakar", fans:4500, km:6692, co2:4503, naDom:557, intl:3946},
+  {team:"Panama", home:"Panama City", fans:6000, km:4393, co2:4038, naDom:743, intl:3295},
+  {team:"Cabo Verde", home:"Praia", fans:2000, km:8920, co2:2663, naDom:834, intl:1830},
+  {team:"Curaçao", home:"Willemstad", fans:3000, km:6052, co2:2469, naDom:1036, intl:1432},
+  {team:"Iran", home:"Tehran", fans:1000, km:13751, co2:1937, naDom:199, intl:1739},
+  {team:"Haiti", home:"Port-au-Prince", fans:2000, km:4091, co2:1206, naDom:460, intl:745},
 ];
 function fanDataFor(team){return FAN_DATA.find(f=>f.team===team);}
 
-// Per-fan one-way great-circle km between an arbitrary origin (lat/lng) and a host city.
-function fanHopFromCoord(lat,lng,city){
-  const B=CITY_DATA[city];
-  if(B==null||lat==null||lng==null)return 0;
-  return hav(lat,lng,B.lat,B.lng);
-}
-
-// Build a team's fan journey: home → each group venue → each knockout venue,
-// one-way. Returns per-fan distance, the leg list, and the scaled totals.
+// Fan travel is now sourced from the finalised spreadsheet model
+// (WC2026_fan_travel_distances.xlsx): distance-banded domestic emission factors,
+// per-leg coach/flight modes, and a North-America-domestic vs international-inbound
+// split. Those values are baked in as FAN_DATA rather than recomputed here, so the
+// dashboard shows exactly what the spreadsheet methodology produces.
+// co2/naDom/intl are tournament totals in tCO2e (already scaled by fan count).
 function fanTravel(team){
   const fd=fanDataFor(team);
   if(!fd)return{has:false};
-  const td=allTeams.find(t=>t.team===team);
-  if(!td)return{has:false};
-
-  const legs=[];
-  let perFanKm=0;
-  // 1) inbound: home nation → first group venue
-  const groupVenues=(td.legs||[]).map(l=>l.venue);
-  let prevCity=null;
-  if(groupVenues.length){
-    const km=fanHopFromCoord(fd.lat,fd.lng,groupVenues[0]);
-    legs.push({kind:"inbound",from:fd.home,to:groupVenues[0],km,actual:true});
-    perFanKm+=km; prevCity=groupVenues[0];
-  }
-  // 2) between group venues (one-way hops)
-  for(let i=1;i<groupVenues.length;i++){
-    const km=venueOneWay(prevCity,groupVenues[i]);
-    legs.push({kind:"group",from:prevCity,to:groupVenues[i],km,actual:true});
-    perFanKm+=km; prevCity=groupVenues[i];
-  }
-  // 3) knockout venues — reuse the team's knockout leg path (actual + projected)
-  const ko=knockoutTravel(team);
-  if(ko.inKO){
-    for(const kl of ko.legs){
-      // kl.from may equal prevCity already; use venueOneWay from our running city
-      const fromCity=prevCity||kl.from;
-      const km=venueOneWay(fromCity,kl.to);
-      legs.push({kind:"knockout",round:kl.round,from:fromCity,to:kl.to,km,actual:kl.actual,won:kl.won});
-      perFanKm+=km; prevCity=kl.to;
-      if(kl.actual&&kl.won===false)break; // team (and following fans) eliminated
-    }
-  }
-
   const fans=fd.fans||0;
+  const co2kg=fd.co2*1000;                    // total tCO2e -> kg (fco2 wants kg)
+  const naDomKg=fd.naDom*1000, intlKg=fd.intl*1000;
+  const perFanKm=fd.km;                       // column O = per-fan one-way tour km
   const totalKm=perFanKm*fans;
-  // Per-fan emissions: each fan is ONE passenger, so use the per-passenger-km
-  // factor EF directly (NOT CO2_KG_KM, which bakes in the 45-person squad size).
-  const perFanCo2=Math.round(perFanKm*EF);
-  const totalCo2=perFanCo2*fans;
-  return{has:true, fans, home:fd.home, perFanKm, totalKm, perFanCo2, totalCo2, legs,
-         eliminated:ko.eliminated, inKO:ko.inKO};
+  const perFanCo2=fans?Math.round(co2kg/fans):0;
+  const domShare=fd.co2?fd.naDom/fd.co2:0;
+  return{has:true, fans, home:fd.home, perFanKm, totalKm,
+         perFanCo2, totalCo2:co2kg, co2t:fd.co2,
+         naDomT:fd.naDom, intlT:fd.intl, domShare};
+}
+
+// ── Fan KNOCKOUT emissions ──────────────────────────────────────────────────
+// Replicates the spreadsheet's distance-banded DESNZ methodology (with RF) for
+// knockout legs. Every KO hop is WITHIN North America (the team is already on the
+// continent), so each is classified exactly like a group leg-2/leg-3 hop and
+// counts entirely as NA-DOMESTIC. Bands (km thresholds match the Excel sheet):
+//   ≤300  → Coach            0.02776
+//   ≤1000 → Domestic         0.22928
+//   <3700 → Short-haul       0.12786
+//   ≥3700 → Long-haul        0.15282
+function fanLegEF(km){
+  if(km<=300)  return 0.02776;
+  if(km<=1000) return 0.22928;
+  if(km<3700)  return 0.12786;
+  return 0.15282;
+}
+// Returns per-fan and scaled knockout emissions, split into actual (played) and
+// projected (bracket path not yet played). All KO emissions are NA-domestic.
+function fanKnockout(team){
+  const fd=fanDataFor(team);
+  if(!fd) return{has:false};
+  const ko=knockoutTravel(team);
+  if(!ko.inKO) return{has:true, inKO:false, fans:fd.fans||0, legs:[],
+    actualKm:0,projKm:0, actualCo2t:0,projCo2t:0, eliminated:false};
+  const fans=fd.fans||0;
+  let actualKm=0,projKm=0,actualKg=0,projKg=0;
+  const legs=ko.legs.map(l=>{
+    const ef=fanLegEF(l.km);
+    const perFanKg=l.km*ef;                 // one fan = one passenger
+    if(l.actual){actualKm+=l.km; actualKg+=perFanKg;}
+    else        {projKm+=l.km;   projKg+=perFanKg;}
+    return{round:l.round, from:l.from, to:l.to, km:l.km, ef,
+           perFanKg, actual:l.actual, won:l.won};
+  });
+  return{has:true, inKO:true, fans, legs,
+    actualKm, projKm,
+    actualCo2t:(actualKg*fans)/1000,        // tCO2e, scaled by fans
+    projCo2t:(projKg*fans)/1000,
+    eliminated:ko.eliminated};
 }
 
 
@@ -4119,20 +4276,17 @@ function simGroupOnce(grp, resultsArr){
   resultsArr = resultsArr || RESULTS;
   const teams=GROUPS[grp];
   const rem=remainingFixtures(teams, resultsArr);
-  const s={};
-  teams.forEach(t=>s[t]={pts:0,gd:0,gf:0,team:t});
-  resultsArr.forEach(r=>{
-    if(!teams.includes(r.a)||!teams.includes(r.b))return;
-    s[r.a].gf+=r.ga;s[r.b].gf+=r.gb;s[r.a].gd+=r.ga-r.gb;s[r.b].gd+=r.gb-r.ga;
-    if(r.ga>r.gb)s[r.a].pts+=3;else if(r.ga<r.gb)s[r.b].pts+=3;else{s[r.a].pts++;s[r.b].pts++;}
-  });
+  // Collect actual + simulated results so we can rank with the real 2026
+  // head-to-head tiebreakers (via standingsFor), not GD-first.
+  const simResults=resultsArr.filter(r=>teams.includes(r.a)&&teams.includes(r.b))
+    .map(r=>({a:r.a,b:r.b,ga:r.ga,gb:r.gb}));
   rem.forEach(([a,b])=>{
     const [pa,pd,pb]=matchProbs(a,b);const r=rng();
-    if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[a].pts+=3;s[a].gd+=g-c;s[b].gd-=g-c;s[a].gf+=g;s[b].gf+=c;}
-    else if(r<pa+pd){const g=Math.floor(rng()*3);s[a].gf+=g;s[b].gf+=g;s[a].pts++;s[b].pts++;}
-    else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[b].pts+=3;s[b].gd+=g-c;s[a].gd-=g-c;s[b].gf+=g;s[a].gf+=c;}
+    if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:g,gb:c});}
+    else if(r<pa+pd){const g=Math.floor(rng()*3);simResults.push({a,b,ga:g,gb:g});}
+    else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:c,gb:g});}
   });
-  return Object.values(s).sort((x,y)=>y.pts-x.pts||y.gd-x.gd||y.gf-x.gf||(rng()-0.5));
+  return standingsFor(teams, simResults);
 }
 
 let _champCache=null,_champKey="";
@@ -4385,6 +4539,7 @@ function buildKnockoutTravelPanel(){
 }
 
 // ─────── FAN TRAVEL TAB (manual estimate) ───────
+let _fanSortKey="fullTot", _fanSortDir=-1;   // default: total emissions, descending
 function buildFanTravelPanel(){
   const wrap=document.getElementById("fantravelWrap");
   if(!wrap)return;
@@ -4406,64 +4561,141 @@ function buildFanTravelPanel(){
     return;
   }
 
-  // Totals
-  let totKm=0,totCo2=0,totFans=0;
-  fanTeams.forEach(x=>{totKm+=x.ft.totalKm;totCo2+=x.ft.totalCo2;totFans+=x.ft.fans;});
+  // Tournament totals
+  let totKm=0,totCo2=0,totFans=0,totDom=0,totIntl=0;
+  fanTeams.forEach(x=>{totKm+=x.ft.totalKm;totCo2+=x.ft.co2t;totFans+=x.ft.fans;
+    totDom+=x.ft.naDomT;totIntl+=x.ft.intlT;});
+  const overallDomShare=totCo2?totDom/totCo2:0;
 
   const pills=document.getElementById("fantravelPills");
   if(pills)pills.innerHTML=[
-    {v:fanTeams.length+"",l:"Teams with fan data"},
+    {v:fanTeams.length+"",l:"Teams"},
     {v:totFans.toLocaleString(),l:"Travelling fans"},
-    {v:Math.round(totKm).toLocaleString()+" km",l:"Total fan km"},
-    {v:fco2(totCo2),l:"Total fan tCO₂e"},
+    {v:Math.round(totCo2).toLocaleString(),l:"Total tCO\u2082e"},
+    {v:Math.round(overallDomShare*100)+"%",l:"Inside North America"},
   ].map(s=>`<div class="spill"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
 
-  // Sort by total fan emissions (the headline) descending
-  fanTeams.sort((a,b)=>b.ft.totalCo2-a.ft.totalCo2);
+  // Sort by total fan emissions (headline) descending
+  fanTeams.sort((a,b)=>b.ft.co2t-a.ft.co2t);
 
-  const KIND_LBL={inbound:"Home → 1st venue",group:"Group hop",knockout:"Knockout hop"};
+  // \u2500\u2500 SUMMARY: the domestic-vs-international story \u2500\u2500
+  const maxCo2=Math.max(...fanTeams.map(x=>x.ft.co2t));
+  const chartBars=fanTeams.map(({team,color,ft})=>{
+    const domW=ft.co2t?(ft.naDomT/maxCo2*100):0;
+    const intlW=ft.co2t?(ft.intlT/maxCo2*100):0;
+    const safeTeam=team.replace(/'/g,"\\'");
+    return `<div class="fan-bar-row" onclick="gotoTeamOnMap('${safeTeam}')" title="${team}: ${Math.round(ft.domShare*100)}% of emissions inside North America">
+      <span class="fan-bar-team">${flagOf(team)} <span class="fan-bar-name">${team}</span></span>
+      <span class="fan-bar-track"><span class="fan-bar-seg dom" style="width:${domW}%"></span><span class="fan-bar-seg intl" style="width:${intlW}%"></span></span>
+      <span class="fan-bar-val">${Math.round(ft.co2t).toLocaleString()}<span class="gu-unit">tCO\u2082e</span></span>
+    </div>`;
+  }).join("");
 
-  fanTeams.forEach(({team,color,group,ft})=>{
-    const td=allTeams.find(t=>t.team===team);
-    const legRows=ft.legs.map(l=>{
-      const tag=l.kind==="inbound"?`<span class="fan-leg-tag inbound">inbound</span>`
-        :l.kind==="knockout"?`<span class="fan-leg-tag ko">${l.round}${l.actual?"":" (proj)"}</span>`
-        :`<span class="fan-leg-tag">group</span>`;
-      return `<div class="kol-row">
-        <span class="kol-round">${tag}</span>
-        <span class="kol-path">${l.from} → <b>${l.to}</b></span>
-        <span class="kol-km">${Math.round(l.km).toLocaleString()}<span class="gu-unit">km</span></span>
-      </div>`;
-    }).join("");
+  const summary=document.createElement("div");
+  summary.className="grp-card fan-summary";
+  summary.style.gridColumn="1/-1";
+  summary.innerHTML=`
+    <div class="fan-sum-head">Where fan-travel emissions happen</div>
+    <div class="fan-sum-lede">Of an estimated <b>${Math.round(totCo2).toLocaleString()} tCO\u2082e</b> from ${totFans.toLocaleString()} travelling supporters,
+      <b style="color:var(--dom)">${Math.round(overallDomShare*100)}%</b> comes from flights <b>within</b> North America \u2014 the rest is the long-haul journey getting there.</div>
+    <div class="fan-split-bar">
+      <span class="fan-split-seg dom" style="width:${overallDomShare*100}%">${Math.round(totDom).toLocaleString()} tCO\u2082e</span>
+      <span class="fan-split-seg intl" style="width:${(1-overallDomShare)*100}%">${Math.round(totIntl).toLocaleString()} tCO\u2082e</span>
+    </div>
+    <div class="fan-legend">
+      <span><span class="fan-dot dom"></span>North-America domestic</span>
+      <span><span class="fan-dot intl"></span>International inbound</span>
+    </div>
+    <div class="fan-bar-chart-head">Per nation \u2014 sorted by total fan emissions (tap a bar to see routes on the map)</div>
+    <div class="fan-bar-chart">${chartBars}</div>`;
+  wrap.appendChild(summary);
 
-    const card=document.createElement("div");
-    card.className="grp-card kotravel-card";
-    card.innerHTML=`
-      <div class="grp-card-head">
-        <span class="grp-name" style="font-size:13px;display:flex;align-items:center;gap:6px"><span class="gu-sw" style="background:${color}"></span>${td?flagOf(team):""} ${team} <span style="font-size:9px;color:var(--dim)">${group}</span></span>
-        <span class="grp-badge" style="background:rgba(240,180,41,.16);color:var(--accent)">${ft.fans.toLocaleString()} fans</span>
-      </div>
-      <div class="kol-headline">
-        <span class="kol-headline-v">${Math.round(ft.totalKm).toLocaleString()}<span class="kol-headline-u">km</span></span>
-        <span class="kol-headline-c">${fco2(ft.totalCo2)}</span>
-        <span class="kol-headline-l">${ft.fans.toLocaleString()} fans × ${Math.round(ft.perFanKm).toLocaleString()} km each</span>
-      </div>
-      <div class="fan-from">From <b>${ft.home}</b> · one-way tour following the team${ft.eliminated?" (until elimination)":""}</div>
-      <div class="kol-head">
-        <span class="kol-round">Leg</span>
-        <span class="kol-path">Journey (per fan, one-way)</span>
-        <span class="kol-km">km</span>
-      </div>
-      ${legRows}
-      <div class="kol-grandtotal">
-        <div class="kol-gt-row"><span class="kol-gt-l">Per fan</span><span class="kol-gt-v">${Math.round(ft.perFanKm).toLocaleString()} km · ${(ft.perFanCo2/1000).toFixed(2)} tCO₂e</span></div>
-        <div class="kol-gt-row kol-gt-grand"><span class="kol-gt-l">All ${ft.fans.toLocaleString()} fans</span><span class="kol-gt-v">${Math.round(ft.totalKm).toLocaleString()} km · ${fco2(ft.totalCo2)}</span></div>
-      </div>
-      <div class="grp-stand-status">Estimate — fans assumed to follow the team one-way from home, no return flight counted.</div>`;
-    card.querySelector(".grp-name").style.cursor="pointer";
-    card.querySelector(".grp-name").onclick=()=>gotoTeamOnMap(team);
-    wrap.appendChild(card);
+  // \u2500\u2500 PER-TEAM TABLE: group + knockout, sortable, with inline split bar \u2500\u2500
+  // Build a row model first so we can sort by any column.
+  const rowModel=fanTeams.map(({team,color,group,ft})=>{
+    const ko=fanKnockout(team);
+    const grpTot=ft.co2t, grpDom=ft.naDomT, grpIntl=ft.intlT;
+    // koAct = knockout legs actually PLAYED (real); koProj = projected bracket path.
+    const koAct=ko.inKO?ko.actualCo2t:0, koProj=ko.inKO?ko.projCo2t:0;
+    // Total and the split bar use group + ACTUAL knockout only (projected excluded).
+    const fullTot=grpTot+koAct;
+    const allDom=grpDom+koAct, allIntl=grpIntl;   // all knockout legs are NA-domestic
+    const domPct=fullTot?allDom/fullTot:0;
+    return{team,color,group,fans:ft.fans,grpTot,koAct,koProj,fullTot,
+           allDom,allIntl,domPct,inKO:ko.inKO};
   });
+
+  const cols=[
+    {key:"team",   label:"Team",            num:false},
+    {key:"fans",   label:"Fans",            num:true},
+    {key:"grpTot", label:"Group (tCO\u2082e)",  num:true},
+    {key:"koAct",  label:"Knockout (tCO\u2082e)", num:true},
+    {key:"fullTot",label:"Total (tCO\u2082e)",  num:true},
+    {key:"split",  label:"Domestic \u2194 International (tCO\u2082e)", num:false},
+    {key:"domPct", label:"% Dom",           num:true},
+    {key:"koProj", label:"Projected Knockout Travel (tCO\u2082e)", num:true},
+  ];
+
+  function renderTable(){
+    const dir=_fanSortDir, key=_fanSortKey;
+    const sorted=[...rowModel].sort((a,b)=>{
+      let va=a[key], vb=b[key];
+      if(key==="split")  {va=a.domPct; vb=b.domPct;}
+      if(typeof va==="string") return dir*va.localeCompare(vb);
+      return dir*((va||0)-(vb||0));
+    });
+    const maxTot=Math.max(...rowModel.map(r=>r.fullTot));
+    const head=cols.map(c=>{
+      const active=(c.key===key)||(c.key==="split"&&key==="domPct");
+      const arrow=active?(dir<0?" \u25be":" \u25b4"):"";
+      return `<th class="fan-th ${c.num?'num':''}${active?' active':''}" data-key="${c.key}">${c.label}${arrow}</th>`;
+    }).join("");
+    const body=sorted.map(r=>{
+      const safe=r.team.replace(/'/g,"\\'");
+      // scale the whole bar to the biggest team's total, so bar length also
+      // encodes magnitude (longer bar = more emissions), split internally by colour
+      const barScale=maxTot?r.fullTot/maxTot*100:0;
+      // Knockout (actual): 0 until legs are played, then ticks up each round.
+      const koActCell=Math.round(r.koAct).toLocaleString();
+      // Projected knockout: forward estimate on the current bracket. Dash if none.
+      const koProjCell=r.inKO&&r.koProj>0
+        ? `<span class="fan-proj">${Math.round(r.koProj).toLocaleString()}</span>`
+        : '<span class="fan-dash">\u2014</span>';
+      return `<tr class="fan-tr" onclick="gotoTeamOnMap('${safe}')" title="Click to highlight ${r.team} on the map">
+        <td class="fan-td-team"><span class="gu-sw" style="background:${r.color}"></span>${flagOf(r.team)} <span class="fan-td-name">${r.team}</span> <span class="fan-td-grp">${r.group}</span></td>
+        <td class="num">${r.fans.toLocaleString()}</td>
+        <td class="num">${Math.round(r.grpTot).toLocaleString()}</td>
+        <td class="num">${koActCell}</td>
+        <td class="num fan-td-tot">${Math.round(r.fullTot).toLocaleString()}</td>
+        <td class="fan-td-split">
+          <span class="fan-tbar" style="width:${barScale}%">
+            <span class="fan-bar-seg dom" style="width:${r.fullTot?r.allDom/r.fullTot*100:0}%"></span><span class="fan-bar-seg intl" style="width:${r.fullTot?r.allIntl/r.fullTot*100:0}%"></span>
+          </span>
+          <span class="fan-td-splitnums"><span style="color:var(--dom)">${Math.round(r.allDom).toLocaleString()}</span> / <span style="color:var(--intl)">${Math.round(r.allIntl).toLocaleString()}</span></span>
+        </td>
+        <td class="num fan-td-pct">${Math.round(r.domPct*100)}%</td>
+        <td class="num fan-td-proj">${koProjCell}</td>
+      </tr>`;
+    }).join("");
+    return `<table class="fan-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  }
+
+  const tableWrap=document.createElement("div");
+  tableWrap.className="fan-table-wrap";
+  tableWrap.innerHTML=renderTable();
+  // header click = sort
+  tableWrap.addEventListener("click",ev=>{
+    const th=ev.target.closest(".fan-th"); if(!th)return;
+    let k=th.dataset.key; if(k==="split")k="domPct";
+    if(_fanSortKey===k){_fanSortDir*=-1;} else {_fanSortKey=k; _fanSortDir=(k==="team")?1:-1;}
+    tableWrap.innerHTML=renderTable();
+  });
+  wrap.appendChild(tableWrap);
+  wrap.appendChild(Object.assign(document.createElement("div"),{
+    className:"fan-table-foot",
+    innerHTML:'<b>Knockout</b> shows emissions from knockout legs actually played \u2014 it reads 0 until a team reaches the bracket, then rises each round. '+
+              '<b>Projected Knockout Travel</b> is a forward estimate for the team\u2019s remaining path on the current bracket, and is kept out of the Total and the split bar. '+
+              'Group figures come from the fan-travel model; knockout legs are computed live with the same DESNZ distance-banded factors. One-way tour from home, no return flight counted.'}));
 }
 
 function buildBracket(){
