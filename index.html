@@ -977,6 +977,35 @@ body.light #teamDrawer{box-shadow:-8px 0 32px rgba(0,0,0,.15)}
 .brk-third-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:5px}
 .bracket-slot.q3{background:rgba(240,180,41,.05)}
 .bracket-slot.q3 .bs-pos{color:var(--accent)}
+/* ── Third-place TABLE (all 12, top-8 advance) ── */
+.brk-third-table-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
+.bt-table{width:100%;border-collapse:collapse;font-size:11.5px}
+.bt-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim);padding:7px 8px;border-bottom:1px solid var(--border2);white-space:nowrap}
+.bt-table th.bt-num,.bt-table td.bt-num{text-align:right;width:38px}
+.bt-table th.bt-status,.bt-table td.bt-status{text-align:right;width:96px}
+.bt-row{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.bt-row:last-child{border-bottom:none}
+.bt-row.adv{background:rgba(74,222,128,.07)}
+.bt-row.adv:hover{background:rgba(74,222,128,.14)}
+.bt-row.out{background:rgba(239,68,68,.05)}
+.bt-row.out:hover{background:rgba(239,68,68,.11)}
+.bt-row.bt-cutoff{border-top:2px solid var(--accent)}
+.bt-table td{padding:6px 8px;vertical-align:middle}
+.bt-rank{font-weight:800;color:var(--muted);width:24px;text-align:center;font-variant-numeric:tabular-nums}
+.bt-row.adv .bt-rank{color:var(--leaf)}
+.bt-team{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.bt-tname{font-weight:600;color:var(--text)}
+.bt-grp{font-size:8.5px;color:var(--dim);background:var(--surface2);border-radius:3px;padding:1px 4px}
+.bt-num{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text)}
+.bt-gf{color:var(--muted)!important;font-weight:500!important}
+.bt-pill{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border-radius:4px;padding:2px 6px;white-space:nowrap}
+.bt-pill.adv{background:rgba(74,222,128,.16);color:var(--leaf)}
+.bt-pill.out{background:rgba(239,68,68,.14);color:var(--red)}
+.bt-foot{font-size:9.5px;color:var(--dim);padding:7px 9px;line-height:1.6;border-top:1px solid var(--border)}
+.bt-key{font-weight:700;margin-right:10px}
+.bt-key.adv{color:var(--leaf)}
+.bt-key.out{color:var(--red)}
+body.light .brk-third-table-wrap{background:#fff}
 
 /* ── Qatar single map ── */
 .qa-map-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
@@ -2856,7 +2885,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "25 June 2026";
+const RESULTS_AS_OF = "24 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -2865,72 +2894,67 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3887,6 +3911,17 @@ function bestThirdPlace(){
   }).filter(Boolean)
     .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.team.localeCompare(b.team))
     .slice(0,8);
+}
+
+// All 12 third-placed teams, ranked by FIFA's best-thirds criteria (pts, then
+// overall GD, then goals). Ranks 1–8 advance; 9–12 are eliminated. Used for the
+// bracket's third-place TABLE (bestThirdPlace() stays capped at 8 for slotting).
+function allThirdPlace(){
+  return Object.keys(GROUPS).map(g=>{
+    const st=groupStandings(GROUPS[g]);
+    return st[2]?{...st[2],group:g}:null;
+  }).filter(Boolean)
+    .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.team.localeCompare(b.team));
 }
 
 // Assign the 8 best third-placed teams to the 8 "3rd-XXXXX" R32 slots, one team
@@ -4898,8 +4933,8 @@ function buildBracket(){
   <!-- Group standings + best thirds below -->
   <div class="brk-section-title" style="margin-top:22px">Who's Qualifying — Live Group Standings</div>
   <div class="brk-group-grid" id="kbGroups"></div>
-  <div class="brk-section-title" style="margin-top:18px">Best 3rd-Place Teams — Top 8 advance</div>
-  <div class="brk-third-grid" id="kbThirds"></div>
+  <div class="brk-section-title" style="margin-top:18px">Third-Place Teams — Top 8 of 12 advance</div>
+  <div class="brk-third-table-wrap" id="kbThirds"></div>
   `;
   wrap.innerHTML=html;
 
@@ -4943,23 +4978,37 @@ function buildBracket(){
     kbGroups.appendChild(card);
   });
 
-  // Fill best thirds
-  const thirds=bestThirdPlace();
+  // Fill best thirds — full 12-team table, ranks 1–8 advance, 9–12 out.
+  const thirds=allThirdPlace();
   const kbThirds=wrap.querySelector("#kbThirds");
   if(thirds.length){
-    thirds.forEach((s,i)=>{
+    const anyPlayed=thirds.some(s=>s.pld>0);
+    const rows=thirds.map((s,i)=>{
       const td=allTeams.find(t=>t.team===s.team);
-      const slot=document.createElement("div");
-      slot.className="bt-third-slot "+(i<8?"advancing":"");
-      slot.setAttribute("onclick",`openDrawer('${s.team}')`);
-      slot.innerHTML=`<span class="bt-third-rank">${i+1}</span>
-        <span class="bt-sw" style="background:${td?td.color:"#888"}"></span>
-        <span style="font-weight:500">${td?flagOf(s.team):""} ${s.team}</span>
-        <span style="margin-left:auto;font-size:9.5px;color:var(--muted)">3${s.group} · ${s.pts}pts GD${s.gd>=0?"+":""}${s.gd}</span>`;
-      kbThirds.appendChild(slot);
-    });
+      const adv=i<8;
+      const cutoff=(i===8)?' bt-cutoff':'';          // line above the first eliminated team
+      const safe=s.team.replace(/'/g,"\\'");
+      return `<tr class="bt-row ${adv?'adv':'out'}${cutoff}" onclick="openDrawer('${safe}')" title="${adv?'Currently inside the top 8 — projected to qualify':'Currently outside the top 8 — projected to be eliminated'}">
+        <td class="bt-rank">${i+1}</td>
+        <td class="bt-team"><span class="bs-sw" style="background:${td?td.color:'#888'}"></span>${td?flagOf(s.team):""} <span class="bt-tname">${s.team}</span> <span class="bt-grp">3${s.group}</span></td>
+        <td class="bt-num">${s.pld}</td>
+        <td class="bt-num">${s.pts}</td>
+        <td class="bt-num">${s.gd>0?"+":""}${s.gd}</td>
+        <td class="bt-num bt-gf">${s.gf}</td>
+        <td class="bt-status">${adv?'<span class="bt-pill adv">~ advancing</span>':'<span class="bt-pill out">~ out</span>'}</td>
+      </tr>`;
+    }).join("");
+    kbThirds.innerHTML=`<table class="bt-table">
+      <thead><tr>
+        <th></th><th class="bt-team-h">Team</th>
+        <th class="bt-num">Pld</th><th class="bt-num">Pts</th><th class="bt-num">GD</th><th class="bt-num">GF</th>
+        <th class="bt-status">Projection</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="bt-foot"><span class="bt-key adv">Top 8 advance</span><span class="bt-key out">Bottom 4 eliminated</span> \u00b7 ranked by points, then overall goal difference, then goals scored. ${anyPlayed?'Provisional until all groups finish \u2014 positions move as results come in.':''}</div>`;
   }else{
-    kbThirds.innerHTML=`<div style="font-size:11px;color:var(--dim);padding:8px">Complete more groups to rank the best third-place teams.</div>`;
+    kbThirds.innerHTML=`<div style="font-size:11px;color:var(--dim);padding:8px">Complete more groups to rank the third-place teams.</div>`;
   }
 
   // Draw the lines linking each round to the next (after layout settles)
