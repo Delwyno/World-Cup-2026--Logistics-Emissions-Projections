@@ -112,6 +112,12 @@ html.docmode .tabbar{position:sticky;top:var(--hdr-h,0px);z-index:49}
 .fxr-venue{font-size:8.5px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;display:inline-block;max-width:62px;vertical-align:middle}
 .fxr-row.played{border-left:2px solid var(--leaf)}
 .fxr-row.upcoming{border-left:2px solid transparent}
+/* UK broadcaster chip (BBC/ITV split) in the fixtures status column */
+.fxr-ch{font-size:8px;font-weight:800;letter-spacing:.3px;padding:2px 5px;border-radius:4px;white-space:nowrap;line-height:1.2}
+.fxr-ch-bbc{color:#fff;background:#1d1d1f}
+.fxr-ch-itv{color:#fff;background:#c4122e}
+body.light .fxr-ch-bbc{background:#000}
+body.light .fxr-ch-itv{background:#d6173a}
 
 /* Loading shimmer (shown while prediction sims run on first open) */
 .shimmer-note{font-size:12px;color:var(--muted);padding:10px 4px 6px;font-weight:600}
@@ -139,6 +145,18 @@ header{flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--bor
 .brand h1{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:20px;font-weight:800;letter-spacing:.5px;line-height:1}
 .brand p{font-size:11px;color:var(--muted);margin-top:1px}
 .hdr-updated-chip{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:2px 9px;border-radius:20px;background:rgba(74,222,128,.14);border:1px solid rgba(74,222,128,.35);color:var(--leaf);font-weight:700;font-size:10.5px;white-space:nowrap;vertical-align:middle}
+/* "New results available" banner — appears when the deployed page has fresher
+   data than the copy the visitor currently has loaded (e.g. the GitHub auto-
+   updater committed new scores while they had the page open). Tapping it reloads. */
+#freshBanner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(20px);z-index:200;display:none;align-items:center;gap:12px;max-width:calc(100vw - 24px);padding:11px 16px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#1a1205;font-size:13px;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,.35);opacity:0;transition:opacity .3s,transform .3s}
+#freshBanner.on{display:flex;opacity:1;transform:translateX(-50%) translateY(0)}
+#freshBanner .fb-ic{font-size:16px;flex-shrink:0}
+#freshBanner .fb-txt{line-height:1.3}
+#freshBanner .fb-reload{background:#1a1205;color:var(--accent);border:none;border-radius:8px;padding:6px 12px;font-family:inherit;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;flex-shrink:0}
+#freshBanner .fb-reload:hover{background:#000}
+#freshBanner .fb-x{background:transparent;border:none;color:#1a1205;font-size:16px;font-weight:800;cursor:pointer;padding:0 2px;line-height:1;opacity:.7;flex-shrink:0}
+#freshBanner .fb-x:hover{opacity:1}
+@media (prefers-reduced-motion: reduce){#freshBanner{transition:none}}
 .hstats{display:flex;gap:4px;justify-content:flex-start;flex-wrap:wrap;align-items:center}
 .spill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 9px;display:flex;align-items:center;gap:4px;white-space:nowrap}
 .spill .v{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:14px;font-weight:700;color:var(--accent)}
@@ -171,6 +189,14 @@ body.light .tab.on{color:#1a1205}
 .panel.on{display:flex;animation:panelIn .26s ease}
 @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.panel.on{animation:none}}
+/* Honour reduced-motion for the remaining decorative animations: the loading
+   spinner, the animated flight-arc dashes, and the Qatar-comparison multiplier
+   pop. The spinner keeps a static ring so it still reads as a loading state. */
+@media (prefers-reduced-motion: reduce){
+  .spin{animation:none}
+  .arc-anim{animation:none;stroke-dashoffset:0}
+  .cmp-mid-mult.pop{animation:none}
+}
 #pMap{flex-direction:column;position:relative}
 
 /* MAP */
@@ -348,7 +374,7 @@ table.ctable td.gold{color:var(--accent);font-weight:600;font-variant-numeric:ta
 
 /* GROUPS / STANDINGS / TRAVEL PANELS */
 #pStandings,#pTravel,#pFixtures,#pKotravel,#pFantravel{flex-direction:column;background:var(--bg)}
-.grp-wrap{flex:1;overflow-y:auto;padding:10px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;align-content:start}
+.grp-wrap{flex:1;overflow-y:auto;padding:10px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px;align-content:start}
 .grp-wrap::-webkit-scrollbar{width:4px}
 .grp-wrap::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px}
 .grp-card{background:var(--surface);border:1px solid var(--border2);border-radius:10px;overflow:hidden}
@@ -359,7 +385,7 @@ table.ctable td.gold{color:var(--accent);font-weight:600;font-variant-numeric:ta
 /* Group row base */
 .gu-head,.gu-row{display:grid;gap:3px;align-items:center;padding:4px 10px}
 /* Standings layout: #  Team  P  GD  Pts  Q%  Δpts  Δ% */
-.gu-s.gu-head,.gu-s.gu-row{grid-template-columns:16px minmax(0,1fr) 18px 24px 22px 36px 32px 36px}
+.gu-s.gu-head,.gu-s.gu-row{grid-template-columns:15px minmax(0,1fr) 16px 22px 20px 32px 28px 30px}
 /* Travel layout: #  Team  km  tCO₂e  ⚠ */
 .gu-t.gu-head,.gu-t.gu-row{grid-template-columns:16px minmax(0,1fr) 62px 58px 32px}
 /* Fairness layout: #  Team  share-bar  km */
@@ -422,8 +448,9 @@ body.light .gu-head{background:rgba(0,0,0,.06)}
 .flag-img{display:inline-block;width:18px;height:11px;border-radius:2px;vertical-align:-1px;object-fit:cover;box-shadow:0 0 0 .5px rgba(0,0,0,.15)}
 .dr-title-flag .flag-img{width:30px;height:20px;border-radius:3px;vertical-align:-3px}
 .gu-tname{overflow:hidden;text-overflow:ellipsis}
-.gu-status{flex-shrink:0;margin-left:auto;font-size:7.5px;font-weight:800;letter-spacing:.4px;padding:1.5px 5px;border-radius:4px;white-space:nowrap}
-.gu-team .gu-tname{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.gu-status{flex-shrink:0;align-self:flex-start;font-size:7.5px;font-weight:800;letter-spacing:.4px;padding:1.5px 5px;border-radius:4px;white-space:nowrap;margin-top:2px}
+.gu-team-stack{display:flex;flex-direction:column;align-items:flex-start;min-width:0;overflow:hidden}
+.gu-team-stack .gu-tname{overflow:hidden;text-overflow:ellipsis;min-width:0;max-width:100%}
 .gu-status.qual{background:var(--leaf);color:#06281a}
 .gu-status.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
 .gu-status.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
@@ -519,7 +546,7 @@ body.light .kol-head{background:rgba(0,0,0,.06)}
 .fan-leg-tag.ko{background:rgba(240,180,41,.16);color:var(--accent)}
 /* Fan rows have 3 columns (leg · journey · km), not 4 — no per-leg CO₂ column. */
 #fantravelWrap .kol-head,#fantravelWrap .kol-row{grid-template-columns:74px minmax(0,1fr) 64px}
-/* Fan summary card (full-width, sits above the per-team cards) */
+/* Fan summary card */
 .fan-summary{grid-column:1/-1;padding:15px 16px 17px}
 .fan-sum-head{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px}
 .fan-sum-lede{font-size:11.5px;line-height:1.6;color:var(--muted);margin-bottom:12px;max-width:760px}
@@ -531,8 +558,7 @@ body.light .kol-head{background:rgba(0,0,0,.06)}
 .fan-legend{display:flex;gap:16px;font-size:10.5px;color:var(--muted);margin-bottom:16px}
 .fan-legend span{display:flex;align-items:center;gap:5px}
 .fan-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;display:inline-block}
-.fan-dot.dom{background:var(--dom)}
-.fan-dot.intl{background:var(--intl)}
+.fan-dot.dom{background:var(--dom)}.fan-dot.intl{background:var(--intl)}
 .fan-bar-chart-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);margin-bottom:8px}
 .fan-bar-chart{display:flex;flex-direction:column;gap:3px}
 .fan-bar-row{display:grid;grid-template-columns:128px minmax(0,1fr) 92px;align-items:center;gap:8px;cursor:pointer;padding:1px 3px;border-radius:4px;transition:background .1s}
@@ -541,28 +567,10 @@ body.light .kol-head{background:rgba(0,0,0,.06)}
 .fan-bar-name{overflow:hidden;text-overflow:ellipsis}
 .fan-bar-track{display:flex;height:13px;border-radius:3px;overflow:hidden;background:var(--surface2)}
 .fan-bar-seg{height:100%}
-.fan-bar-seg.dom{background:var(--dom)}
-.fan-bar-seg.intl{background:var(--intl)}
+.fan-bar-seg.dom{background:var(--dom)}.fan-bar-seg.intl{background:var(--intl)}
 .fan-bar-val{font-size:11px;font-weight:700;color:var(--text);text-align:right;font-variant-numeric:tabular-nums}
 .fan-bar-val .gu-unit{font-size:8.5px;color:var(--dim);margin-left:2px}
-/* Per-team card: split bar + two rows */
-.fan-card-split{display:flex;height:11px;border-radius:3px;overflow:hidden;margin:0 11px 9px}
-.fan-card-rows{padding:0 11px 9px;display:flex;flex-direction:column;gap:5px}
-.fan-cr{display:grid;grid-template-columns:13px 1fr auto;align-items:center;gap:7px;font-size:11px}
-.fan-cr-l{color:var(--muted)}
-.fan-cr-v{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
-.fan-cr-sep{height:1px;background:var(--border);margin:3px 0}
-.fan-cr-sub .fan-cr-l{color:var(--dim);font-size:10.5px}
-.fan-cr-sub{grid-template-columns:1fr auto}
-.fan-ko-head{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--accent);margin-top:2px;display:flex;align-items:baseline;gap:5px}
-.fan-ko-note{font-size:8.5px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--dim)}
-.fan-ko-tag{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;border-radius:3px;padding:1.5px 5px;justify-self:start}
-.fan-ko-tag.act{background:rgba(74,222,128,.16);color:var(--leaf)}
-.fan-ko-tag.proj{background:rgba(240,180,41,.16);color:var(--accent)}
-.fan-cr:has(.fan-ko-tag){grid-template-columns:auto 1fr auto}
-body.light .fan-summary,body.light .fan-bar-track{background:#fff}
-@media(max-width:560px){.fan-bar-row{grid-template-columns:104px minmax(0,1fr) 80px}}
-/* ── Fan table (replaces per-team cards) ── */
+/* Fan sortable table */
 .fan-table-wrap{grid-column:1/-1;overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
 .fan-table{width:100%;border-collapse:collapse;font-size:11.5px;min-width:820px}
 .fan-th{text-align:left;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim);padding:9px 10px;border-bottom:1px solid var(--border2);cursor:pointer;white-space:nowrap;user-select:none;position:sticky;top:0;background:var(--surface);z-index:1}
@@ -570,26 +578,24 @@ body.light .fan-summary,body.light .fan-bar-track{background:#fff}
 .fan-th.active{color:var(--accent)}
 .fan-th.num{text-align:right}
 .fan-tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
-.fan-tr:hover{background:var(--surface3)}
-.fan-tr:last-child{border-bottom:none}
+.fan-tr:hover{background:var(--surface3)}.fan-tr:last-child{border-bottom:none}
 .fan-table td{padding:7px 10px;vertical-align:middle}
 .fan-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:var(--text)}
-.fan-td-team{display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:150px}
+.fan-td-team{display:flex;align-items:center;gap:6px;white-space:nowrap;min-width:140px}
 .fan-td-name{font-weight:600;color:var(--text)}
 .fan-td-grp{font-size:8.5px;color:var(--dim);background:var(--surface2);border-radius:3px;padding:1px 4px}
 .fan-td-tot{font-weight:800!important;color:var(--accent)!important}
 .fan-td-pct{color:var(--dom)!important;font-weight:700!important}
-.fan-dash{color:var(--dim)}
-.fan-proj{color:var(--accent);font-weight:600}
 .fan-td-proj{color:var(--accent)!important}
+.fan-proj{color:var(--accent);font-weight:600}
+.fan-dash{color:var(--dim)}
 .fan-td-split{min-width:170px}
 .fan-tbar{display:flex;height:11px;border-radius:3px;overflow:hidden;background:var(--surface2);max-width:130px;margin-bottom:3px}
-.fan-tbar .fan-bar-seg.dom{background:var(--dom)}
-.fan-tbar .fan-bar-seg.intl{background:var(--intl)}
+.fan-tbar .fan-bar-seg.dom{background:var(--dom)}.fan-tbar .fan-bar-seg.intl{background:var(--intl)}
 .fan-td-splitnums{font-size:10px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--muted)}
-.fan-table-foot{grid-column:1/-1;font-size:10px;line-height:1.6;color:var(--dim);padding:4px 4px 0;max-width:820px}
+.fan-table-foot{grid-column:1/-1;font-size:10px;line-height:1.6;color:var(--dim);padding:4px 4px 0;max-width:880px}
 .fan-table-foot b{color:var(--accent)}
-body.light .fan-table-wrap,body.light .fan-th{background:#fff}
+body.light .fan-summary,body.light .fan-bar-track,body.light .fan-table-wrap,body.light .fan-th{background:#fff}
 body.light .grp-stand-status{background:rgba(0,0,0,.03)}
 /* Results strip in standings cards */
 .gr-res-wrap{display:flex;flex-wrap:wrap;gap:4px;padding:6px 10px;border-top:1px solid var(--border);background:rgba(0,0,0,.08)}
@@ -767,6 +773,18 @@ body.light .grp-name{color:#fff}
 .icon-btn:hover{border-color:var(--accent);color:var(--accent)}
 .icon-btn .ib-label{font-size:11px}
 @media(max-width:820px){.icon-btn .ib-label{display:none}}
+/* Header team search — sits in .hctrl alongside the icon buttons, so the tabbar
+   is untouched. The #srch input + #clrbtn clear button reuse the existing
+   highlight wiring (applyHL) defined in the main script. */
+.hsearch{position:relative;display:inline-flex;align-items:center}
+.hsearch .hs-ic{position:absolute;left:8px;font-size:12px;color:var(--dim);pointer-events:none}
+#srch{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-family:inherit;font-size:13px;padding:7px 26px 7px 26px;width:140px;transition:width .15s,border-color .15s}
+#srch::placeholder{color:var(--dim)}
+#srch:focus{outline:none;border-color:var(--accent);width:170px}
+#srch:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+#clrbtn{position:absolute;right:5px;display:none;border:none;background:transparent;color:var(--muted);font-size:14px;line-height:1;cursor:pointer;padding:2px 4px;border-radius:4px}
+#clrbtn:hover{color:var(--accent)}
+@media(max-width:820px){#srch{width:120px}#srch:focus{width:140px}}
 
 /* Standings table */
 .sr-pos{font-size:9px;color:var(--dim);text-align:center;font-weight:700}
@@ -800,8 +818,9 @@ body.light .bracket-slot.q2{background:rgba(37,99,235,.05)}
 .bs-pos{font-size:9px;font-weight:700;text-align:center}
 .bs-pos.p1{color:var(--leaf)}.bs-pos.p2{color:#60a5fa}.bs-pos.p3{color:var(--dim)}
 .bs-team{display:flex;align-items:center;gap:5px;font-weight:500;min-width:0}
-.bs-tname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bs-badge{flex-shrink:0;font-size:7px;font-weight:800;letter-spacing:.3px;padding:1.5px 4px;border-radius:4px;white-space:nowrap;margin-left:auto}
+.bs-team-stack{display:flex;flex-direction:column;align-items:flex-start;min-width:0;overflow:hidden}
+.bs-tname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.bs-badge{flex-shrink:0;align-self:flex-start;font-size:7px;font-weight:800;letter-spacing:.3px;padding:1.5px 4px;border-radius:4px;white-space:nowrap;margin-top:2px}
 .bs-badge.qual{background:var(--leaf);color:#06281a}
 .bs-badge.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
 .bs-badge.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
@@ -976,9 +995,6 @@ body.light #teamDrawer{box-shadow:-8px 0 32px rgba(0,0,0,.15)}
 .brk-section-title{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:14px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 .brk-group-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
 .brk-third-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:5px}
-.bracket-slot.q3{background:rgba(240,180,41,.05)}
-.bracket-slot.q3 .bs-pos{color:var(--accent)}
-/* ── Third-place TABLE (all 12, top-8 advance) ── */
 .brk-third-table-wrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface)}
 .bt-table{width:100%;border-collapse:collapse;font-size:11.5px}
 .bt-table th{text-align:left;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--dim);padding:7px 8px;border-bottom:1px solid var(--border2);white-space:nowrap}
@@ -986,10 +1002,8 @@ body.light #teamDrawer{box-shadow:-8px 0 32px rgba(0,0,0,.15)}
 .bt-table th.bt-status,.bt-table td.bt-status{text-align:right;width:96px}
 .bt-row{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
 .bt-row:last-child{border-bottom:none}
-.bt-row.adv{background:rgba(74,222,128,.07)}
-.bt-row.adv:hover{background:rgba(74,222,128,.14)}
-.bt-row.out{background:rgba(239,68,68,.05)}
-.bt-row.out:hover{background:rgba(239,68,68,.11)}
+.bt-row.adv{background:rgba(74,222,128,.07)}.bt-row.adv:hover{background:rgba(74,222,128,.14)}
+.bt-row.out{background:rgba(239,68,68,.05)}.bt-row.out:hover{background:rgba(239,68,68,.11)}
 .bt-row.bt-cutoff{border-top:2px solid var(--accent)}
 .bt-table td{padding:6px 8px;vertical-align:middle}
 .bt-rank{font-weight:800;color:var(--muted);width:24px;text-align:center;font-variant-numeric:tabular-nums}
@@ -1004,9 +1018,10 @@ body.light #teamDrawer{box-shadow:-8px 0 32px rgba(0,0,0,.15)}
 .bt-pill.out{background:rgba(239,68,68,.14);color:var(--red)}
 .bt-foot{font-size:9.5px;color:var(--dim);padding:7px 9px;line-height:1.6;border-top:1px solid var(--border)}
 .bt-key{font-weight:700;margin-right:10px}
-.bt-key.adv{color:var(--leaf)}
-.bt-key.out{color:var(--red)}
+.bt-key.adv{color:var(--leaf)}.bt-key.out{color:var(--red)}
 body.light .brk-third-table-wrap{background:#fff}
+.bracket-slot.q3{background:rgba(240,180,41,.05)}
+.bracket-slot.q3 .bs-pos{color:var(--accent)}
 
 /* ── Qatar single map ── */
 .qa-map-card{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.15)}
@@ -1094,6 +1109,17 @@ body.light .qa-team-row:hover,body.light .qa-team-row.active{background:#e2e8f0}
 .kb-lines path{fill:none;stroke:var(--border2);stroke-width:1.5}
 .kb-mnum{font-size:8px;font-weight:700;color:var(--dim);text-decoration:underline}
 .kb-mdate{font-size:7.5px;color:var(--dim)}
+/* Knockout location on its own full-width line below the date, so long venue
+   names (e.g. "San Francisco Bay Area") are fully readable. */
+.kb-mloc{font-size:9px;font-weight:700;color:var(--accent);white-space:normal;line-height:1.25;padding:1px 3px 3px;text-align:center}
+/* UK broadcaster chip in the knockout bracket match header */
+.kb-ch{font-size:7px;font-weight:800;letter-spacing:.2px;padding:1px 4px;border-radius:3px;white-space:nowrap;line-height:1.3;flex-shrink:0}
+.kb-ch-tbc{color:var(--muted);background:var(--surface3);border:1px solid var(--border2)}
+.kb-ch-bbc{color:#fff;background:#1d1d1f}
+.kb-ch-itv{color:#fff;background:#c4122e}
+.kb-ch-both{color:#fff;background:linear-gradient(90deg,#1d1d1f 50%,#c4122e 50%)}
+body.light .kb-ch-bbc{background:#000}
+body.light .kb-ch-itv{background:#d6173a}
 .kb-team{display:flex;align-items:center;gap:4px;padding:4px 5px;background:var(--surface2);border-radius:4px;font-size:10px;min-height:24px}
 .kb-team.filled{cursor:pointer;transition:background .1s}
 .kb-team.filled:hover{background:var(--surface3)}
@@ -1202,6 +1228,12 @@ window.addEventListener("unhandledrejection",function(e){
   </div>
 </noscript>
 <div id="tip"></div>
+<div id="freshBanner" role="status" aria-live="polite">
+  <span class="fb-ic" aria-hidden="true">🔄</span>
+  <span class="fb-txt">New results are in — refresh to see the latest scores &amp; standings.</span>
+  <button class="fb-reload" id="fbReload">Refresh</button>
+  <button class="fb-x" id="fbDismiss" title="Dismiss" aria-label="Dismiss">✕</button>
+</div>
 <div class="modal-overlay" id="methodOverlay"></div>
 <div class="method-modal" id="methodModal">
   <div class="method-head">
@@ -1247,12 +1279,19 @@ window.addEventListener("unhandledrejection",function(e){
       <p>Once the group stage ends, knockout travel is modelled differently. Teams no longer return to a fixed base between games — they tour onward from city to city — so knockout legs are <strong>one-way hops</strong> (last group venue → Round-of-32 city → Round-of-16 city → …), not round trips. Each team's path follows the official bracket. A leg shows as <strong>projected</strong> until its fixture is played, then converts to <strong>actual</strong> as results are entered. The map only draws knockout flights once a game has genuinely been played.</p>
     </div>
     <div class="method-sec">
-      <h4>What's not included: fan travel</h4>
-      <p>Every figure here measures <strong>team</strong> travel only. Spectator travel — fans flying in from around the world — is far larger (independent estimates put it at the overwhelming majority of a World Cup's transport footprint) but depends on assumptions about crowd numbers and origins that can't be known precisely in advance, so it's deliberately left out rather than guessed. Keep in mind that team travel, while the focus of this tool, is the small part of the real picture.</p>
+      <h4>Fan travel <span style="color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0">(estimate)</span></h4>
+      <p>The Fan Travel tab is a separate, deliberately rough estimate of <strong>supporter</strong> travel — not the precise, fixture-based figures used everywhere else. Spectator travel dwarfs team travel (independent estimates put fans at the overwhelming majority of a World Cup's transport footprint), so it's worth showing, but it depends on assumptions that can't be known precisely in advance. Treat it as an order-of-magnitude indicator, not a measurement.</p>
+      <p>For each nation we estimate a <strong>travelling-fan count</strong> and model those fans as one cohort that follows the team on a <strong>one-way tour</strong> — home nation → each group venue → each knockout venue — never returning home between games, mirroring how the team itself is modelled. Per-fan distances are great-circle, scaled by the estimated fan count.</p>
+      <p>Emissions use the same UK DESNZ 2025 factors, but <strong>banded by leg distance</strong> rather than a single flight factor: coach for hops ≤300 km (0.02776), short domestic ≤1,000 km (0.22928), short-haul &lt;3,700 km (0.12786) and long-haul ≥3,700 km (0.15282) kgCO₂e per passenger-km, all including radiative forcing. The long inbound leg from the home nation is typically the bulk of the total; hops between North American venues are comparatively small. Each team's figure is split into <strong>international inbound</strong> and <strong>North-America-domestic</strong> travel, which reveals that roughly a fifth of fan emissions are generated <em>within</em> the host continent once supporters arrive.</p>
+      <p>Group-stage values are fixed; knockout legs are added live as the bracket resolves, shown as <strong>projected</strong> until a game is played and <strong>actual</strong> afterwards. Fan-count estimates reflect real-world 2026 conditions (US entry and visa friction, FIFA ticket-purchase data) and are necessarily approximate — the headline is the <em>scale and shape</em> of fan travel, not any single nation's exact tonnage.</p>
+    </div>
+    <div class="method-sec">
+      <h4>UK TV coverage (BBC / ITV)</h4>
+      <p>The Fixtures tab shows whether each group-stage match airs on the <strong>BBC</strong> or <strong>ITV</strong> in the UK — the two free-to-air broadcasters share the tournament and split the games. Channel labels (e.g. BBC One, ITV1, ITV4) follow the broadcasters' published selections. Knockout-round channels are assigned closer to each round and are added once confirmed. All UK kick-off times are shown in BST.</p>
     </div>
     <div class="method-sec">
       <h4>Sources &amp; caveats</h4>
-      <p>Fixtures, venues and training-camp locations from FIFA's published 2026 schedule. Emission factors from UK DESNZ 2025. This is an independent analysis for illustration — actual team logistics (charter routing, exact squad sizes, road vs air choices) will vary. Treat the numbers as well-grounded estimates, not official figures.</p>
+      <p>Fixtures, venues and training-camp locations from FIFA's published 2026 schedule. Emission factors from UK DESNZ 2025. UK broadcaster (BBC/ITV) assignments from the channels' published selections. Fan-travel figures are independent estimates. This is an independent analysis for illustration — actual team logistics (charter routing, exact squad sizes, road vs air choices) will vary. Treat the numbers as well-grounded estimates, not official figures.</p>
     </div>
   </div>
 </div>
@@ -1263,7 +1302,7 @@ window.addEventListener("unhandledrejection",function(e){
   <div class="intro-emoji">🏆 ✈️ 🌎</div>
   <h2 class="intro-title">World Cup 2026</h2>
   <div class="intro-sub">Logistics · Emissions · Predictions</div>
-  <p class="intro-lead">The first World Cup across <strong>three countries</strong> — USA, Canada &amp; Mexico. Instead of staying in one city, teams crisscross a continent. This tracker follows what that actually costs, and who it favours.</p>
+  <p class="intro-lead">The first World Cup across <strong>three countries</strong> — USA, Canada &amp; Mexico. Instead of staying in one city, teams crisscross a continent. This tracker follows what that actually costs, who it favours, and what it means for the fans following them.</p>
   <div class="intro-stats">
     <div class="intro-stat"><span class="intro-stat-v">~240,000</span><span class="intro-stat-l">km flown<br>(group stage)</span></div>
     <div class="intro-stat"><span class="intro-stat-v leaf">~1,500 t</span><span class="intro-stat-l">CO₂e from<br>team flights</span></div>
@@ -1273,10 +1312,11 @@ window.addEventListener("unhandledrejection",function(e){
     <div class="intro-pt"><span class="intro-ic">🗺️</span><span><strong>Logistics</strong> — every team's flight routes, distances and jet-lag burden across North America.</span></div>
     <div class="intro-pt"><span class="intro-ic">🌱</span><span><strong>Emissions</strong> — the carbon cost of all that flying, and how 2026 compares to Qatar 2022.</span></div>
     <div class="intro-pt"><span class="intro-ic">📊</span><span><strong>Predictions</strong> — live qualification and title odds from a simulation that re-runs as results come in.</span></div>
+    <div class="intro-pt"><span class="intro-ic">🧳</span><span><strong>Fan travel</strong> — an estimate of the supporter footprint following each team, usually far larger than the squads' own.</span></div>
   </div>
   <button class="intro-btn" id="introBtn">Explore the tracker →</button>
   <label class="intro-dsa"><input type="checkbox" id="introDontShow"> Don't show this again</label>
-  <div class="intro-foot">👆 Tip: click any team — anywhere — to light up its route on the map. Use the tabs at the top to switch views.</div>
+  <div class="intro-foot">👆 Tip: click any team to light up its route on the map, or search for one up top. The Fixtures tab shows UK kick-off times and whether each game is on <strong>BBC</strong> or <strong>ITV</strong>.</div>
 </div>
 <div class="drawer-overlay" id="drawerOverlay"></div>
 <div id="teamDrawer"><div class="drawer-head"><span class="drawer-title" id="drawerTitle">Team Profile</span><button class="drawer-close" id="drawerClose">✕ Close</button></div><div class="drawer-body" id="drawerBody"></div></div>
@@ -1290,6 +1330,12 @@ window.addEventListener("unhandledrejection",function(e){
     <div class="hstats" id="hstats"></div>
   </div>
   <div class="hctrl">
+    <div class="hsearch">
+      <span class="hs-ic" aria-hidden="true">🔍</span>
+      <input id="srch" type="search" placeholder="Find a team…" autocomplete="off" aria-label="Search for a team to highlight on the map" list="teamOptions">
+      <button id="clrbtn" type="button" title="Clear search" aria-label="Clear search">✕</button>
+    </div>
+    <datalist id="teamOptions"></datalist>
     <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme">☀️ <span class="ib-label">Theme</span></button>
     <button class="icon-btn" id="csvBtn" title="Download data as CSV">⬇ <span class="ib-label">CSV</span></button>
     <button class="icon-btn" id="pngBtn" title="Save map as PNG image">📷 <span class="ib-label">PNG</span></button>
@@ -1298,16 +1344,16 @@ window.addEventListener("unhandledrejection",function(e){
 </header>
 
 <div class="tabbar">
-  <div class="tabs">
+  <div class="tabs" role="tablist" aria-label="Dashboard views">
     <div class="tab on" data-tab="map"><span class="tab-full">🗺 Flight Map &amp; Teams</span><span class="tab-short">🗺 Map</span></div>
     <div class="tab" data-tab="cities"><span class="tab-full">🏟 Host Cities &amp; Emissions</span><span class="tab-short">🏟 Cities</span></div>
     <div class="tab" data-tab="travel"><span class="tab-full">✈ km and tCO₂e of Teams</span><span class="tab-short">✈ Travel</span></div>
     <div class="tab" data-tab="fairness"><span class="tab-full">⚖ Group Travel Fairness</span><span class="tab-short">⚖ Fairness</span></div>
-    <div class="tab" data-tab="standings"><span class="tab-full">⚽ Standings</span><span class="tab-short">⚽ Table</span></div>
+    <div class="tab" data-tab="fantravel"><span class="tab-full">🧳 Fan Travel</span><span class="tab-short">🧳 Fans</span></div>
     <div class="tab" data-tab="fixtures"><span class="tab-full">📅 Fixtures</span><span class="tab-short">📅 Fixtures</span></div>
+    <div class="tab" data-tab="standings"><span class="tab-full">⚽ Standings</span><span class="tab-short">⚽ Table</span></div>
     <div class="tab" data-tab="bracket"><span class="tab-full">🏆 WC Bracket</span><span class="tab-short">🏆 Bracket</span></div>
     <div class="tab" data-tab="kotravel"><span class="tab-full">🛫 Knockout Travel</span><span class="tab-short">🛫 KO Travel</span></div>
-    <div class="tab" data-tab="fantravel"><span class="tab-full">🧳 Fan Travel</span><span class="tab-short">🧳 Fans</span></div>
     <div class="tab" data-tab="compare"><span class="tab-full">📊 Qatar Comparison</span><span class="tab-short">📊 Qatar</span></div>
   </div>
 </div>
@@ -1412,7 +1458,6 @@ window.addEventListener("unhandledrejection",function(e){
 </div>
 </div>
 
-<!-- CITIES TAB -->
 <!-- STANDINGS TAB -->
 <div class="panel" id="pStandings">
   <div class="cit-header" style="flex-shrink:0">
@@ -1481,6 +1526,7 @@ window.addEventListener("unhandledrejection",function(e){
   </div>
   <div class="grp-wrap" id="travelWrap"></div>
 </div>
+<!-- CITIES TAB -->
 <div class="panel" id="pCities">
   <div class="cit-header">
     <div>
@@ -1516,7 +1562,7 @@ window.addEventListener("unhandledrejection",function(e){
   <div class="cit-header" style="flex-shrink:0">
     <div>
       <div class="cit-h1" style="color:#f0b429">🏆 Round of 32 Bracket</div>
-      <div class="cit-sub">Top 2 from each group qualify automatically. 8 best third-place teams also advance. Click a team to highlight their map routes.</div>
+      <div class="cit-sub">Top 2 from each group qualify automatically. Only the 8 best of the 12 third-place teams also advance, so third-place slots stay provisional (~) until the cut is settled. UK broadcaster (BBC/ITV) shown once announced. Click a team to highlight their map routes.</div>
     </div>
     <div class="cit-pills" id="bracketPills"></div>
     <button id="brkFitBtn" class="brk-fit-btn" onclick="toggleBracketFit()" title="Scale the bracket to fit your screen">⤢ Fit</button>
@@ -1928,6 +1974,88 @@ function kickoffBST(fx){
   return KICKOFF_BST[fx.a+"|"+fx.b] || KICKOFF_BST[fx.b+"|"+fx.a] || "";
 }
 
+// UK free-to-air broadcaster per group-stage fixture (BBC/ITV split).
+// Keyed by "teamA|teamB" in fixture order, matching KICKOFF_BST. Source: BBC/ITV
+// published selections (ESPN UK TV guide, June 2026). Knockouts are assigned
+// closer to each round, so they are intentionally left blank for now.
+const CHANNEL_UK={
+  "Mexico|South Africa":"ITV1",
+  "Korea Republic|Czechia":"ITV1",
+  "Canada|Bosnia and Herzegovina":"BBC One",
+  "United States|Paraguay":"BBC One",
+  "Qatar|Switzerland":"ITV1",
+  "Brazil|Morocco":"BBC One",
+  "Haiti|Scotland":"BBC One",
+  "Australia|Türkiye":"ITV1",
+  "Germany|Curaçao":"ITV1",
+  "Netherlands|Japan":"ITV1",
+  "Cote d\'Ivoire|Ecuador":"BBC One",
+  "Sweden|Tunisia":"ITV1",
+  "Spain|Cabo Verde":"ITV1",
+  "Belgium|Egypt":"BBC One",
+  "Saudi Arabia|Uruguay":"ITV1",
+  "Iran|New Zealand":"BBC One",
+  "France|Senegal":"BBC One",
+  "Iraq|Norway":"BBC One",
+  "Argentina|Algeria":"ITV1",
+  "Austria|Jordan":"BBC One",
+  "Portugal|Congo DR":"BBC One",
+  "England|Croatia":"ITV1",
+  "Ghana|Panama":"ITV1",
+  "Uzbekistan|Colombia":"BBC One",
+  "Czechia|South Africa":"BBC One",
+  "Switzerland|Bosnia and Herzegovina":"ITV1",
+  "Canada|Qatar":"ITV1",
+  "Mexico|Korea Republic":"BBC One",
+  "United States|Australia":"BBC One",
+  "Scotland|Morocco":"ITV1",
+  "Brazil|Haiti":"ITV1",
+  "Türkiye|Paraguay":"ITV1",
+  "Netherlands|Sweden":"BBC One",
+  "Germany|Cote d\'Ivoire":"ITV1",
+  "Ecuador|Curaçao":"BBC One",
+  "Tunisia|Japan":"BBC One",
+  "Spain|Saudi Arabia":"BBC One",
+  "Belgium|Iran":"ITV1",
+  "Uruguay|Cabo Verde":"BBC One",
+  "New Zealand|Egypt":"ITV1",
+  "Argentina|Austria":"BBC One",
+  "France|Iraq":"BBC One",
+  "Norway|Senegal":"ITV1",
+  "Jordan|Algeria":"ITV1",
+  "Portugal|Uzbekistan":"ITV1",
+  "England|Ghana":"BBC One",
+  "Panama|Croatia":"BBC One",
+  "Colombia|Congo DR":"ITV1",
+  "Switzerland|Canada":"ITV1",
+  "Bosnia and Herzegovina|Qatar":"ITV4",
+  "Scotland|Brazil":"BBC One",
+  "Morocco|Haiti":"BBC Two",
+  "Czechia|Mexico":"BBC One",
+  "South Africa|Korea Republic":"BBC Two",
+  "Ecuador|Germany":"BBC One",
+  "Curaçao|Cote d\'Ivoire":"BBC Two",
+  "Japan|Sweden":"BBC Two",
+  "Tunisia|Netherlands":"BBC One",
+  "Türkiye|United States":"ITV1",
+  "Paraguay|Australia":"ITV4",
+  "Norway|France":"ITV1",
+  "Senegal|Iraq":"ITV4",
+  "Cabo Verde|Saudi Arabia":"ITV4",
+  "Uruguay|Spain":"ITV1",
+  "Egypt|Iran":"BBC Two",
+  "New Zealand|Belgium":"BBC One",
+  "Panama|England":"ITV1",
+  "Croatia|Ghana":"ITV4",
+  "Colombia|Portugal":"BBC One",
+  "Congo DR|Uzbekistan":"BBC Two",
+  "Algeria|Austria":"BBC Two",
+  "Jordan|Argentina":"BBC One"
+};
+function channelUK(fx){
+  return CHANNEL_UK[fx.a+"|"+fx.b] || CHANNEL_UK[fx.b+"|"+fx.a] || "";
+}
+
 // Is this fixture kicking off / in progress right now? Used for the LIVE badge.
 // A match counts as live from kick-off until ~2 hours later. Times are BST; we
 // parse the stored kick-off (e.g. "8pm", "1:30am") against the fixture's date.
@@ -1943,11 +2071,9 @@ function fixtureKickoffDate(fx){
   // Build a UTC instant for the BST wall-clock time (BST = UTC+1).
   const [Y,Mo,D]=fx.d.split("-").map(Number);
   let dt=Date.UTC(Y,Mo-1,D,hr-1,min);
-  // Early-morning kick-offs (after midnight, before ~8am BST) are listed under
-  // the match's date but actually fall in the small hours of the FOLLOWING day
-  // in UK time — US/Mexico evening games spill past UK midnight. Roll forward a
-  // day so the LIVE window lands on the real instant, not 24h early.
-  if(mer==="am" && hr<8) dt += 24*60*60*1000;
+  // Early-morning kick-offs (before ~8am BST) are listed on the match's date but
+  // fall in the small hours of the next day in viewers' minds; the FIXTURES date
+  // is the local match date, so no day shift is needed here.
   return new Date(dt);
 }
 function isFixtureLive(fx){
@@ -2122,6 +2248,8 @@ const totalCo2All=allTeams.reduce((s,t)=>s+t.totalCo2,0);
 /* filter select */
 const fsel=document.getElementById("fsel");
 if(fsel)teamList.forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=(FLAG_IMG[t]?"":(TEAMS[t].flag+" "))+t;fsel.appendChild(o);});
+// Populate the header search box's autocomplete suggestions.
+(()=>{const dl=document.getElementById("teamOptions");if(dl)teamList.forEach(t=>{const o=document.createElement("option");o.value=t;dl.appendChild(o);});})();
 
 /* ═══════════════ MAP ═══════════════ */
 const mapWrap=document.getElementById("mapWrap");
@@ -2774,10 +2902,23 @@ document.querySelectorAll(".ch[data-col]").forEach(th=>{
 });
 
 const _srch=document.getElementById("srch");
+function _findTeam(q){
+  if(!q)return null;
+  q=q.trim().toLowerCase();
+  if(!q)return null;
+  return teamList.find(t=>t.toLowerCase()===q)            // exact
+      || teamList.find(t=>t.toLowerCase().startsWith(q))  // prefix
+      || teamList.find(t=>t.toLowerCase().includes(q))    // substring
+      || null;
+}
 if(_srch)_srch.addEventListener("input",e=>{
-  const q=e.target.value.trim().toLowerCase();
-  const m=q?teamList.find(t=>t.toLowerCase().includes(q)):null;
+  const m=_findTeam(e.target.value);
   if(fsel)fsel.value=m||"";applyHL(m||null);
+});
+// Enter opens the matched team's profile drawer; Escape clears.
+if(_srch)_srch.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){const m=_findTeam(e.target.value);if(m&&typeof openDrawer==="function")openDrawer(m);}
+  else if(e.key==="Escape"){_srch.value="";applyHL(null);}
 });
 if(fsel)fsel.addEventListener("change",e=>{const v=e.target.value;if(_srch)_srch.value=v;applyHL(v||null);});
 const _clrbtn=document.getElementById("clrbtn");
@@ -2785,6 +2926,7 @@ if(_clrbtn)_clrbtn.addEventListener("click",()=>{
   if(_srch)_srch.value="";if(fsel)fsel.value="";
   document.querySelectorAll(".row.pin").forEach(r=>r.classList.remove("pin"));
   applyHL(null);
+  if(_srch)_srch.focus();
 });
 
 /* ═══════════════ CITIES TABLE ═══════════════ */
@@ -2895,72 +3037,77 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3225,48 +3372,7 @@ function standingsFor(teams, results){
     if(r.ga>r.gb)A.pts+=3;else if(r.ga<r.gb)B.pts+=3;else{A.pts++;B.pts++;}
   });
   Object.values(tbl).forEach(t=>t.gd=t.gf-t.ga);
-
-  // FIFA 2026 tiebreakers: HEAD-TO-HEAD first (pts, GD, GF among the tied teams),
-  // THEN overall GD, overall GF, then fair play / ranking. Overall GD is NOT the
-  // primary separator any more — this mirrors groupStandings() so the clinch
-  // brute-force and the simulation rank scenarios by the real rules.
-  function h2hMini(cluster, res){
-    const names=new Set(cluster.map(t=>t.team));
-    const mini={};
-    cluster.forEach(t=>{mini[t.team]={pts:0,gd:0,gf:0};});
-    res.forEach(r=>{
-      if(!names.has(r.a)||!names.has(r.b))return;
-      const A=mini[r.a],B=mini[r.b];
-      A.gf+=r.ga;A.gd+=r.ga-r.gb;B.gf+=r.gb;B.gd+=r.gb-r.ga;
-      if(r.ga>r.gb)A.pts+=3; else if(r.ga<r.gb)B.pts+=3; else {A.pts++;B.pts++;}
-    });
-    return mini;
-  }
-  function rankCluster(cluster){
-    if(cluster.length===1) return cluster;
-    const mini=h2hMini(cluster, results);
-    cluster.sort((x,y)=>
-      (mini[y.team].pts-mini[x.team].pts) ||
-      (mini[y.team].gd -mini[x.team].gd ) ||
-      (mini[y.team].gf -mini[x.team].gf ) ||
-      (y.gd-x.gd) ||
-      (y.gf-x.gf) ||
-      (fairPlayPts(y.team)-fairPlayPts(x.team)) ||
-      (teamStrength(y.team)-teamStrength(x.team)) ||
-      x.team.localeCompare(y.team)
-    );
-    return cluster;
-  }
-  // Sort by points, then resolve each points-tied block by the full ladder.
-  const byPoints=Object.values(tbl).sort((x,y)=>y.pts-x.pts);
-  const out=[];
-  for(let i=0;i<byPoints.length;){
-    let j=i+1;
-    while(j<byPoints.length && byPoints[j].pts===byPoints[i].pts) j++;
-    out.push(...rankCluster(byPoints.slice(i,j)));
-    i=j;
-  }
-  return out;
+  return Object.values(tbl).sort((x,y)=>y.pts-x.pts||y.gd-x.gd||y.gf-x.gf||x.team.localeCompare(y.team));
 }
 
 /* ═══════════════ GROUPS TABLE ═══════════════ */
@@ -3345,10 +3451,15 @@ function simulateGroup(grp, iters, resultsArr){
   resultsArr = resultsArr || RESULTS;
   const teams=GROUPS[grp];
   const rem=remainingFixtures(teams, resultsArr);
-  // Actual results so far within this group (kept as result objects so the
-  // simulation can rank with the real 2026 head-to-head tiebreakers).
-  const baseResults=resultsArr.filter(r=>teams.includes(r.a)&&teams.includes(r.b))
-    .map(r=>({a:r.a,b:r.b,ga:r.ga,gb:r.gb}));
+  const baseStats={};
+  // seed with actual results so far
+  teams.forEach(t=>baseStats[t]={pts:0,gd:0,gf:0});
+  resultsArr.forEach(r=>{
+    if(!teams.includes(r.a)||!teams.includes(r.b))return;
+    baseStats[r.a].gf+=r.ga;baseStats[r.b].gf+=r.gb;
+    baseStats[r.a].gd+=r.ga-r.gb;baseStats[r.b].gd+=r.gb-r.ga;
+    if(r.ga>r.gb)baseStats[r.a].pts+=3;else if(r.ga<r.gb)baseStats[r.b].pts+=3;else{baseStats[r.a].pts++;baseStats[r.b].pts++;}
+  });
   const count={};teams.forEach(t=>count[t]={first:0,second:0,third:0,qual:0});
   // Seed from the current results so the qualification %s are stable on refresh
   // (but still move when a new score is added). The group name is folded in so
@@ -3357,16 +3468,16 @@ function simulateGroup(grp, iters, resultsArr){
   for(let i=0;i<grp.length;i++){_gSeed=(Math.imul(_gSeed,31)+grp.charCodeAt(i))>>>0;}
   seedRng(_gSeed);
   for(let it=0;it<iters;it++){
-    const simResults=baseResults.slice();
+    const s={};teams.forEach(t=>s[t]={pts:baseStats[t].pts,gd:baseStats[t].gd,gf:baseStats[t].gf,team:t});
     rem.forEach(([a,b])=>{
       const [pa,pd,pb]=matchProbs(a,b);
       const r=rng();
       // simulate a plausible scoreline
-      if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:g,gb:c});}
-      else if(r<pa+pd){const g=Math.floor(rng()*3);simResults.push({a,b,ga:g,gb:g});}
-      else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:c,gb:g});}
+      if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[a].pts+=3;s[a].gd+=g-c;s[b].gd-=g-c;s[a].gf+=g;s[b].gf+=c;}
+      else if(r<pa+pd){const g=Math.floor(rng()*3);s[a].gf+=g;s[b].gf+=g;s[a].pts++;s[b].pts++;}
+      else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[b].pts+=3;s[b].gd+=g-c;s[a].gd-=g-c;s[b].gf+=g;s[a].gf+=c;}
     });
-    const table=standingsFor(teams, simResults);
+    const table=Object.values(s).sort((x,y)=>y.pts-x.pts||y.gd-x.gd||y.gf-x.gf||(rng()-0.5));
     count[table[0].team].first++;
     count[table[1].team].second++;
     count[table[2].team].third++;
@@ -3492,6 +3603,9 @@ function buildStandingsPanel(){
       } else if(qs.state==="out"){
         badge=`<span class="gu-status elim" title="Cannot qualify — neither in the top 2 nor among the 8 best third-placed teams">✗ OUT</span>`;
         rowCls="row-elim";
+      } else if(qs.state==="rankedThird"){
+        const r=qs.thirdRank, inTop8=r&&r<=8;
+        badge=`<span class="gu-status ${inTop8?'projthird':'elim'}" title="${inTop8?'Finished 3rd — currently '+ordinal(r)+' of the 12 third-placed teams, inside the top 8 that advance (updates as other groups play)':'Finished 3rd — currently '+ordinal(r)+' of the 12 thirds, outside the top 8 (would be eliminated)'}">${ordinal(r)} best 3rd</span>`;
       } else if(qs.state==="projThird"){
         badge=`<span class="gu-status projthird" title="Currently 3rd and inside the 8 best third-placed teams — projected to qualify, but not yet confirmed">~ PROJ. (3rd)</span>`;
         rowCls="row-projthird";
@@ -3500,7 +3614,7 @@ function buildStandingsPanel(){
       }
       return `<div class="gu-s gu-row ${qualCls} ${rowCls} ${_justPlayed.has(s.team)?'just-played':''}" data-team="${s.team}" onclick="gotoTeamOnMap('${safeTeam}')">
         <span class="gu-pos">${idx+1}</span>
-        <span class="gu-team"><span class="gu-sw" style="background:${td?td.color:'#888'}"></span>${td?flagOf(s.team):""} <span class="gu-tname">${s.team}</span>${badge}</span>
+        <span class="gu-team"><span class="gu-sw" style="background:${td?td.color:'#888'}"></span>${td?flagOf(s.team):""} <span class="gu-team-stack"><span class="gu-tname" title="${s.team}">${shortName(s.team)}</span>${badge}</span></span>
         <span class="gu-pld">${s.pld}</span>
         <span class="gu-gd">${s.gd>0?"+":""}${s.gd}</span>
         <span class="gu-pts">${s.pts}</span>
@@ -3589,11 +3703,14 @@ function buildFixturesPanel(){
       }
       const ko=kickoffBST(fx);
       const koCell=ko?`<span class="fxr-ko">${ko}</span>`:"";
+      const ch=channelUK(fx);
+      const chCls = ch.startsWith("BBC") ? "fxr-ch-bbc" : ch.startsWith("ITV") ? "fxr-ch-itv" : "";
+      const chCell = ch ? `<span class="fxr-ch ${chCls}" title="Live in the UK on ${ch}">${ch}</span>` : "";
       const live=isFixtureLive(fx);
       let statusInner;
-      if(live){statusInner=`<span class="fxr-live"><span class="fxr-live-dot"></span>LIVE</span>`;}
-      else if(played){statusInner=koCell+'<span class="fxr-ft">FT</span>';}
-      else{statusInner=koCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;}
+      if(live){statusInner=`<span class="fxr-live"><span class="fxr-live-dot"></span>LIVE</span>`+chCell;}
+      else if(played){statusInner=koCell+'<span class="fxr-ft">FT</span>'+chCell;}
+      else{statusInner=koCell+chCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;}
       return `<div class="fxr fxr-row ${played?'played':'upcoming'}${live?' fxr-livecard':''}" data-team="${fx.a}" onclick="gotoTeamOnMap('${safeA}')">
         <span class="fxr-grp">${grp}</span>
         <span class="fxr-team ${aCls}">${fa} ${fx.a}</span>
@@ -3910,6 +4027,37 @@ const BRACKET_SF = [
   {m:102, a:99, b:100, d:"07/15", t:"20:00"},
 ];
 
+// UK broadcaster per knockout match (by match number). The BBC/ITV split for the
+// knockouts is assigned by the broadcasters closer to each round and is still
+// "TBC" for now — only the Final (M104) is confirmed (shown on both). As selections
+// are published, add entries here (e.g. 73:"BBC One") and the bracket picks them up.
+const KO_CHANNEL_UK={
+  104:"BBC One & ITV1"
+};
+function koChannelUK(mnum){return KO_CHANNEL_UK[mnum]||"TBC";}
+// Format a bracket "MM/DD" string as a UK-style date, e.g. "06/28" -> "Sun 28 Jun".
+const _KO_MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const _KO_WDAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function ukDate(md){
+  if(!md||!/^\d{2}\/\d{2}$/.test(md))return md||"";
+  const [mm,dd]=md.split("/").map(Number);
+  const dObj=new Date(Date.UTC(2026,mm-1,dd));
+  return `${_KO_WDAYS[dObj.getUTCDay()]} ${dd} ${_KO_MONTHS[mm-1]}`;
+}
+
+// Compact display names for narrow cards (full name kept in title/tooltip).
+const SHORT_NAME={
+  "Bosnia and Herzegovina":"Bosnia & H.",
+  "Korea Republic":"Korea Rep.",
+  "United States":"USA",
+  "Cote d'Ivoire":"C\u00f4te d'Iv.",
+  "South Africa":"S. Africa",
+  "Saudi Arabia":"Saudi Ar.",
+};
+function shortName(t){return SHORT_NAME[t]||t;}
+// Ordinal suffix: 1->1st, 2->2nd, 7->7th, etc.
+function ordinal(n){const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+
 function bestThirdPlace(){
   return Object.keys(GROUPS).map(g=>{
     const st=groupStandings(GROUPS[g]);
@@ -3919,15 +4067,89 @@ function bestThirdPlace(){
     .slice(0,8);
 }
 
-// All 12 third-placed teams, ranked by FIFA's best-thirds criteria (pts, then
-// overall GD, then goals). Ranks 1–8 advance; 9–12 are eliminated. Used for the
-// bracket's third-place TABLE (bestThirdPlace() stays capped at 8 for slotting).
+// All 12 third-placed teams, ranked (rank 1-8 advance, 9-12 out). For the table.
 function allThirdPlace(){
   return Object.keys(GROUPS).map(g=>{
     const st=groupStandings(GROUPS[g]);
     return st[2]?{...st[2],group:g}:null;
   }).filter(Boolean)
     .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.team.localeCompare(b.team));
+}
+
+// All 12 third-placed teams ranked by FIFA best-thirds criteria. Returns a Map
+// team -> rank (1..12). Rank 1 = strongest third. Used to label finished-group
+// thirds with their live standing among the thirds ("7th best 3rd").
+function thirdPlaceRanks(){
+  const ranked=Object.keys(GROUPS).map(g=>{
+    const st=groupStandings(GROUPS[g]);
+    return st[2]?{...st[2],group:g}:null;
+  }).filter(Boolean)
+    .sort((a,b)=>b.pts-a.pts||b.gd-a.gd||b.gf-a.gf||a.team.localeCompare(b.team));
+  const m=new Map();
+  ranked.forEach((t,i)=>m.set(t.team,i+1));
+  return m;
+}
+
+// Which 3rd-placed teams are MATHEMATICALLY CERTAIN to be a top-8 third?
+// A third from a COMPLETED group is only guaranteed through if, even in the best
+// case for every other group, at most 7 other thirds could outrank it. For groups
+// still in progress we assume the strongest third they could still produce
+// (the worst case for our team). If fewer than 8 thirds can possibly rank at or
+// above team T, T is locked in.
+// Best line the EVENTUAL third-placed team of a (possibly unfinished) group could
+// reach. For a completed group this is just the actual third. For a live group the
+// team that ends up 3rd is not necessarily the one sitting 3rd now — a side
+// currently 1st/2nd can slip to 3rd while keeping a strong record. To avoid ever
+// wrongly locking another group's third out of the top 8, we take an UPPER bound:
+// the highest "current pts + 3 per remaining game" across the group's top three
+// teams (any of whom could finish 3rd). This deliberately over-estimates rather
+// than under-estimates, so certainty is only ever declared when truly safe.
+function _thirdBestPossible(teams){
+  const st=groupStandings(teams);
+  if(st.length<3) return null;
+  const cand=st.slice(0,3).map(t=>{
+    const left=Math.max(0,3-t.pld);
+    return {pts:t.pts+left*3, gd:t.gd+left*3, gf:t.gf+left*2};
+  });
+  // Return the strongest possible line among the candidates (best pts, then gd, gf).
+  return cand.reduce((best,c)=>{
+    if(!best) return c;
+    if(c.pts!==best.pts) return c.pts>best.pts?c:best;
+    if(c.gd !==best.gd ) return c.gd >best.gd ?c:best;
+    return c.gf>best.gf?c:best;
+  },null);
+}
+function _thirdWorseThan(a,b){ // true if line a ranks strictly BELOW b
+  if(b.pts!==a.pts) return b.pts>a.pts;
+  if(b.gd !==a.gd ) return b.gd >a.gd;
+  return b.gf>a.gf;
+}
+let _thirdCertainCache=null,_thirdCertainKey="";
+function thirdPlaceCertainQualifiers(){
+  const key=RESULTS.length+":"+resultsSeed(RESULTS);
+  if(_thirdCertainCache && _thirdCertainKey===key) return _thirdCertainCache;
+  const certain=new Set();
+  const info=Object.entries(GROUPS).map(([g,teams])=>{
+    const st=groupStandings(teams);
+    return {g, teams, third:st[2]||null, done:groupMatchesPlayed(teams)>=6};
+  });
+  info.forEach(me=>{
+    if(!me.third || !me.done) return;                 // only completed-group thirds can lock
+    const myLine={pts:me.third.pts,gd:me.third.gd,gf:me.third.gf};
+    let couldOutrank=0;
+    info.forEach(other=>{
+      if(other.g===me.g) return;
+      // A live group whose eventual third can't be read yet ALWAYS counts as a
+      // potential rival (its third could outrank me), so it's never undercounted.
+      const ceil=other.done
+        ? (other.third?{pts:other.third.pts,gd:other.third.gd,gf:other.third.gf}:null)
+        : _thirdBestPossible(other.teams);
+      if(ceil && !_thirdWorseThan(ceil,myLine)) couldOutrank++;   // could be at/above me
+    });
+    if(couldOutrank<=7) certain.add(me.third.team);   // ≤7 others above ⇒ I'm top-8
+  });
+  _thirdCertainCache=certain; _thirdCertainKey=key;
+  return certain;
 }
 
 // Assign the 8 best third-placed teams to the 8 "3rd-XXXXX" R32 slots, one team
@@ -3983,61 +4205,6 @@ function thirdSlotAssignment(){
   return assign;
 }
 
-// ── Which 3rd-placed teams are MATHEMATICALLY CERTAIN to be a top-8 third? ──
-// A third from a COMPLETED group is only guaranteed through if, even in the best
-// case for every other group, at most 7 other thirds could outrank it. For groups
-// still in progress we assume the most favourable third they could still produce
-// (max points, max GD) — the worst case for our team. If fewer than 8 thirds can
-// possibly rank at or above team T, T is locked in.
-function thirdPlaceBestPossible(teams){
-  // Upper-bound line for the eventual 3rd-placed team of an in-progress group:
-  // the strongest plausible third = current 3rd-place line + winning all its
-  // remaining games (a generous but valid ceiling for ranking-out purposes).
-  const st=groupStandings(teams);
-  const third=st[2]; if(!third) return null;
-  const played=groupMatchesPlayed(teams);
-  const gamesLeft=Math.max(0,3-third.pld);
-  // ceiling: third could still win remaining games → +3 pts and +GD each
-  return {pts:third.pts+gamesLeft*3, gd:third.gd+gamesLeft*3, gf:third.gf+gamesLeft*2};
-}
-function thirdRankKeyWorseThan(a,b){
-  // returns true if line a ranks strictly BELOW line b (b is better)
-  if(b.pts!==a.pts) return b.pts>a.pts;
-  if(b.gd !==a.gd ) return b.gd >a.gd;
-  return b.gf>a.gf;
-}
-let _thirdCertainCache=null,_thirdCertainKey="";
-function thirdPlaceCertainQualifiers(){
-  const key=RESULTS.length+":"+resultsSeed(RESULTS);
-  if(_thirdCertainCache && _thirdCertainKey===key) return _thirdCertainCache;
-  const certain=new Set();
-  const groups=Object.entries(GROUPS);
-  // Build each group's current third line + whether the group is done.
-  const info=groups.map(([g,teams])=>{
-    const st=groupStandings(teams);
-    const done=groupMatchesPlayed(teams)>=6;
-    return {g, teams, third:st[2]||null, done};
-  });
-  info.forEach(me=>{
-    if(!me.third || !me.done) return;            // only completed-group thirds can lock
-    const myLine={pts:me.third.pts,gd:me.third.gd,gf:me.third.gf};
-    // Count how many OTHER groups' thirds could end up ranked at/above me.
-    let couldOutrank=0;
-    info.forEach(other=>{
-      if(other.g===me.g || !other.third) return;
-      const otherCeil = other.done
-        ? {pts:other.third.pts,gd:other.third.gd,gf:other.third.gf}   // fixed
-        : thirdPlaceBestPossible(other.teams);                        // best case
-      // "at or above me" = NOT strictly worse than me
-      if(!thirdRankKeyWorseThan(otherCeil,myLine)) couldOutrank++;
-    });
-    // If at most 7 others can be at/above me, I'm guaranteed top-8.
-    if(couldOutrank<=7) certain.add(me.third.team);
-  });
-  _thirdCertainCache=certain; _thirdCertainKey=key;
-  return certain;
-}
-
 // ── Unified qualification status for a team ────────────────────────────────
 // Combines the per-group clinch (top-2 guaranteed / eliminated) with the CROSS-
 // group third-place picture, so we can correctly label every team that's through
@@ -4056,11 +4223,12 @@ function thirdPlaceCertainQualifiers(){
 let _qualStatusCache=null,_qualStatusKey="";
 function teamQualStatus(team){
   const key=RESULTS.length+":"+resultsSeed(RESULTS);
-  if(_qualStatusCache && _qualStatusKey===key) return _qualStatusCache[team]||{state:"contention",pos:null,asThird:false};
+  if(_qualStatusCache && _qualStatusKey===key) return _qualStatusCache[team]||{state:"contention",pos:null,asThird:false,thirdRank:null};
   // Build for all teams once (cheap relative to the clinch brute force per group).
   const out={};
   const qualifyingThirdTeams=new Set(bestThirdPlace().map(t=>t.team)); // current best-8 thirds
   const certainThirds=thirdPlaceCertainQualifiers();                   // mathematically locked thirds
+  const thirdRanks=thirdPlaceRanks();                                  // team -> live rank (1..12)
   Object.entries(GROUPS).forEach(([g,teams])=>{
     const clinch=groupClinchStatus(teams);
     const standings=groupStandings(teams);
@@ -4068,20 +4236,19 @@ function teamQualStatus(team){
     standings.forEach((s,idx)=>{
       const t=s.team, cl=clinch[t]||{};
       const pos=idx+1;
-      let state, asThird=false;
+      let state, asThird=false, thirdRank=null;
       if(cl.clinched){
         state="qualified";                                  // top-2 guaranteed
       } else if(cl.eliminated){
         state="out";                                        // can't reach top-3 at all
       } else if(groupDone){
-        // Group finished: 1st/2nd through. A 3rd is "qualified" ONLY if it's
-        // mathematically locked into the best-8 (other groups can't bump it);
-        // otherwise it's still only projected, even though its group is done.
+        // Group finished: position is final. 1st/2nd through; 3rd labelled by its
+        // live rank among the 12 thirds (top 8 currently advancing).
         if(pos<=2){state="qualified";}
         else if(pos===3){
-          if(certainThirds.has(t)){state="qualified";asThird=true;}
-          else if(qualifyingThirdTeams.has(t)){state="projThird";asThird=true;}
-          else{state="out";}                                // 3rd but outside best-8
+          asThird=true; thirdRank=thirdRanks.get(t)||null;
+          if(certainThirds.has(t)){state="qualified";}      // mathematically locked top-8
+          else{state="rankedThird";}                        // show "Nth best 3rd"
         } else {state="out";}
       } else {
         // Group still live, not yet clinched/eliminated:
@@ -4089,11 +4256,11 @@ function teamQualStatus(team){
         else if(pos===3 && qualifyingThirdTeams.has(t)){state="projThird";asThird=true;}
         else {state="contention";}
       }
-      out[t]={state,pos,asThird};
+      out[t]={state,pos,asThird,thirdRank};
     });
   });
   _qualStatusCache=out; _qualStatusKey=key;
-  return out[team]||{state:"contention",pos:null,asThird:false};
+  return out[team]||{state:"contention",pos:null,asThird:false,thirdRank:null};
 }
 
 function resolveSlot(slot){
@@ -4314,19 +4481,17 @@ const FAN_DATA = [
 ];
 function fanDataFor(team){return FAN_DATA.find(f=>f.team===team);}
 
-// Fan travel is now sourced from the finalised spreadsheet model
+// Fan travel is sourced from the finalised spreadsheet model
 // (WC2026_fan_travel_distances.xlsx): distance-banded domestic emission factors,
 // per-leg coach/flight modes, and a North-America-domestic vs international-inbound
-// split. Those values are baked in as FAN_DATA rather than recomputed here, so the
-// dashboard shows exactly what the spreadsheet methodology produces.
-// co2/naDom/intl are tournament totals in tCO2e (already scaled by fan count).
+// split. Group-stage values are baked in as FAN_DATA; knockout legs are computed
+// live by fanKnockout() using the same DESNZ banded factors.
 function fanTravel(team){
   const fd=fanDataFor(team);
   if(!fd)return{has:false};
   const fans=fd.fans||0;
-  const co2kg=fd.co2*1000;                    // total tCO2e -> kg (fco2 wants kg)
-  const naDomKg=fd.naDom*1000, intlKg=fd.intl*1000;
-  const perFanKm=fd.km;                       // column O = per-fan one-way tour km
+  const co2kg=fd.co2*1000;                    // total tCO2e -> kg
+  const perFanKm=fd.km;                        // spreadsheet col O = per-fan one-way tour km
   const totalKm=perFanKm*fans;
   const perFanCo2=fans?Math.round(co2kg/fans):0;
   const domShare=fd.co2?fd.naDom/fd.co2:0;
@@ -4335,23 +4500,16 @@ function fanTravel(team){
          naDomT:fd.naDom, intlT:fd.intl, domShare};
 }
 
-// ── Fan KNOCKOUT emissions ──────────────────────────────────────────────────
-// Replicates the spreadsheet's distance-banded DESNZ methodology (with RF) for
-// knockout legs. Every KO hop is WITHIN North America (the team is already on the
-// continent), so each is classified exactly like a group leg-2/leg-3 hop and
-// counts entirely as NA-DOMESTIC. Bands (km thresholds match the Excel sheet):
-//   ≤300  → Coach            0.02776
-//   ≤1000 → Domestic         0.22928
-//   <3700 → Short-haul       0.12786
-//   ≥3700 → Long-haul        0.15282
+// ── Fan KNOCKOUT emissions (live, same DESNZ banded methodology) ──
+// Every KO hop is within North America, so each is classified like a group
+// leg-2/3 hop and counts as NA-domestic. Bands (km, with RF):
+//   ≤300 Coach 0.02776 · ≤1000 Domestic 0.22928 · <3700 Short 0.12786 · ≥3700 Long 0.15282
 function fanLegEF(km){
   if(km<=300)  return 0.02776;
   if(km<=1000) return 0.22928;
   if(km<3700)  return 0.12786;
   return 0.15282;
 }
-// Returns per-fan and scaled knockout emissions, split into actual (played) and
-// projected (bracket path not yet played). All KO emissions are NA-domestic.
 function fanKnockout(team){
   const fd=fanDataFor(team);
   if(!fd) return{has:false};
@@ -4361,17 +4519,13 @@ function fanKnockout(team){
   const fans=fd.fans||0;
   let actualKm=0,projKm=0,actualKg=0,projKg=0;
   const legs=ko.legs.map(l=>{
-    const ef=fanLegEF(l.km);
-    const perFanKg=l.km*ef;                 // one fan = one passenger
+    const ef=fanLegEF(l.km), perFanKg=l.km*ef;
     if(l.actual){actualKm+=l.km; actualKg+=perFanKg;}
     else        {projKm+=l.km;   projKg+=perFanKg;}
-    return{round:l.round, from:l.from, to:l.to, km:l.km, ef,
-           perFanKg, actual:l.actual, won:l.won};
+    return{round:l.round, from:l.from, to:l.to, km:l.km, ef, actual:l.actual, won:l.won};
   });
-  return{has:true, inKO:true, fans, legs,
-    actualKm, projKm,
-    actualCo2t:(actualKg*fans)/1000,        // tCO2e, scaled by fans
-    projCo2t:(projKg*fans)/1000,
+  return{has:true, inKO:true, fans, legs, actualKm, projKm,
+    actualCo2t:(actualKg*fans)/1000, projCo2t:(projKg*fans)/1000,
     eliminated:ko.eliminated};
 }
 
@@ -4381,17 +4535,20 @@ function simGroupOnce(grp, resultsArr){
   resultsArr = resultsArr || RESULTS;
   const teams=GROUPS[grp];
   const rem=remainingFixtures(teams, resultsArr);
-  // Collect actual + simulated results so we can rank with the real 2026
-  // head-to-head tiebreakers (via standingsFor), not GD-first.
-  const simResults=resultsArr.filter(r=>teams.includes(r.a)&&teams.includes(r.b))
-    .map(r=>({a:r.a,b:r.b,ga:r.ga,gb:r.gb}));
+  const s={};
+  teams.forEach(t=>s[t]={pts:0,gd:0,gf:0,team:t});
+  resultsArr.forEach(r=>{
+    if(!teams.includes(r.a)||!teams.includes(r.b))return;
+    s[r.a].gf+=r.ga;s[r.b].gf+=r.gb;s[r.a].gd+=r.ga-r.gb;s[r.b].gd+=r.gb-r.ga;
+    if(r.ga>r.gb)s[r.a].pts+=3;else if(r.ga<r.gb)s[r.b].pts+=3;else{s[r.a].pts++;s[r.b].pts++;}
+  });
   rem.forEach(([a,b])=>{
     const [pa,pd,pb]=matchProbs(a,b);const r=rng();
-    if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:g,gb:c});}
-    else if(r<pa+pd){const g=Math.floor(rng()*3);simResults.push({a,b,ga:g,gb:g});}
-    else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);simResults.push({a,b,ga:c,gb:g});}
+    if(r<pa){const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[a].pts+=3;s[a].gd+=g-c;s[b].gd-=g-c;s[a].gf+=g;s[b].gf+=c;}
+    else if(r<pa+pd){const g=Math.floor(rng()*3);s[a].gf+=g;s[b].gf+=g;s[a].pts++;s[b].pts++;}
+    else{const g=1+Math.floor(rng()*3),c=Math.floor(rng()*g);s[b].pts+=3;s[b].gd+=g-c;s[a].gd-=g-c;s[b].gf+=g;s[a].gf+=c;}
   });
-  return standingsFor(teams, simResults);
+  return Object.values(s).sort((x,y)=>y.pts-x.pts||y.gd-x.gd||y.gf-x.gf||(rng()-0.5));
 }
 
 let _champCache=null,_champKey="";
@@ -4644,7 +4801,7 @@ function buildKnockoutTravelPanel(){
 }
 
 // ─────── FAN TRAVEL TAB (manual estimate) ───────
-let _fanSortKey="fullTot", _fanSortDir=-1;   // default: total emissions, descending
+let _fanSortKey="fullTot", _fanSortDir=-1;
 function buildFanTravelPanel(){
   const wrap=document.getElementById("fantravelWrap");
   if(!wrap)return;
@@ -4655,13 +4812,7 @@ function buildFanTravelPanel(){
     .filter(x=>x.ft.has);
 
   if(!fanTeams.length){
-    wrap.innerHTML=`<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted);font-size:13px;line-height:1.7;max-width:620px;margin:0 auto">
-      <div style="font-size:32px;margin-bottom:10px">🧳</div>
-      <b>No fan data entered yet.</b><br>
-      This tab estimates <b>supporter</b> travel — separate from the precise team figures. It's driven by assumptions you set by hand, so it starts empty.<br><br>
-      To populate it, edit the <code>FAN_DATA</code> block near the top of the file: add one line per team with an estimated number of travelling fans and their home city's coordinates. Each team then shows a one-way fan journey (home → venues) scaled by that fan count.<br><br>
-      <span style="font-size:11px;color:var(--dim)">Fan figures are order-of-magnitude estimates — document your sources (past-tournament ticket allocations, federation travel data) as you fill them in.</span>
-    </div>`;
+    wrap.innerHTML=`<div style="grid-column:1/-1;padding:30px;text-align:center;color:var(--muted)">No fan data available.</div>`;
     const pills=document.getElementById("fantravelPills");if(pills)pills.innerHTML="";
     return;
   }
@@ -4680,25 +4831,22 @@ function buildFanTravelPanel(){
     {v:Math.round(overallDomShare*100)+"%",l:"Inside North America"},
   ].map(s=>`<div class="spill"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
 
-  // Sort by total fan emissions (headline) descending
   fanTeams.sort((a,b)=>b.ft.co2t-a.ft.co2t);
 
-  // \u2500\u2500 SUMMARY: the domestic-vs-international story \u2500\u2500
+  // ── SUMMARY: domestic-vs-international story ──
   const maxCo2=Math.max(...fanTeams.map(x=>x.ft.co2t));
-  const chartBars=fanTeams.map(({team,color,ft})=>{
-    const domW=ft.co2t?(ft.naDomT/maxCo2*100):0;
-    const intlW=ft.co2t?(ft.intlT/maxCo2*100):0;
-    const safeTeam=team.replace(/'/g,"\\'");
-    return `<div class="fan-bar-row" onclick="gotoTeamOnMap('${safeTeam}')" title="${team}: ${Math.round(ft.domShare*100)}% of emissions inside North America">
-      <span class="fan-bar-team">${flagOf(team)} <span class="fan-bar-name">${team}</span></span>
+  const chartBars=fanTeams.map(({team,ft})=>{
+    const domW=ft.co2t?(ft.naDomT/maxCo2*100):0, intlW=ft.co2t?(ft.intlT/maxCo2*100):0;
+    const safe=team.replace(/'/g,"\\'");
+    return `<div class="fan-bar-row" onclick="gotoTeamOnMap('${safe}')" title="${team}: ${Math.round(ft.domShare*100)}% inside North America">
+      <span class="fan-bar-team">${flagOf(team)} <span class="fan-bar-name">${shortName(team)}</span></span>
       <span class="fan-bar-track"><span class="fan-bar-seg dom" style="width:${domW}%"></span><span class="fan-bar-seg intl" style="width:${intlW}%"></span></span>
       <span class="fan-bar-val">${Math.round(ft.co2t).toLocaleString()}<span class="gu-unit">tCO\u2082e</span></span>
     </div>`;
   }).join("");
 
   const summary=document.createElement("div");
-  summary.className="grp-card fan-summary";
-  summary.style.gridColumn="1/-1";
+  summary.className="grp-card fan-summary"; summary.style.gridColumn="1/-1";
   summary.innerHTML=`
     <div class="fan-sum-head">Where fan-travel emissions happen</div>
     <div class="fan-sum-lede">Of an estimated <b>${Math.round(totCo2).toLocaleString()} tCO\u2082e</b> from ${totFans.toLocaleString()} travelling supporters,
@@ -4707,46 +4855,31 @@ function buildFanTravelPanel(){
       <span class="fan-split-seg dom" style="width:${overallDomShare*100}%">${Math.round(totDom).toLocaleString()} tCO\u2082e</span>
       <span class="fan-split-seg intl" style="width:${(1-overallDomShare)*100}%">${Math.round(totIntl).toLocaleString()} tCO\u2082e</span>
     </div>
-    <div class="fan-legend">
-      <span><span class="fan-dot dom"></span>North-America domestic</span>
-      <span><span class="fan-dot intl"></span>International inbound</span>
-    </div>
-    <div class="fan-bar-chart-head">Per nation \u2014 sorted by total fan emissions (tap a bar to see routes on the map)</div>
+    <div class="fan-legend"><span><span class="fan-dot dom"></span>North-America domestic</span><span><span class="fan-dot intl"></span>International inbound</span></div>
+    <div class="fan-bar-chart-head">Per nation \u2014 sorted by total fan emissions (tap a bar for the map)</div>
     <div class="fan-bar-chart">${chartBars}</div>`;
   wrap.appendChild(summary);
 
-  // \u2500\u2500 PER-TEAM TABLE: group + knockout, sortable, with inline split bar \u2500\u2500
-  // Build a row model first so we can sort by any column.
+  // ── TABLE: sortable, group + knockout, domestic split ──
   const rowModel=fanTeams.map(({team,color,group,ft})=>{
     const ko=fanKnockout(team);
     const grpTot=ft.co2t, grpDom=ft.naDomT, grpIntl=ft.intlT;
-    // koAct = knockout legs actually PLAYED (real); koProj = projected bracket path.
     const koAct=ko.inKO?ko.actualCo2t:0, koProj=ko.inKO?ko.projCo2t:0;
-    // Total and the split bar use group + ACTUAL knockout only (projected excluded).
-    const fullTot=grpTot+koAct;
-    const allDom=grpDom+koAct, allIntl=grpIntl;   // all knockout legs are NA-domestic
+    const fullTot=grpTot+koAct, allDom=grpDom+koAct, allIntl=grpIntl;
     const domPct=fullTot?allDom/fullTot:0;
-    return{team,color,group,fans:ft.fans,grpTot,koAct,koProj,fullTot,
-           allDom,allIntl,domPct,inKO:ko.inKO};
+    return{team,color,group,fans:ft.fans,grpTot,koAct,koProj,fullTot,allDom,allIntl,domPct,inKO:ko.inKO};
   });
-
   const cols=[
-    {key:"team",   label:"Team",            num:false},
-    {key:"fans",   label:"Fans",            num:true},
-    {key:"grpTot", label:"Group (tCO\u2082e)",  num:true},
-    {key:"koAct",  label:"Knockout (tCO\u2082e)", num:true},
-    {key:"fullTot",label:"Total (tCO\u2082e)",  num:true},
-    {key:"split",  label:"Domestic \u2194 International (tCO\u2082e)", num:false},
-    {key:"domPct", label:"% Dom",           num:true},
-    {key:"koProj", label:"Projected Knockout Travel (tCO\u2082e)", num:true},
+    {key:"team",label:"Team",num:false},{key:"fans",label:"Fans",num:true},
+    {key:"grpTot",label:"Group (tCO\u2082e)",num:true},{key:"koAct",label:"Knockout (tCO\u2082e)",num:true},
+    {key:"fullTot",label:"Total (tCO\u2082e)",num:true},{key:"split",label:"Domestic \u2194 International (tCO\u2082e)",num:false},
+    {key:"domPct",label:"% Dom",num:true},{key:"koProj",label:"Projected Knockout Travel (tCO\u2082e)",num:true},
   ];
-
   function renderTable(){
     const dir=_fanSortDir, key=_fanSortKey;
     const sorted=[...rowModel].sort((a,b)=>{
-      let va=a[key], vb=b[key];
-      if(key==="split")  {va=a.domPct; vb=b.domPct;}
-      if(typeof va==="string") return dir*va.localeCompare(vb);
+      let va=a[key],vb=b[key]; if(key==="split"){va=a.domPct;vb=b.domPct;}
+      if(typeof va==="string")return dir*va.localeCompare(vb);
       return dir*((va||0)-(vb||0));
     });
     const maxTot=Math.max(...rowModel.map(r=>r.fullTot));
@@ -4757,25 +4890,16 @@ function buildFanTravelPanel(){
     }).join("");
     const body=sorted.map(r=>{
       const safe=r.team.replace(/'/g,"\\'");
-      // scale the whole bar to the biggest team's total, so bar length also
-      // encodes magnitude (longer bar = more emissions), split internally by colour
       const barScale=maxTot?r.fullTot/maxTot*100:0;
-      // Knockout (actual): 0 until legs are played, then ticks up each round.
-      const koActCell=Math.round(r.koAct).toLocaleString();
-      // Projected knockout: forward estimate on the current bracket. Dash if none.
-      const koProjCell=r.inKO&&r.koProj>0
-        ? `<span class="fan-proj">${Math.round(r.koProj).toLocaleString()}</span>`
-        : '<span class="fan-dash">\u2014</span>';
-      return `<tr class="fan-tr" onclick="gotoTeamOnMap('${safe}')" title="Click to highlight ${r.team} on the map">
-        <td class="fan-td-team"><span class="gu-sw" style="background:${r.color}"></span>${flagOf(r.team)} <span class="fan-td-name">${r.team}</span> <span class="fan-td-grp">${r.group}</span></td>
+      const koProjCell=r.inKO&&r.koProj>0?`<span class="fan-proj">${Math.round(r.koProj).toLocaleString()}</span>`:'<span class="fan-dash">\u2014</span>';
+      return `<tr class="fan-tr" onclick="gotoTeamOnMap('${safe}')" title="Highlight ${r.team} on the map">
+        <td class="fan-td-team"><span class="bs-sw" style="background:${r.color}"></span>${flagOf(r.team)} <span class="fan-td-name" title="${r.team}">${shortName(r.team)}</span> <span class="fan-td-grp">${r.group}</span></td>
         <td class="num">${r.fans.toLocaleString()}</td>
         <td class="num">${Math.round(r.grpTot).toLocaleString()}</td>
-        <td class="num">${koActCell}</td>
+        <td class="num">${Math.round(r.koAct).toLocaleString()}</td>
         <td class="num fan-td-tot">${Math.round(r.fullTot).toLocaleString()}</td>
         <td class="fan-td-split">
-          <span class="fan-tbar" style="width:${barScale}%">
-            <span class="fan-bar-seg dom" style="width:${r.fullTot?r.allDom/r.fullTot*100:0}%"></span><span class="fan-bar-seg intl" style="width:${r.fullTot?r.allIntl/r.fullTot*100:0}%"></span>
-          </span>
+          <span class="fan-tbar" style="width:${barScale}%"><span class="fan-bar-seg dom" style="width:${r.fullTot?r.allDom/r.fullTot*100:0}%"></span><span class="fan-bar-seg intl" style="width:${r.fullTot?r.allIntl/r.fullTot*100:0}%"></span></span>
           <span class="fan-td-splitnums"><span style="color:var(--dom)">${Math.round(r.allDom).toLocaleString()}</span> / <span style="color:var(--intl)">${Math.round(r.allIntl).toLocaleString()}</span></span>
         </td>
         <td class="num fan-td-pct">${Math.round(r.domPct*100)}%</td>
@@ -4784,23 +4908,20 @@ function buildFanTravelPanel(){
     }).join("");
     return `<table class="fan-table"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
   }
-
   const tableWrap=document.createElement("div");
-  tableWrap.className="fan-table-wrap";
-  tableWrap.innerHTML=renderTable();
-  // header click = sort
+  tableWrap.className="fan-table-wrap"; tableWrap.innerHTML=renderTable();
   tableWrap.addEventListener("click",ev=>{
     const th=ev.target.closest(".fan-th"); if(!th)return;
     let k=th.dataset.key; if(k==="split")k="domPct";
-    if(_fanSortKey===k){_fanSortDir*=-1;} else {_fanSortKey=k; _fanSortDir=(k==="team")?1:-1;}
+    if(_fanSortKey===k){_fanSortDir*=-1;}else{_fanSortKey=k;_fanSortDir=(k==="team")?1:-1;}
     tableWrap.innerHTML=renderTable();
   });
   wrap.appendChild(tableWrap);
   wrap.appendChild(Object.assign(document.createElement("div"),{
     className:"fan-table-foot",
-    innerHTML:'<b>Knockout</b> shows emissions from knockout legs actually played \u2014 it reads 0 until a team reaches the bracket, then rises each round. '+
-              '<b>Projected Knockout Travel</b> is a forward estimate for the team\u2019s remaining path on the current bracket, and is kept out of the Total and the split bar. '+
-              'Group figures come from the fan-travel model; knockout legs are computed live with the same DESNZ distance-banded factors. One-way tour from home, no return flight counted.'}));
+    innerHTML:'<b>Knockout</b> shows emissions from knockout legs actually played \u2014 0 until a team reaches the bracket, then rises each round. '+
+              '<b>Projected Knockout Travel</b> estimates the remaining bracket path, kept out of Total and the split bar. '+
+              'Group figures from the fan-travel model; knockout legs computed live with the same DESNZ distance-banded factors. One-way tour, no return flight.'}));
 }
 
 function buildBracket(){
@@ -4846,15 +4967,20 @@ function buildBracket(){
       const cl=(groupClinchStatus(GROUPS[grp]||[])||{})[t.team]||{};
       // The position this slot demands: 1 for "1X", 2 for "2X"; thirds handled below.
       const slotPos=(!slot.startsWith("3rd-")) ? parseInt(slot[0]) : null;
+      const isThirdSlot=slot.startsWith("3rd-");
       // Confirmed only if the team's exact finishing position is locked AND matches
-      // the slot. For 3rd-place slots, "confirmed" means the group is fully decided.
-      const posLocked = slotPos!=null
-        ? (cl.clinchedPos===slotPos)
-        : (groupMatchesPlayed(GROUPS[grp]||[])>=6);
+      // the slot. Third-place slots are NEVER shown as confirmed: only the 8 best of
+      // the 12 third-placed teams advance, so finishing 3rd — even in a completed
+      // group — does not guarantee a place here. They stay provisional (~).
+      const posLocked = isThirdSlot
+        ? false
+        : (cl.clinchedPos===slotPos);
       const mark=posLocked
         ? `<span class="kb-qmark conf" title="Confirmed in this position — mathematically locked">✓</span>`
-        : `<span class="kb-qmark prov" title="Currently in this position on standings, but it could still change">~</span>`;
-      return `<div class="kb-team filled${posLocked?' kb-confirmed':''}" onclick="openDrawer('${t.team.replace(/'/g,"\\'")}')" title="${lbl} — ${posLocked?'confirmed in this position':'provisional, could still change'}">
+        : isThirdSlot
+          ? `<span class="kb-qmark prov" title="One of the 8 best third-placed teams advances here — not yet guaranteed, depends on how the other groups finish">~</span>`
+          : `<span class="kb-qmark prov" title="Currently in this position on standings, but it could still change">~</span>`;
+      return `<div class="kb-team filled${posLocked?' kb-confirmed':''}" onclick="openDrawer('${t.team.replace(/'/g,"\\'")}')" title="${lbl} — ${posLocked?'confirmed in this position':isThirdSlot?'provisional — best-third place not yet guaranteed':'provisional, could still change'}">
         <span class="kb-src">${lbl}</span>
         <span class="kb-sw" style="background:${td?td.color:"#888"}"></span>
         <span class="kb-name">${td?flagOf(t.team):""} ${t.team}</span>
@@ -4876,9 +5002,18 @@ function buildBracket(){
     "Los Angeles":"Los Angeles"
   };
   const kbCity=c=>KB_CITY_SHORT[c]||c;
+  // Small UK-broadcaster chip for a knockout match header. Knockout channels are
+  // still TBC, so most show a muted "UK: TBC"; known ones (the Final) show coloured.
+  function koChip(mnum){
+    const ch=koChannelUK(mnum);
+    if(ch==="TBC")return `<span class="kb-ch kb-ch-tbc" title="UK broadcaster not yet announced for this knockout match">UK: TBC</span>`;
+    const cls=ch.startsWith("BBC")?(ch.includes("ITV")?"kb-ch-both":"kb-ch-bbc"):"kb-ch-itv";
+    return `<span class="kb-ch ${cls}" title="Live in the UK on ${ch}">${ch}</span>`;
+  }
   function r32Match(m){
     return `<div class="kb-match" data-m="${m.m}" data-round="r32">
-      <div class="kb-match-hd"><span class="kb-mnum">M${m.m}</span>${m.venue?`<span class="kb-mcity" title="${m.venue}">📍 ${kbCity(m.venue)}</span>`:""}<span class="kb-mdate">${m.d} · ${m.t}</span></div>
+      <div class="kb-match-hd"><span class="kb-mnum">M${m.m}</span><span class="kb-mdate">${ukDate(m.d)} · ${m.t}</span>${koChip(m.m)}</div>
+      ${m.venue?`<div class="kb-mloc" title="${m.venue}">📍 ${m.venue}</div>`:""}
       ${teamLine(m.home)}
       ${teamLine(m.away)}
     </div>`;
@@ -4886,7 +5021,8 @@ function buildBracket(){
   function futureMatch(m,aRef,bRef,round){
     const city=LATER_VENUE[m.m]||"";
     return `<div class="kb-match" data-m="${m.m}" data-round="${round||""}" data-a="${m.a||""}" data-b="${m.b||""}">
-      <div class="kb-match-hd"><span class="kb-mnum">M${m.m}</span>${city?`<span class="kb-mcity" title="${city}">📍 ${kbCity(city)}</span>`:""}<span class="kb-mdate">${m.d} · ${m.t}</span></div>
+      <div class="kb-match-hd"><span class="kb-mnum">M${m.m}</span><span class="kb-mdate">${ukDate(m.d)} · ${m.t}</span>${koChip(m.m)}</div>
+      ${city?`<div class="kb-mloc" title="${city}">📍 ${city}</div>`:""}
       ${futureLine(aRef)}
       ${futureLine(bRef)}
     </div>`;
@@ -4899,7 +5035,7 @@ function buildBracket(){
   const LSF=BRACKET_SF.slice(0,1), RSF=BRACKET_SF.slice(1,2);
 
   const html=`
-  <div class="kb-title">Knockout Bracket <span class="kb-legend"><span class="kb-qmark conf">✓</span> position locked · <span class="kb-qmark prov">~</span> provisional (could still change)</span></div>
+  <div class="kb-title">Knockout Bracket <span class="kb-legend"><span class="kb-qmark conf">✓</span> position locked · <span class="kb-qmark prov">~</span> provisional (3rd-place & unconfirmed) · <span class="kb-ch kb-ch-tbc" style="margin:0">UK: TBC</span> UK channel announced nearer each round</span></div>
   <div class="contenders">
     <div class="contenders-head">
       <span class="contenders-title">🏆 Title Contenders</span>
@@ -4957,7 +5093,8 @@ function buildBracket(){
     <div class="kb-col kb-final-col">
       <div class="kb-col-lbl" style="color:var(--accent)">Final</div>
       <div class="kb-match kb-final" data-m="104" data-round="final" data-a="101" data-b="102">
-        <div class="kb-match-hd"><span class="kb-mnum" style="color:var(--accent)">M104 🏆</span><span class="kb-mcity">📍 New York</span><span class="kb-mdate">07/19 · 20:00</span></div>
+        <div class="kb-match-hd"><span class="kb-mnum" style="color:var(--accent)">M104 🏆</span><span class="kb-mdate">${ukDate("07/19")} · 20:00</span>${koChip(104)}</div>
+        <div class="kb-mloc">📍 New York / New Jersey</div>
         ${futureLine("W101")}
         ${futureLine("W102")}
         <div class="kb-final-venue">MetLife Stadium · New York</div>
@@ -4965,7 +5102,8 @@ function buildBracket(){
       <div class="kb-3rd">
         <div class="kb-3rd-lbl">Play-off for 3rd place</div>
         <div class="kb-match">
-          <div class="kb-match-hd"><span class="kb-mnum">M103</span><span class="kb-mcity">📍 Miami</span><span class="kb-mdate">07/18 · 22:00</span></div>
+          <div class="kb-match-hd"><span class="kb-mnum">M103</span><span class="kb-mdate">${ukDate("07/18")} · 22:00</span>${koChip(103)}</div>
+          <div class="kb-mloc">📍 Miami</div>
           ${futureLine("RU101")}
           ${futureLine("RU102")}
         </div>
@@ -5025,6 +5163,10 @@ function buildBracket(){
       } else if(qs.state==="out"){
         badge=`<span class="bs-badge elim" title="Cannot qualify — neither top-2 nor among the 8 best thirds">✗ OUT</span>`;
         rowCls="row-elim";
+      } else if(qs.state==="rankedThird"){
+        const r=qs.thirdRank, inTop8=r&&r<=8;
+        badge=`<span class="bs-badge ${inTop8?'projthird':'elim'}" title="${inTop8?'Finished 3rd — '+ordinal(r)+' of 12 thirds, inside the top 8 that advance':'Finished 3rd — '+ordinal(r)+' of 12 thirds, outside the top 8'}">${ordinal(r)} 3rd</span>`;
+        rowCls=inTop8?"row-projthird":"row-elim";
       } else if(qs.state==="projThird"){
         badge=`<span class="bs-badge projthird" title="Currently 3rd and inside the best 8 thirds — projected to qualify, not yet confirmed">~ PROJ. 3rd</span>`;
         rowCls="row-projthird";
@@ -5033,7 +5175,7 @@ function buildBracket(){
       }
       return `<div class="bracket-slot ${qualCls} ${rowCls}" onclick="openDrawer('${s.team.replace(/'/g,"\\'")}')">
         <span class="bs-pos ${i===0?"p1":i===1?"p2":"p3"}">${srcTag||i+1}</span>
-        <span class="bs-team"><span class="bs-sw" style="background:${td?td.color:"#888"}"></span>${td?flagOf(s.team):""} <span class="bs-tname">${s.team}</span>${badge}</span>
+        <span class="bs-team"><span class="bs-sw" style="background:${td?td.color:"#888"}"></span>${td?flagOf(s.team):""} <span class="bs-team-stack"><span class="bs-tname" title="${s.team}">${shortName(s.team)}</span>${badge}</span></span>
         <span class="bs-pts">${s.pts}pts${s.pld>0?" "+(s.gd>=0?"+":"")+s.gd:""}</span>
       </div>`;
     }).join("");
@@ -5043,35 +5185,27 @@ function buildBracket(){
     kbGroups.appendChild(card);
   });
 
-  // Fill best thirds — full 12-team table, ranks 1–8 advance, 9–12 out.
+  // Fill thirds — full 12-team table, ranks 1–8 advance, 9–12 out.
   const thirds=allThirdPlace();
   const kbThirds=wrap.querySelector("#kbThirds");
   if(thirds.length){
     const anyPlayed=thirds.some(s=>s.pld>0);
     const rows=thirds.map((s,i)=>{
       const td=allTeams.find(t=>t.team===s.team);
-      const adv=i<8;
-      const cutoff=(i===8)?' bt-cutoff':'';          // line above the first eliminated team
+      const adv=i<8, cutoff=(i===8)?' bt-cutoff':'';
       const safe=s.team.replace(/'/g,"\\'");
       return `<tr class="bt-row ${adv?'adv':'out'}${cutoff}" onclick="openDrawer('${safe}')" title="${adv?'Currently inside the top 8 — projected to qualify':'Currently outside the top 8 — projected to be eliminated'}">
         <td class="bt-rank">${i+1}</td>
-        <td class="bt-team"><span class="bs-sw" style="background:${td?td.color:'#888'}"></span>${td?flagOf(s.team):""} <span class="bt-tname">${s.team}</span> <span class="bt-grp">3${s.group}</span></td>
-        <td class="bt-num">${s.pld}</td>
-        <td class="bt-num">${s.pts}</td>
-        <td class="bt-num">${s.gd>0?"+":""}${s.gd}</td>
-        <td class="bt-num bt-gf">${s.gf}</td>
+        <td class="bt-team"><span class="bs-sw" style="background:${td?td.color:'#888'}"></span>${td?flagOf(s.team):""} <span class="bt-tname" title="${s.team}">${shortName(s.team)}</span> <span class="bt-grp">3${s.group}</span></td>
+        <td class="bt-num">${s.pld}</td><td class="bt-num">${s.pts}</td>
+        <td class="bt-num">${s.gd>0?"+":""}${s.gd}</td><td class="bt-num bt-gf">${s.gf}</td>
         <td class="bt-status">${adv?'<span class="bt-pill adv">~ advancing</span>':'<span class="bt-pill out">~ out</span>'}</td>
       </tr>`;
     }).join("");
-    kbThirds.innerHTML=`<table class="bt-table">
-      <thead><tr>
-        <th></th><th class="bt-team-h">Team</th>
-        <th class="bt-num">Pld</th><th class="bt-num">Pts</th><th class="bt-num">GD</th><th class="bt-num">GF</th>
-        <th class="bt-status">Projection</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="bt-foot"><span class="bt-key adv">Top 8 advance</span><span class="bt-key out">Bottom 4 eliminated</span> \u00b7 ranked by points, then overall goal difference, then goals scored. ${anyPlayed?'Provisional until all groups finish \u2014 positions move as results come in.':''}</div>`;
+    kbThirds.innerHTML=`<table class="bt-table"><thead><tr>
+        <th></th><th class="bt-team-h">Team</th><th class="bt-num">Pld</th><th class="bt-num">Pts</th><th class="bt-num">GD</th><th class="bt-num">GF</th><th class="bt-status">Projection</th>
+      </tr></thead><tbody>${rows}</tbody></table>
+      <div class="bt-foot"><span class="bt-key adv">Top 8 advance</span><span class="bt-key out">Bottom 4 eliminated</span> \u00b7 ranked by points, then overall goal difference, then goals. ${anyPlayed?'Provisional until all groups finish.':''}</div>`;
   }else{
     kbThirds.innerHTML=`<div style="font-size:11px;color:var(--dim);padding:8px">Complete more groups to rank the third-place teams.</div>`;
   }
@@ -5751,11 +5885,12 @@ function shimmerHTML(){
 }
 
 function switchTab(tabName){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(t=>{t.classList.remove("on");t.setAttribute("aria-selected","false");});
   document.querySelectorAll(".panel").forEach(p=>p.classList.remove("on"));
   const tab=document.querySelector(`[data-tab="${tabName}"]`);
   if(tab){
     tab.classList.add("on");
+    tab.setAttribute("aria-selected","true");
     // On narrow screens the tabbar scrolls horizontally; bring the active tab
     // into view so the current section is always visible.
     if(window.matchMedia&&window.matchMedia("(max-width: 820px)").matches&&tab.scrollIntoView){
@@ -5819,6 +5954,9 @@ function switchTab(tabName){
 document.querySelectorAll(".tab").forEach(tab=>{
   tab.setAttribute("role","tab");
   tab.setAttribute("tabindex","0");
+  tab.setAttribute("aria-selected",tab.classList.contains("on")?"true":"false");
+  const pid="p"+tab.dataset.tab.charAt(0).toUpperCase()+tab.dataset.tab.slice(1);
+  if(document.getElementById(pid))tab.setAttribute("aria-controls",pid);
   tab.addEventListener("click",()=>switchTab(tab.dataset.tab));
   tab.addEventListener("keydown",e=>{
     if(e.key==="Enter"||e.key===" "){e.preventDefault();switchTab(tab.dataset.tab);}
@@ -5832,6 +5970,8 @@ document.querySelectorAll(".tab").forEach(tab=>{
     }
   });
 });
+// Mark each view panel as a tabpanel for assistive tech.
+document.querySelectorAll(".panel").forEach(p=>{p.setAttribute("role","tabpanel");p.setAttribute("tabindex","0");});
 
 let rsz;
 // Track the container size the map was last drawn at, so browser zoom (which doesn't
@@ -6124,6 +6264,68 @@ try{const _s=getSize();_lastMapW=_s.w;_lastMapH=_s.h;}catch(e){}
 // This fallback only fires if initMap throws before that, so the spinner can't
 // get stuck. 3s is ample for the country-outline fetch on a normal connection.
 setTimeout(()=>{const l=document.getElementById("loader");if(l){l.classList.add("gone");setTimeout(()=>l.style.display="none",500);}},3000);
+
+/* ═══════════════ "NEW RESULTS AVAILABLE" POLLER ═══════════════ */
+// The GitHub auto-updater commits new scores into this very file and GitHub Pages
+// redeploys it. A visitor who already has the page open won't see those scores
+// (the page reads RESULTS once, on load). So we periodically re-fetch our own URL,
+// read its data fingerprint, and if it's newer than what we loaded, surface a
+// dismissible "refresh" banner. No separate JSON endpoint needed — the page checks
+// itself. We poll gently (every 5 min, only while the tab is visible) and fail
+// silently offline or on file:// (local preview).
+(()=>{
+  const banner=document.getElementById("freshBanner");
+  if(!banner)return;
+  // Only meaningful when served over http(s) from a real URL.
+  if(!/^https?:$/.test(location.protocol))return;
+  const reloadBtn=document.getElementById("fbReload"),xBtn=document.getElementById("fbDismiss");
+  // Our own loaded fingerprint: results count + the as-of date. Both bump whenever
+  // a game is added, so either changing means fresher data is deployed.
+  const myCount=(typeof RESULTS!=="undefined"?RESULTS.length:0)+(typeof KO_RESULTS!=="undefined"?KO_RESULTS.length:0);
+  const myAsOf=(typeof RESULTS_AS_OF!=="undefined")?RESULTS_AS_OF:"";
+  let shown=false, dismissed=false, failures=0;
+  function show(){
+    if(shown||dismissed)return;
+    shown=true; banner.classList.add("on");
+  }
+  if(reloadBtn)reloadBtn.addEventListener("click",()=>location.reload());
+  if(xBtn)xBtn.addEventListener("click",()=>{dismissed=true;banner.classList.remove("on");});
+  // Parse the deployed copy's fingerprint out of its HTML text.
+  function parseFingerprint(txt){
+    // Count "{a:" result object literals inside the two arrays (cheap + robust).
+    const asOfM=txt.match(/const RESULTS_AS_OF\s*=\s*"([^"]*)"/);
+    const asOf=asOfM?asOfM[1]:"";
+    // Count result entries: every result/KO line has a `ga:` field.
+    const gaCount=(txt.match(/ga:\s*\d+/g)||[]).length;
+    return {asOf, count:gaCount};
+  }
+  async function check(){
+    if(document.hidden)return;
+    try{
+      // Cache-bust so we read the freshly-deployed file, not a cached copy.
+      const resp=await fetch(location.pathname+"?_fresh="+Date.now(),{cache:"no-store"});
+      if(!resp.ok)throw new Error("HTTP "+resp.status);
+      const txt=await resp.text();
+      const fp=parseFingerprint(txt);
+      failures=0;
+      // Fresher if the deployed copy has more results, or a different as-of date
+      // (and we can actually read a sane fingerprint from it).
+      if(fp.count>0 && (fp.count>myCount || (fp.asOf && fp.asOf!==myAsOf))){
+        show();
+      }
+    }catch(e){
+      // Back off quietly after repeated failures (offline, etc.) — stop after 3.
+      if(++failures>=3)clearInterval(timer);
+    }
+  }
+  // First check shortly after load, then every 5 minutes while visible.
+  const FIVE_MIN=5*60*1000;
+  let timer=null;
+  setTimeout(check,60*1000);                 // first sweep ~1 min in
+  timer=setInterval(check,FIVE_MIN);
+  // Also check when the tab regains focus (visitor returns after a while).
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)check();});
+})();
 </script>
 <!-- GoatCounter analytics — privacy-friendly visit counting (no cookies). Dashboard: https://delwyno.goatcounter.com -->
 <script data-goatcounter="https://delwyno.goatcounter.com/count"
