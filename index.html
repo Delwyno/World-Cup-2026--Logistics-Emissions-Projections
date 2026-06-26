@@ -1262,7 +1262,7 @@ window.addEventListener("unhandledrejection",function(e){
     </div>
     <div class="method-sec">
       <h4>Carbon emissions (tCO₂e)</h4>
-      <p>Emissions use the UK Government (DESNZ) 2025 conversion factor for international flights: <strong>0.14253 kgCO₂e per passenger-kilometre</strong>, which includes radiative forcing (the extra warming effect of emissions at altitude). We assume a travelling party of <strong>45 people</strong> per flight. So each kilometre flown = 45 × 0.14253 = 6.41 kgCO₂e. Figures are shown in tonnes (tCO₂e).</p>
+      <p>Emissions use the UK Government (DESNZ) 2025 flight conversion factors, <strong>banded by each leg's distance</strong> (all including radiative forcing — the extra warming from emissions at altitude): legs of <strong>≤1,000 km</strong> use 0.22928, <strong>&lt;3,700 km</strong> (short-haul) use 0.12786, and <strong>≥3,700 km</strong> (long-haul) use 0.15282 kgCO₂e per passenger-km. Teams charter between every venue, so all journeys are treated as flights (no coach legs). We assume a travelling party of <strong>45 people</strong>. Each leg is banded by its own distance and the legs are summed — so, for example, a 600 km hop is costed at the higher short-distance rate while a transatlantic leg uses the long-haul rate. Figures are shown in tonnes (tCO₂e). This matches the distance-banded method used on the Fan Travel tab.</p>
       <p class="method-note">For the Qatar 2022 comparison, journeys were by coach, so we use the DESNZ bus factor of 0.02776 kgCO₂e per passenger-km instead.</p>
     </div>
     <div class="method-sec">
@@ -1408,7 +1408,7 @@ window.addEventListener("unhandledrejection",function(e){
       <div class="lr"><span class="tz-swatch" style="background:#1d4ed8"></span>UTC−5 Central</div>
       <div class="lr"><span class="tz-swatch" style="background:#0f766e"></span>UTC−6 Mountain</div>
       <div class="lr"><span class="tz-swatch" style="background:#166534"></span>UTC−7 Pacific/AZ</div>
-      <div class="lr" style="font-size:9px;color:var(--dim);margin-top:3px;border-top:1px solid var(--border);padding-top:4px">🌿 UK DESNZ 2025 · 0.14253 kgCO₂e/pax-km<br>International avg · with RF · 45 pax</div>
+      <div class="lr" style="font-size:9px;color:var(--dim);margin-top:3px;border-top:1px solid var(--border);padding-top:4px">🌿 UK DESNZ 2025 · distance-banded flights<br>0.229 / 0.128 / 0.153 · with RF · 45 pax</div>
       </div>
     </div>
     <div class="mhint">Hover flight arcs for km + tz shift · Hover dots for info</div>
@@ -1428,7 +1428,7 @@ window.addEventListener("unhandledrejection",function(e){
       <span class="ch r" data-col="dis">⚠ Dis <span class="sa">↕</span></span>
     </div>
     <div id="tbody"></div>
-    <div class="sb-foot"><span>Great-circle · 45 pax · 0.14253 kgCO₂e/pax-km · DESNZ 2025</span><span class="ft">WC 2026</span></div>
+    <div class="sb-foot"><span>Great-circle · 45 pax · distance-banded flights (DESNZ 2025, with RF)</span><span class="ft">WC 2026</span></div>
 
   </div>
     <div class="stats-box collapsed" id="statsBox">
@@ -1542,7 +1542,7 @@ window.addEventListener("unhandledrejection",function(e){
   <div class="cit-header">
     <div>
       <div class="cit-h1" style="color:#818cf8">🏟 Host City Fixtures &amp; Emissions</div>
-      <div class="cit-sub">tCO₂e per fixture = both teams' one-way flight to city × 45 pax × 0.14253 kgCO₂e/pax-km (UK DESNZ 2025, intl avg, with RF). Click column to sort.</div>
+      <div class="cit-sub">tCO₂e per fixture = both teams' one-way flight to the city × 45 pax, each leg banded by distance (DESNZ 2025 flight factors 0.229 / 0.128 / 0.153, with RF). Click column to sort.</div>
     </div>
     <div class="cit-pills" id="citPills"></div>
   </div>
@@ -1651,9 +1651,22 @@ function setURLParam(k,v){
 
 /* ═══════════════ CONSTANTS ═══════════════ */
 const PAX=45;
-const EF=0.14253; // UK DESNZ 2025 intl avg with RF kgCO2e/pax-km
-const CO2_KG_KM=PAX*EF;
-function co2(km){return Math.round(km*CO2_KG_KM);}
+// Team flights use the SAME distance-banded DESNZ 2025 methodology as Fan Travel,
+// but flights only (no coach): teams charter between venues regardless of distance.
+// Bands (kgCO₂e per passenger-km, all including radiative forcing):
+//   ≤1,000 km  short domestic  0.22928
+//   <3,700 km  short-haul      0.12786
+//   ≥3,700 km  long-haul       0.15282
+function flightLegEF(km){
+  if(km<=1000) return 0.22928;
+  if(km<3700)  return 0.12786;
+  return 0.15282;
+}
+// Emissions (kg) for ONE flight leg of the given great-circle distance, for the
+// full travelling party. Must be called per leg — banding a summed multi-leg
+// distance would mis-classify the band, so totals are summed from per-leg values.
+function flightCO2(km){return km*PAX*flightLegEF(km);}
+function co2(km){return Math.round(flightCO2(km));}
 function fco2(kg){return (kg/1000).toFixed(2)+" tCO\u2082e";}
 
 /* ═══════════════ TIMEZONE DATA (UTC offset June/July DST) ═══════════════ */
@@ -2190,7 +2203,7 @@ const allTeams=teamList.map(team=>{
   const schedule=TEAM_SCHEDULE[team]||[];
   const legs=[];let total=0,totalTZ=0;
   const baseElev=elev(tc);
-  let altShock=0, maxVenueElev=0;
+  let altShock=0, maxVenueElev=0, totalCo2=0;
   for(let i=0;i<3;i++){
     const gc=games[i];if(!gc)continue;
     const gcC=CITY_DATA[gc];
@@ -2200,18 +2213,24 @@ const allTeams=teamList.map(team=>{
       const gameDate=schedule[i]?.date||"";
       const restAfter=i<2&&schedule[i+1]?daysBetween(gameDate,schedule[i+1].date):null;
       total+=km*2;totalTZ+=tz;
+      // Each leg is a round trip (base→venue→base) = two flights of distance km.
+      // Band EACH flight by its own distance, so a round trip = 2 × flightCO2(km).
+      // (Banding the doubled distance would mis-classify the band.)
+      const legOut=Math.round(flightCO2(km));     // one-way
+      const legRt=Math.round(flightCO2(km)*2);    // round trip = two km-legs
+      totalCo2+=legRt;
       const vElev=elev(gc);
       const gain=Math.max(0,vElev-baseElev);   // climb from base to this venue
       altShock+=altShockWeight(gain);
       if(vElev>maxVenueElev)maxVenueElev=vElev;
-      legs.push({g:i+1,venue:gc,km,rt:km*2,oco2:co2(km),rco2:co2(km*2),tz,date:gameDate,rest:restAfter,
+      legs.push({g:i+1,venue:gc,km,rt:km*2,oco2:legOut,rco2:legRt,tz,date:gameDate,rest:restAfter,
         vElev,altGain:gain});
     }
   }
   altShock=Math.round(altShock*10)/10;
   const{score:disScore}=calcDisadvantageScore(team);
   const grp=teamGroup(team);
-  return{team,flag,tc,games,total,legs,color:tcolor(team),totalCo2:co2(total),totalTZ,disScore,group:grp,
+  return{team,flag,tc,games,total,legs,color:tcolor(team),totalCo2,totalTZ,disScore,group:grp,
     baseElev,altShock,maxVenueElev};
 }).sort((a,b)=>b.total-a.total);
 
@@ -2419,7 +2438,7 @@ async function initMap(){
       const km=hav(tcC.lat,tcC.lng,gcC.lat,gcC.lng);
       const tz=tzDiff(td.tc,gc);
       legs.push({team:td.team,color:td.color,flag:td.flag,tc:td.tc,gc,km,rt:km*2,
-        oco2:co2(km),rco2:co2(km*2),tz,gn:i+1,dup,x1:p0[0],y1:p0[1],x2:pg[0],y2:pg[1]});
+        oco2:Math.round(flightCO2(km)),rco2:Math.round(flightCO2(km)*2),tz,gn:i+1,dup,x1:p0[0],y1:p0[1],x2:pg[0],y2:pg[1]});
     }
   }
 
@@ -3044,7 +3063,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "26 June 2026";
+const RESULTS_AS_OF = "25 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -3053,78 +3072,77 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3150,7 +3168,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
-  // (no knockout games played yet — added automatically as they finish)
+  // (no knockout games played yet — add them here as they happen)
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -5330,7 +5348,10 @@ const QATAR_2022_TEAMS = new Set([
   "Brazil","Switzerland","Portugal","Ghana","Uruguay","Korea Republic"
 ]);
 const QATAR_AVG_KM_PER_TEAM = 150;
-const QATAR_CO2_PER_TEAM = Math.round(QATAR_AVG_KM_PER_TEAM * 45 * 0.14253 / 1000 * 100)/100;
+// 2026-equivalent if that 150 km average were flown: 150 km is ≤1,000 km, so it
+// uses the short-distance flight band (0.22928), consistent with the team-flight
+// methodology used everywhere else on the site.
+const QATAR_CO2_PER_TEAM = Math.round(QATAR_AVG_KM_PER_TEAM * 45 * flightLegEF(QATAR_AVG_KM_PER_TEAM) / 1000 * 100)/100;
 
 // ── Fairness helpers ──
 function calcFairness(grp){
