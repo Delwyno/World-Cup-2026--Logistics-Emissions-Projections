@@ -466,6 +466,9 @@ body.light .gu-head{background:rgba(0,0,0,.06)}
 .gu-status.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
 .gu-status.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
 .gu-status.projthird{background:rgba(240,180,41,.16);color:var(--accent);border:1px solid rgba(240,180,41,.4)}
+/* A third that is mathematically through (✓) still shows its live rank, but in
+   green to signal the place is locked even though the exact rank can move. */
+.gu-status.projthird.conf-third{background:rgba(74,222,128,.16);color:var(--leaf);border-color:rgba(74,222,128,.45)}
 .gu-row.row-projthird{background:rgba(240,180,41,.07)}
 .gu-row.row-clinched{background:rgba(74,222,128,.12)}
 .gu-row.row-elim{opacity:.62}
@@ -836,6 +839,8 @@ body.light .bracket-slot.q2{background:rgba(37,99,235,.05)}
 .bs-badge.elim{background:rgba(248,113,113,.18);color:#f87171;border:1px solid rgba(248,113,113,.4)}
 .bs-badge.projqual{background:rgba(96,165,250,.18);color:#60a5fa;border:1px solid rgba(96,165,250,.4)}
 .bs-badge.projthird{background:rgba(240,180,41,.16);color:var(--accent);border:1px solid rgba(240,180,41,.4)}
+/* Qualified third in the bracket mini-standings: shows rank, green = locked. */
+.bs-badge.projthird.conf-third{background:rgba(74,222,128,.16);color:var(--leaf);border-color:rgba(74,222,128,.45)}
 .badge-sub{font-size:.82em;opacity:.85;font-weight:700}
 .bracket-slot.row-projthird{background:rgba(240,180,41,.08)}
 .bracket-slot.row-clinched{background:rgba(74,222,128,.12)}
@@ -1140,6 +1145,12 @@ body.light .kb-ch-itv{background:#d6173a}
 .kb-sw{width:3px;height:11px;border-radius:2px;flex-shrink:0}
 .kb-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .kb-qmark{flex-shrink:0;font-size:9px;font-weight:800;width:13px;text-align:center}
+/* "Nth best 3rd" rank chip, shown on its own line beneath a third-place bracket
+   slot so the narrow columns aren't crowded (matches the Standings tab styling). */
+.kb-3rdrank-row{margin-top:-1px;text-align:center}
+.kb-3rdrank{display:inline-block;font-size:7.5px;font-weight:800;letter-spacing:.2px;padding:1px 5px;border-radius:0 0 4px 4px;white-space:nowrap;line-height:1.3}
+.kb-3rdrank.in{color:var(--leaf);background:rgba(74,222,128,.16)}
+.kb-3rdrank.out{color:var(--dim);background:rgba(255,255,255,.07)}
 .kb-legend{font-size:9.5px;font-weight:500;color:var(--muted);letter-spacing:0;margin-left:8px;text-transform:none}
 .kb-legend .kb-qmark{display:inline;width:auto;margin:0 1px}
 .kb-qmark.conf{color:var(--leaf)}
@@ -1274,8 +1285,12 @@ window.addEventListener("unhandledrejection",function(e){
       <p>For each group: (furthest-travelling team's km − least-travelling team's km) ÷ group average × 100. A score of 0 means all four teams travel equally; higher means a bigger gap.</p>
     </div>
     <div class="method-sec">
-      <h4>Live standings</h4>
-      <p>Match results are entered manually as games finish and sorted by the official FIFA tiebreakers (points, then goal difference, then goals scored). Standings, the bracket and the fairness figures update from these results.</p>
+      <h4>Live standings &amp; auto-updates</h4>
+      <p>Group results feed in automatically: a scheduled job pulls finished scores from a live results API and commits them to the page, so standings, the bracket, qualification odds and the fairness figures all recalculate from the same data — nothing is hand-maintained during the group stage. Knockout results are added the same way as those rounds are played. Teams are sorted by the official FIFA tiebreakers (points, then goal difference, then goals scored). If you have the page open when new scores land, a small prompt offers to refresh.</p>
+    </div>
+    <div class="method-sec">
+      <h4>Third-place qualifiers</h4>
+      <p>Only the <strong>8 best of the 12</strong> third-placed teams reach the knockouts, ranked by points, goal difference, then goals scored. A third-placed team from a finished group is shown as its current rank — <em>"Nth best 3rd"</em> — which shifts as the other groups play. A team is only marked <strong>✓ QUALIFIED 3rd</strong> once it is <em>mathematically</em> impossible for it to drop out of the top 8 (checked by brute-forcing the strongest third every remaining group could still produce). Even then, its exact rank — and therefore its Round-of-32 opponent — can still change, so the bracket keeps third-place slots provisional until the full picture is settled.</p>
     </div>
     <div class="method-sec">
       <h4>Qualification &amp; title predictions</h4>
@@ -1298,7 +1313,7 @@ window.addEventListener("unhandledrejection",function(e){
     </div>
     <div class="method-sec">
       <h4>UK TV coverage (BBC / ITV)</h4>
-      <p>The Fixtures tab shows whether each group-stage match airs on the <strong>BBC</strong> or <strong>ITV</strong> in the UK — the two free-to-air broadcasters share the tournament and split the games. Channel labels (e.g. BBC One, ITV1, ITV4) follow the broadcasters' published selections. Knockout-round channels are assigned closer to each round and are added once confirmed. All UK kick-off times are shown in BST.</p>
+      <p>The Fixtures tab shows whether each group-stage match airs on the <strong>BBC</strong> or <strong>ITV</strong> in the UK — the two free-to-air broadcasters share the tournament and split the games. Channel labels (e.g. BBC One, ITV1, ITV4) follow the broadcasters' published selections. The knockout bracket carries the same chips: most knockout ties read <strong>UK: TBC</strong> for now, since broadcasters assign those closer to each round (only the Final is confirmed, on both). All UK kick-off times are shown in BST, with knockout dates in UK format.</p>
     </div>
     <div class="method-sec">
       <h4>Sources &amp; caveats</h4>
@@ -1316,7 +1331,7 @@ window.addEventListener("unhandledrejection",function(e){
   <p class="intro-lead">The first World Cup across <strong>three countries</strong> — USA, Canada &amp; Mexico. Instead of staying in one city, teams crisscross a continent. This tracker follows what that actually costs, who it favours, and what it means for the fans following them.</p>
   <div class="intro-stats">
     <div class="intro-stat"><span class="intro-stat-v">~240,000</span><span class="intro-stat-l">km flown<br>(group stage)</span></div>
-    <div class="intro-stat"><span class="intro-stat-v leaf">~1,500 t</span><span class="intro-stat-l">CO₂e from<br>team flights</span></div>
+    <div class="intro-stat"><span class="intro-stat-v leaf">~1,650 t</span><span class="intro-stat-l">CO₂e from<br>team flights</span></div>
     <div class="intro-stat"><span class="intro-stat-v">48</span><span class="intro-stat-l">teams ·<br>16 cities</span></div>
   </div>
   <div class="intro-points">
@@ -3063,7 +3078,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "26 June 2026";
+const RESULTS_AS_OF = "25 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -3072,78 +3087,82 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
+  // ── Matchday 3 — Groups D & F complete (25 June) ──
+  {a:"Japan", b:"Sweden", ga:1, gb:1},
+  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
+  {a:"Türkiye", b:"United States", ga:3, gb:2},
+  {a:"Paraguay", b:"Australia", ga:0, gb:0},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3169,7 +3188,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
-  // (no knockout games played yet — added automatically as they finish)
+  // (no knockout games played yet — add them here as they happen)
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3633,9 +3652,14 @@ function buildStandingsPanel(){
       let badge="", rowCls="";
       if(qs.state==="qualified"){
         if(qs.asThird){
+          // Through as a third, but its exact RANK among the thirds (and so its
+          // R32 opponent) is still moving — so we show the live "Nth best 3rd"
+          // rank rather than a flat "QUALIFIED", with a ✓ to mark that the place
+          // itself is mathematically safe.
           const r=qs.thirdRank;
-          const rankTxt=r?` (currently ${ordinal(r)} best 3rd)`:"";
-          badge=`<span class="gu-status qual" title="Mathematically through as one of the 8 best third-placed teams. Their final RANK among the thirds${rankTxt?" "+ordinal(r)+" right now":""} — and so the exact Round-of-32 opponent — can still change as the other groups finish.">✓ QUALIFIED <span class="badge-sub">3rd${r?" · "+ordinal(r):""}</span></span>`;
+          badge=r
+            ? `<span class="gu-status projthird conf-third" title="Mathematically through as one of the 8 best third-placed teams — currently ${ordinal(r)} of the 12 thirds. The exact rank, and so the Round-of-32 opponent, can still change as the other groups finish.">✓ ${ordinal(r)} best 3rd</span>`
+            : `<span class="gu-status projthird conf-third" title="Mathematically through as one of the 8 best third-placed teams.">✓ best 3rd</span>`;
         } else {
           badge=`<span class="gu-status qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
         }
@@ -5015,17 +5039,32 @@ function buildBracket(){
       const posLocked = isThirdSlot
         ? false
         : (cl.clinchedPos===slotPos);
+      // For a third-place slot, show the team's live rank among the 12 thirds
+      // ("Nth best 3rd"), matching the Standings tab. Rank 1-8 currently advance.
+      let thirdRankChip="";
+      if(isThirdSlot){
+        const r=thirdPlaceRanks().get(t.team);
+        if(r){
+          const inTop8=r<=8;
+          thirdRankChip=`<span class="kb-3rdrank ${inTop8?'in':'out'}" title="${inTop8?'Currently '+ordinal(r)+' of the 12 third-placed teams — inside the top 8 that advance (changes as other groups play)':'Currently '+ordinal(r)+' of the 12 thirds — outside the top 8'}">${ordinal(r)} best 3rd</span>`;
+        }
+      }
       const mark=posLocked
         ? `<span class="kb-qmark conf" title="Confirmed in this position — mathematically locked">✓</span>`
         : isThirdSlot
           ? `<span class="kb-qmark prov" title="One of the 8 best third-placed teams advances here — not yet guaranteed, depends on how the other groups finish">~</span>`
           : `<span class="kb-qmark prov" title="Currently in this position on standings, but it could still change">~</span>`;
-      return `<div class="kb-team filled${posLocked?' kb-confirmed':''}" onclick="openDrawer('${t.team.replace(/'/g,"\\'")}')" title="${lbl} — ${posLocked?'confirmed in this position':isThirdSlot?'provisional — best-third place not yet guaranteed':'provisional, could still change'}">
+      const nameRow=`<div class="kb-team filled${posLocked?' kb-confirmed':''}${isThirdSlot?' kb-team-3rd':''}" onclick="openDrawer('${t.team.replace(/'/g,"\\'")}')" title="${lbl} — ${posLocked?'confirmed in this position':isThirdSlot?'provisional — best-third place not yet guaranteed':'provisional, could still change'}">
         <span class="kb-src">${lbl}</span>
         <span class="kb-sw" style="background:${td?td.color:"#888"}"></span>
         <span class="kb-name">${td?flagOf(t.team):""} ${t.team}</span>
         ${mark}
       </div>`;
+      // The "Nth best 3rd" chip sits on its own line beneath the slot, so the narrow
+      // bracket columns stay readable.
+      return isThirdSlot && thirdRankChip
+        ? nameRow+`<div class="kb-3rdrank-row">${thirdRankChip}</div>`
+        : nameRow;
     }
     return `<div class="kb-team tbd"><span class="kb-src">${lbl}</span><span class="kb-name">—</span></div>`;
   }
@@ -5196,10 +5235,18 @@ function buildBracket(){
       const qs=teamQualStatus(s.team);
       let badge="", rowCls="";
       if(qs.state==="qualified"){
-        badge=qs.asThird
-          ? `<span class="bs-badge qual" title="Through as one of the 8 best third-placed teams">✓ QUAL <span class="badge-sub">3rd</span></span>`
-          : `<span class="bs-badge qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
-        rowCls="row-clinched";
+        if(qs.asThird){
+          // Match the Standings tab: a qualified third shows its live "Nth best
+          // 3rd" rank (green, with ✓ to mark the place is locked), not a flat QUAL.
+          const r=qs.thirdRank;
+          badge=r
+            ? `<span class="bs-badge projthird conf-third" title="Mathematically through as one of the 8 best third-placed teams — currently ${ordinal(r)} of the 12 thirds. The exact rank, and so the Round-of-32 opponent, can still change as the other groups finish.">✓ ${ordinal(r)} 3rd</span>`
+            : `<span class="bs-badge projthird conf-third" title="Mathematically through as one of the 8 best third-placed teams.">✓ best 3rd</span>`;
+          rowCls="row-projthird";
+        } else {
+          badge=`<span class="bs-badge qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
+          rowCls="row-clinched";
+        }
       } else if(qs.state==="out"){
         badge=`<span class="bs-badge elim" title="Cannot qualify — neither top-2 nor among the 8 best thirds">✗ OUT</span>`;
         rowCls="row-elim";
