@@ -22,6 +22,17 @@
 <meta name="twitter:image" content="https://delwyno.github.io/World-Cup-2026--Logistics-Emissions-Projections/preview.png">
 <meta name="twitter:image:alt" content="World Cup 2026 dashboard: team flight routes mapped across the USA, Canada and Mexico.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚽%3C/text%3E%3C/svg%3E">
+<!-- Home-screen / install icons. iOS uses apple-touch-icon (180×180); Android
+     uses the web manifest's PNG icons. Without these, phones show a letter tile. -->
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WC2026">
+<meta name="application-name" content="WC2026">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3033,7 +3044,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "26 June 2026";
+const RESULTS_AS_OF = "25 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -3042,78 +3053,77 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3139,7 +3149,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
-  // (no knockout games played yet — added automatically as they finish)
+  // (no knockout games played yet — add them here as they happen)
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3602,9 +3612,13 @@ function buildStandingsPanel(){
       const qs=teamQualStatus(s.team);
       let badge="", rowCls="";
       if(qs.state==="qualified"){
-        badge=qs.asThird
-          ? `<span class="gu-status qual" title="Through to the knockouts as one of the 8 best third-placed teams">✓ QUALIFIED <span class="badge-sub">3rd</span></span>`
-          : `<span class="gu-status qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
+        if(qs.asThird){
+          const r=qs.thirdRank;
+          const rankTxt=r?` (currently ${ordinal(r)} best 3rd)`:"";
+          badge=`<span class="gu-status qual" title="Mathematically through as one of the 8 best third-placed teams. Their final RANK among the thirds${rankTxt?" "+ordinal(r)+" right now":""} — and so the exact Round-of-32 opponent — can still change as the other groups finish.">✓ QUALIFIED <span class="badge-sub">3rd${r?" · "+ordinal(r):""}</span></span>`;
+        } else {
+          badge=`<span class="gu-status qual" title="Mathematically guaranteed a top-2 finish — through to the knockouts">✓ QUALIFIED</span>`;
+        }
         rowCls="row-clinched";
       } else if(qs.state==="out"){
         badge=`<span class="gu-status elim" title="Cannot qualify — neither in the top 2 nor among the 8 best third-placed teams">✗ OUT</span>`;
