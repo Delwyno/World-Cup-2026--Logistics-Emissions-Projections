@@ -1308,8 +1308,9 @@ window.addEventListener("unhandledrejection",function(e){
       <h4>Fan travel <span style="color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0">(estimate)</span></h4>
       <p>The Fan Travel tab is a separate, deliberately rough estimate of <strong>supporter</strong> travel — not the precise, fixture-based figures used everywhere else. Spectator travel dwarfs team travel (independent estimates put fans at the overwhelming majority of a World Cup's transport footprint), so it's worth showing, but it depends on assumptions that can't be known precisely in advance. Treat it as an order-of-magnitude indicator, not a measurement.</p>
       <p>For each nation we estimate a <strong>travelling-fan count</strong> and model those fans as one cohort that follows the team on a <strong>one-way tour</strong> — home nation → each group venue → each knockout venue — never returning home between games, mirroring how the team itself is modelled. Per-fan distances are great-circle, scaled by the estimated fan count.</p>
+      <p>The fan count itself is a researched <strong>judgement estimate</strong>, not an official figure — no one can know exact travelling numbers in advance. Each nation's figure weighs four things: <strong>proximity</strong> to the host countries (a road-trip from Canada or Mexico mobilises far more people than a long-haul from Asia or Oceania); <strong>size and travelling habit of the support base</strong> (historic World Cup away followings — e.g. Argentina, England, Scotland, Mexico — and population); <strong>host advantage</strong> (the USA, Canada and Mexico carry the largest numbers by far); and <strong>access friction</strong> — US visa-waiver eligibility, visa wait times and entry restrictions, which materially suppress numbers for some nations in 2026. The estimates are cross-checked against FIFA ticket-allocation patterns and travelling supports seen at recent tournaments. The result spans from roughly <strong>120,000</strong> (co-host Mexico) down to around <strong>1,000</strong> for nations facing the steepest distance and access barriers — about <strong>1.18 million</strong> travelling fans in total across the 48 teams. These are deliberately round, conservative figures; the aim is the right order of magnitude per nation, not false precision.</p>
       <p>Emissions use the same UK DESNZ 2025 factors, but <strong>banded by leg distance</strong> rather than a single flight factor: coach for hops ≤300 km (0.02776), short domestic ≤1,000 km (0.22928), short-haul &lt;3,700 km (0.12786) and long-haul ≥3,700 km (0.15282) kgCO₂e per passenger-km, all including radiative forcing. The long inbound leg from the home nation is typically the bulk of the total; hops between North American venues are comparatively small. Each team's figure is split into <strong>international inbound</strong> and <strong>North-America-domestic</strong> travel, which reveals that roughly a fifth of fan emissions are generated <em>within</em> the host continent once supporters arrive.</p>
-      <p>Group-stage values are fixed; knockout legs are added live as the bracket resolves, shown as <strong>projected</strong> until a game is played and <strong>actual</strong> afterwards. Fan-count estimates reflect real-world 2026 conditions (US entry and visa friction, FIFA ticket-purchase data) and are necessarily approximate — the headline is the <em>scale and shape</em> of fan travel, not any single nation's exact tonnage.</p>
+      <p>Group-stage values are fixed; knockout legs are added live as the bracket resolves, shown as <strong>projected</strong> until a game is played and <strong>actual</strong> afterwards. The headline is the <em>scale and shape</em> of fan travel — how it dwarfs team travel, and how much is generated within the host continent — not any single nation's exact tonnage.</p>
     </div>
     <div class="method-sec">
       <h4>UK TV coverage (BBC / ITV)</h4>
@@ -3078,7 +3079,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "26 June 2026";
+const RESULTS_AS_OF = "25 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -3087,78 +3088,82 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
+  // ── Matchday 3 — Groups D & F complete (25 June) ──
+  {a:"Japan", b:"Sweden", ga:1, gb:1},
+  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
+  {a:"Türkiye", b:"United States", ga:3, gb:2},
+  {a:"Paraguay", b:"Australia", ga:0, gb:0},
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3184,7 +3189,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
-  // (no knockout games played yet — added automatically as they finish)
+  // (no knockout games played yet — add them here as they happen)
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
