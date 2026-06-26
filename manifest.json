@@ -1,0 +1,31 @@
+{
+  "name": "World Cup 2026 — Logistics, Emissions & Predictions",
+  "short_name": "WC2026",
+  "description": "Team flight routes, CO₂e emissions, jet-lag, live standings, fan travel and modelled qualification & title odds for the 2026 World Cup across the USA, Canada and Mexico.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1520",
+  "theme_color": "#0b1520",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
