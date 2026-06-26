@@ -10,22 +10,23 @@ name: Update results
 
 on:
   schedule:
-    # Cron is UTC and best-effort (may lag a few minutes under load). The spread
-    # below catches finished games a few hours after they end, across the
-    # US/Can/Mex evening windows plus a couple of daytime sweeps. Roughly every
-    # 30 min through the busy overnight window, then hourly-ish in the day.
-    - cron: "0,30 22 * * *"
-    - cron: "0,30 23 * * *"
-    - cron: "0,30 0 * * *"
-    - cron: "0,30 1 * * *"
-    - cron: "0,30 2 * * *"
-    - cron: "0,30 3 * * *"
-    - cron: "0,30 4 * * *"
-    - cron: "0,30 5 * * *"
-    - cron: "0 6 * * *"
-    - cron: "0 7 * * *"
-    - cron: "0 10 * * *"
-    - cron: "0 15 * * *"
+    # IMPORTANT: cron runs in UTC, and the times below are written for BST
+    # (UTC+1, British Summer Time — in effect during the tournament). If the UK
+    # moves to GMT (UTC+0) you'd shift each line +1 hour.
+    # Schedule (BST): hourly from 22:00 through 06:00, plus 09:00 and 12:00.
+    # GitHub cron is best-effort and can be delayed/dropped under load, but
+    # hourly attempts across the overnight window keep the hit-rate high.
+    - cron: "0 21 * * *"   # 22:00 BST
+    - cron: "0 22 * * *"   # 23:00 BST
+    - cron: "0 23 * * *"   # 00:00 BST
+    - cron: "0 0 * * *"    # 01:00 BST
+    - cron: "0 1 * * *"    # 02:00 BST
+    - cron: "0 2 * * *"    # 03:00 BST
+    - cron: "0 3 * * *"    # 04:00 BST
+    - cron: "0 4 * * *"    # 05:00 BST
+    - cron: "0 5 * * *"    # 06:00 BST
+    - cron: "0 8 * * *"    # 09:00 BST
+    - cron: "0 11 * * *"   # 12:00 BST
   # Lets you trigger it by hand from the Actions tab (handy for testing or to
   # pull a result the moment a game finishes rather than waiting for the cron).
   workflow_dispatch:
