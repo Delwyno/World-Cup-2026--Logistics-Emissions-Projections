@@ -58,15 +58,22 @@ jobs:
       - name: Update knockout results
         run: python update_knockouts.py
 
+      # Refresh team Elo ratings from eloratings.net. Ratings drift slowly, so a
+      # blip here shouldn't block a score commit — continue-on-error keeps the run
+      # green and the script self-skips when nothing changed.
+      - name: Update team Elo ratings
+        continue-on-error: true
+        run: python update_elo.py
+
       - name: Commit if changed
         run: |
           if [[ -n "$(git status --porcelain index.html)" ]]; then
             git config user.name  "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add index.html
-            git commit -m "Auto-update results ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+            git commit -m "Auto-update results and ratings ($(date -u '+%Y-%m-%d %H:%M UTC'))"
             git push
-            echo "Committed updated results."
+            echo "Committed updates."
           else
             echo "No changes to commit."
           fi
