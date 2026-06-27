@@ -3079,7 +3079,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "26 June 2026";
+const RESULTS_AS_OF = "27 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Derived from the results
 // as-of date so the highlight always tracks the data, not the viewer's clock.
 const TODAY_ISO = (()=>{
@@ -3131,19 +3131,25 @@ const RESULTS = [
   {a:"Tunisia", b:"Japan", ga:0, gb:4},
   // ── Group G ──
   {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Egypt", b:"Iran", ga:1, gb:1},
   {a:"New Zealand", b:"Egypt", ga:1, gb:3},
   {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"New Zealand", b:"Belgium", ga:1, gb:5},
   // ── Group H ──
   {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
+  {a:"Uruguay", b:"Spain", ga:0, gb:1},
   {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
   {a:"France", b:"Iraq", ga:3, gb:0},
   {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Senegal", b:"Iraq", ga:5, gb:0},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
+  {a:"Norway", b:"France", ga:1, gb:4},
   // ── Group J ──
   {a:"Jordan", b:"Algeria", ga:1, gb:2},
   {a:"Argentina", b:"Austria", ga:2, gb:0},
