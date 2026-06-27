@@ -5,15 +5,19 @@ live World Football Elo Ratings (eloratings.net), server-side.
 
 SOURCE
   https://www.eloratings.net/World.tsv — plain HTTPS GET, no key, no rate limit.
-  Tab-separated, no header. Columns:
-    [0] rank  [1] rank  [2] TWO-LETTER COUNTRY CODE  [3] current Elo rating  ...
-  e.g.  1<TAB>1<TAB>AR<TAB>2144<TAB>...  (Argentina, 2144).
-  We map the code in column 3 to the dashboard name and read the rating in col 4.
+  Each row begins:  <rank> <rank> <CODE> <rating> ...
+  e.g.  "1  1  AR  2144 ..."  (Argentina, rating 2144).
+
+  IMPORTANT: the field delimiter has proven unreliable to assume (tabs vs spaces
+  vary by how the file is served), so this parser is DELIMITER-AGNOSTIC: it splits
+  each line on any run of whitespace, then finds the first 2-letter alphabetic
+  token (the country code) and the first integer after it (the rating). This is
+  robust whether the file is tab- or space-separated.
 
 SAFETY
   • Soft-fails (exit 0) on any network/parse problem — never fails the workflow.
   • Only rewrites teams already in FIFA_STRENGTH; never adds/removes teams.
-  • Bounds every value to 1000–2200; only writes if >=40 matched and something changed.
+  • Bounds every value 1000–2200; only writes if >=40 matched and something changed.
 """
 
 import re
@@ -24,7 +28,7 @@ ELO_URL = "https://www.eloratings.net/World.tsv"
 HTML_FILE = "index.html"
 
 # eloratings.net 2-letter code -> dashboard team name. NOTE SA=Saudi Arabia,
-# ZA=South Africa; eloratings uses some non-ISO codes (EN, SQ, WA, KO=Curaçao).
+# ZA=South Africa; eloratings uses some non-ISO codes (EN, SQ, KO=Curaçao).
 CODE_TO_NAME = {
     "AR": "Argentina", "ES": "Spain", "FR": "France", "EN": "England",
     "PT": "Portugal", "BR": "Brazil", "NL": "Netherlands", "MA": "Morocco",
@@ -50,22 +54,32 @@ def fetch_tsv():
         return r.read().decode("utf-8", "replace")
 
 
-def parse_ratings(tsv):
+def parse_ratings(text):
+    """Delimiter-agnostic: for each line, find the first 2-letter code token and
+    the first integer after it. Works for tab- or space-separated input."""
     out = {}
-    for line in tsv.splitlines():
-        cols = line.split("\t")
-        if len(cols) < 4:
+    for line in text.splitlines():
+        toks = line.split()                 # split on ANY whitespace run
+        if len(toks) < 4:
             continue
-        name = CODE_TO_NAME.get(cols[2].strip())
-        if not name:
+        # Find the first token that is exactly a known 2-letter code.
+        code_idx = None
+        for i, tk in enumerate(toks[:5]):   # code is always near the start
+            if tk in CODE_TO_NAME:
+                code_idx = i
+                break
+        if code_idx is None:
             continue
-        try:
-            elo = int(round(float(cols[3])))
-        except (ValueError, IndexError):
+        # The rating is the first integer-looking token AFTER the code.
+        elo = None
+        for tk in toks[code_idx + 1:code_idx + 4]:
+            t = tk.lstrip("+")
+            if t.isdigit():
+                elo = int(t)
+                break
+        if elo is None or not (ELO_MIN <= elo <= ELO_MAX):
             continue
-        if not (ELO_MIN <= elo <= ELO_MAX):
-            continue
-        out[name] = elo
+        out[CODE_TO_NAME[toks[code_idx]]] = elo
     return out
 
 
@@ -80,15 +94,18 @@ def parse_existing(block_body):
 
 def main():
     try:
-        tsv = fetch_tsv()
+        text = fetch_tsv()
     except Exception as e:
         print(f"Elo fetch failed (leaving file unchanged): {e}")
         sys.exit(0)
 
-    live = parse_ratings(tsv)
+    live = parse_ratings(text)
     if len(live) < 40:
         print(f"Only parsed {len(live)} recognised ratings — looks incomplete; "
               f"leaving file unchanged.")
+        # Helpful breadcrumb if it ever parses too few again:
+        sample = "\\n".join(text.splitlines()[:3])
+        print(f"First lines received were:\n{sample}")
         sys.exit(0)
 
     with open(HTML_FILE, "r", encoding="utf-8") as f:
