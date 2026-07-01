@@ -99,6 +99,14 @@ html.docmode .tabbar{position:sticky;top:var(--hdr-h,0px);z-index:49}
 .fx-ko-tag{display:inline-block;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:#1a1205;background:var(--accent);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle}
 .fx-ko-card .grp-card-head{background:linear-gradient(90deg,rgba(240,180,41,.18),rgba(240,180,41,.04))}
 .fx-ko-card .grp-name{color:var(--accent)}
+/* Stage dividers on the Fixtures tab (Knockout section on top, then Group) */
+.fx-stage-head{display:flex;align-items:center;gap:12px;margin:6px 2px 12px}
+.fx-stage-head:not(:first-child){margin-top:26px}
+.fx-stage-line{flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--border2),transparent)}
+.fx-stage-label{font-family:'Barlow Condensed','Arial Narrow',system-ui,sans-serif;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+.fx-stage-ko .fx-stage-label{color:var(--accent)}
+.fx-stage-ko .fx-stage-line{background:linear-gradient(90deg,transparent,rgba(240,180,41,.55),transparent)}
+.fx-stage-group .fx-stage-label{color:var(--muted)}
 .fxr-team{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
 .fxr-tb{text-align:right}
 .fxr-team.fxw{color:var(--text);font-weight:700}
@@ -3095,98 +3103,110 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
 const RESULTS_AS_OF = "30 June 2026";
-// ISO date used to mark "today" on the Fixtures tab. Derived from the results
-// as-of date so the highlight always tracks the data, not the viewer's clock.
+// ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
+// current date (in UK time) so the highlight always lands on the real calendar
+// day — the site auto-updates results via a GitHub Action, so "today" should
+// follow the clock, not the data date. Falls back to the results as-of date if
+// the clock is somehow unavailable.
 const TODAY_ISO = (()=>{
-  const p=new Date(RESULTS_AS_OF+" UTC");
-  return isNaN(p)?null:p.toISOString().slice(0,10);
+  try{
+    // en-CA gives YYYY-MM-DD; Europe/London keeps it on the UK day.
+    return new Date().toLocaleDateString("en-CA",{timeZone:"Europe/London"});
+  }catch(e){
+    const p=new Date(RESULTS_AS_OF+" UTC");
+    return isNaN(p)?null:p.toISOString().slice(0,10);
+  }
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"Egypt", b:"Iran", ga:1, gb:1},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
-  {a:"New Zealand", b:"Belgium", ga:1, gb:5},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
-  {a:"Uruguay", b:"Spain", ga:0, gb:1},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
-  {a:"Senegal", b:"Iraq", ga:5, gb:0},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
-  {a:"Norway", b:"France", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Jordan", b:"Argentina", ga:1, gb:3},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
-  {a:"Algeria", b:"Austria", ga:3, gb:3},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
-  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
-  {a:"Colombia", b:"Portugal", ga:0, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
-  {a:"Panama", b:"England", ga:0, gb:2},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  {a:"Croatia", b:"Ghana", ga:2, gb:1},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
+  // ── Matchday 3 — Groups D, F, G, H, I, J, K, L complete (25–27 June) ──
+  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},          // F
+  {a:"Japan", b:"Sweden", ga:1, gb:1},                 // F
+  {a:"Türkiye", b:"United States", ga:3, gb:2},        // D
+  {a:"Paraguay", b:"Australia", ga:0, gb:0},           // D
+  {a:"Norway", b:"France", ga:1, gb:4},                // I
+  {a:"Senegal", b:"Iraq", ga:5, gb:0},                 // I
+  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},      // H
+  {a:"Uruguay", b:"Spain", ga:0, gb:1},                // H
+  {a:"New Zealand", b:"Belgium", ga:1, gb:5},          // G
+  {a:"Egypt", b:"Iran", ga:1, gb:1},                   // G
+  {a:"Panama", b:"England", ga:0, gb:2},               // L
+  {a:"Croatia", b:"Ghana", ga:2, gb:1},                // L
+  {a:"Colombia", b:"Portugal", ga:0, gb:0},            // K
+  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},          // K
+  {a:"Algeria", b:"Austria", ga:3, gb:3},              // J
+  {a:"Jordan", b:"Argentina", ga:1, gb:3},             // J
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3217,7 +3237,9 @@ const KO_RESULTS = [
   {m:74, a:"Germany", b:"Paraguay", ga:1, gb:1, pso:"Paraguay", psa:3, psb:4, venue:"Boston", d:"2026-06-29"},
   {m:75, a:"Netherlands", b:"Morocco", ga:1, gb:1, pso:"Morocco", psa:2, psb:3, venue:"Monterrey", d:"2026-06-30"},
   {m:76, a:"Brazil", b:"Japan", ga:2, gb:1, venue:"Houston", d:"2026-06-29"},
+  {m:77, a:"France", b:"Sweden", ga:3, gb:0, venue:"Atlanta", d:"2026-06-30"},
   {m:78, a:"Cote d'Ivoire", b:"Norway", ga:1, gb:2, venue:"Guadalajara", d:"2026-06-30"},
+  {m:79, a:"Mexico", b:"Ecuador", ga:2, gb:0, venue:"Mexico City", d:"2026-07-01"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3462,7 +3484,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2148,"Spain":2144,"France":2123,"England":2038,"Portugal":1990,"Brazil":2031,"Netherlands":1971,"Morocco":1886,"Belgium":1884,"Germany":1908,"Croatia":1905,"Colombia":2004,"Mexico":1912,"Senegal":1842,"United States":1781,"Uruguay":1841,"Japan":1888,"Switzerland":1914,"Korea Republic":1723,"Iran":1764,"Australia":1800,"Türkiye":1852,"Denmark":1869,"Ecuador":1902,"Austria":1836,"Norway":1918,"Panama":1658,"Egypt":1742,"Algeria":1785,"Scotland":1745,"Canada":1764,"Paraguay":1823,"Tunisia":1562,"Cote d'Ivoire":1743,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1742,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1622,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1622,"Iraq":1561,"Haiti":1517,"Ghana":1575,"Congo DR":1712};
+const FIFA_STRENGTH={"Argentina":1886,"Spain":1875,"France":1870,"England":1826,"Portugal":1778,"Brazil":1760,"Netherlands":1756,"Morocco":1753,"Belgium":1735,"Germany":1730,"Croatia":1716,"Colombia":1693,"Mexico":1685,"Senegal":1684,"United States":1673,"Uruguay":1673,"Japan":1660,"Switzerland":1649,"Korea Republic":1575,"Iran":1565,"Australia":1560,"Türkiye":1560,"Denmark":1618,"Ecuador":1570,"Austria":1580,"Norway":1530,"Panama":1430,"Egypt":1520,"Algeria":1500,"Scotland":1490,"Canada":1530,"Paraguay":1480,"Tunisia":1500,"Cote d'Ivoire":1490,"Saudi Arabia":1460,"Qatar":1440,"South Africa":1440,"Czechia":1490,"Sweden":1530,"Curaçao":1330,"Jordan":1390,"Cabo Verde":1380,"Uzbekistan":1430,"New Zealand":1380,"Bosnia and Herzegovina":1480,"Iraq":1400,"Haiti":1310,"Ghana":1470,"Congo DR":1450};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
@@ -3790,37 +3812,53 @@ function knockoutFixtureObjects(){
   add(104,"F","07/19","20:00","New York / New Jersey","W101","W102");
   return out;
 }
-// Sortable kick-off key (minutes since midnight, UK time) for ordering fixtures
-// within a day card. Group games carry a BST label like "8pm"/"3am"; knockout
-// games carry a 24h "HH:MM" in fx.t. Early-hours BST kick-offs (US-evening games
-// that roll past midnight UK time) are pushed to the END of their filed day so
-// the card reads in true chronological order.
-function _fxSortKey(fx){
+// Raw UK kick-off minutes since midnight (0–1439), NOT shifted. Used both to
+// decide which day-card a fixture belongs to and to order within that card.
+function _fxMins(fx){
   if(fx.ko){
     const m=/^(\d{1,2}):(\d{2})$/.exec(fx.t||"");
-    if(!m) return 9999;
-    let mins=parseInt(m[1],10)*60+parseInt(m[2],10);
-    // KO times are filed local; treat <08:00 as next-day early hours like groups.
-    if(mins < 8*60) mins += 24*60;
-    return mins;
+    if(!m) return null;
+    return parseInt(m[1],10)*60+parseInt(m[2],10);
   }
   const ko=kickoffBST(fx);
   const m=/^(\d{1,2})(?::(\d{2}))?(am|pm)$/i.exec((ko||"").trim());
-  if(!m) return 9999;
+  if(!m) return null;
   let hr=parseInt(m[1],10); const min=m[2]?parseInt(m[2],10):0; const mer=m[3].toLowerCase();
   if(mer==="pm"&&hr!==12)hr+=12;
   if(mer==="am"&&hr===12)hr=0;
-  let mins=hr*60+min;
-  if(hr < 8) mins += 24*60;        // early-hours BST → end of the filed day
-  return mins;
+  return hr*60+min;
+}
+// Cut-off (UK time) below which a kick-off counts as the "late-night" slate of the
+// PREVIOUS evening rather than the small hours of its own date. Games at 12am–5am
+// UK are really the tail of the night before (e.g. a 2am fixture that followed the
+// 9pm games), so we file them on the previous day's card, after that day's PM games.
+const _AM_CUTOFF_MIN = 12*60;   // noon
+// The ISO date of the day-card a fixture belongs to. Early-hours games shift back
+// one calendar day so they sit under the evening they actually aired with.
+function _fxDisplayDay(fx){
+  if(!fx.d) return null;
+  const mins=_fxMins(fx);
+  if(mins==null || mins>=_AM_CUTOFF_MIN) return fx.d;   // afternoon/evening → own day
+  // Early hours → previous calendar day.
+  const dt=new Date(fx.d+"T00:00:00Z");
+  dt.setUTCDate(dt.getUTCDate()-1);
+  return dt.toISOString().slice(0,10);
+}
+// Sortable kick-off key for ordering fixtures WITHIN a day card. Because early
+// hours games are now filed on the previous day's card, we add 24h to their key
+// so they always sort AFTER that day's PM games (e.g. 9pm → 11pm → 2am).
+function _fxSortKey(fx){
+  const mins=_fxMins(fx);
+  if(mins==null) return 99999;
+  return mins < _AM_CUTOFF_MIN ? mins + 24*60 : mins;
 }
 function buildFixturesPanel(){
   const wrap=document.getElementById("fixturesWrap");
   if(!wrap)return;
-  // group fixtures by date — group games plus the knockout bracket
+  // group fixtures by DISPLAY day (early-hours games roll onto the previous card)
   const byDate={};
-  FIXTURES.forEach(fx=>{(byDate[fx.d]=byDate[fx.d]||[]).push(fx);});
-  knockoutFixtureObjects().forEach(fx=>{ if(fx.d)(byDate[fx.d]=byDate[fx.d]||[]).push(fx); });
+  FIXTURES.forEach(fx=>{const d=_fxDisplayDay(fx); if(d)(byDate[d]=byDate[d]||[]).push(fx);});
+  knockoutFixtureObjects().forEach(fx=>{const d=_fxDisplayDay(fx); if(d)(byDate[d]=byDate[d]||[]).push(fx);});
   const dates=Object.keys(byDate).sort();
 
   // Render a single knockout fixture row (teams auto-fill; score when played).
@@ -3864,8 +3902,8 @@ function buildFixturesPanel(){
     </div>`;
   }
 
-  let html="";
-  dates.forEach(d=>{
+  // Build one day-card's HTML (or "" if it has no visible rows under the filter).
+  function dayCard(d){
     const dayFixtures=byDate[d].slice().sort((x,y)=>_fxSortKey(x)-_fxSortKey(y));
     const rows=dayFixtures.map(fx=>{
       if(fx.ko) return koRow(fx);
@@ -3904,7 +3942,7 @@ function buildFixturesPanel(){
         <span class="fxr-status">${statusInner}</span>
       </div>`;
     }).filter(Boolean).join("");
-    if(!rows)return;
+    if(!rows)return"";
     const dObj=new Date(d);
     const dWeekday=dObj.toLocaleDateString("en-GB",{weekday:"short"});
     const dRest=dObj.toLocaleDateString("en-GB",{day:"numeric",month:"long"});
@@ -3913,15 +3951,34 @@ function buildFixturesPanel(){
       return fxState.filter==="all"||(fxState.filter==="played"&&p)||(fxState.filter==="upcoming"&&!p);
     }).length;
     const isKnockoutDay = dayFixtures.some(fx=>fx.ko) && dayFixtures.every(fx=>fx.ko);
+    const koRoundTag = isKnockoutDay ? (_KO_ROUND_LABEL[dayFixtures[0].round]||"Knockouts").toUpperCase() : "";
     const isToday = d===TODAY_ISO;
-    html+=`<div class="grp-card fx-card${isToday?' fx-today':''}${isKnockoutDay?' fx-ko-card':''}"${isToday?' id="fxTodayCard"':''}>
+    return `<div class="grp-card fx-card${isToday?' fx-today':''}${isKnockoutDay?' fx-ko-card':''}"${isToday?' id="fxTodayCard"':''}>
       <div class="grp-card-head">
-        <span class="grp-name">${dWeekday} · ${dRest}${isToday?' <span class="fx-today-tag">TODAY</span>':''}${isKnockoutDay?' <span class="fx-ko-tag">KNOCKOUTS</span>':''}</span>
+        <span class="grp-name">${dWeekday} · ${dRest}${isToday?' <span class="fx-today-tag">TODAY</span>':''}${isKnockoutDay?` <span class="fx-ko-tag">${koRoundTag}</span>`:''}</span>
         <span class="grp-badge">${shown} match${shown>1?"es":""}</span>
       </div>
       ${rows}
     </div>`;
-  });
+  }
+
+  // Split dates into knockout days and group days so we can show the knockouts
+  // FIRST (at the top), separated from the group stage by a clear divider.
+  const koDates    = dates.filter(d=>byDate[d].some(fx=>fx.ko));
+  const groupDates = dates.filter(d=>byDate[d].every(fx=>!fx.ko));
+
+  let koHtml    = koDates.map(dayCard).filter(Boolean).join("");
+  let groupHtml = groupDates.map(dayCard).filter(Boolean).join("");
+
+  let html="";
+  if(koHtml){
+    html += `<div class="fx-stage-head fx-stage-ko"><span class="fx-stage-line"></span><span class="fx-stage-label">🏆 Knockout stage</span><span class="fx-stage-line"></span></div>`;
+    html += koHtml;
+  }
+  if(groupHtml){
+    html += `<div class="fx-stage-head fx-stage-group"><span class="fx-stage-line"></span><span class="fx-stage-label">Group stage</span><span class="fx-stage-line"></span></div>`;
+    html += groupHtml;
+  }
   wrap.innerHTML = html || `<div style="padding:30px;text-align:center;color:var(--muted)">No ${fxState.filter} fixtures to show.</div>`;
   // Bring today's matches into view (once, on first build of the tab).
   if(!_fxScrolledToday){
@@ -4881,45 +4938,67 @@ function championProbabilities(iters, resultsArr){
       return pos===1?firsts[grp]:seconds[grp];
     }
 
-    // 4. play the bracket — store winners by match number
+    // 4. play the bracket — store winners by match number.
+    //    Where a knockout match has ALREADY been played (a real KO_RESULTS entry),
+    //    we use the actual winner instead of simulating it, so teams that have been
+    //    knocked out in real life can't keep advancing in the projection (and can't
+    //    show up as "title contenders"). koWinner(m) returns null for unplayed ties.
     const W={};
     BRACKET_R32.forEach(m=>{
       const a=res(m.home),b=res(m.away);
       if(a)r32c[a]++; if(b)r32c[b]++;            // reached R32 (played a knockout match)
-      W[m.m]=(a&&b)?knockoutWinner(a,b):(a||b);
+      const actual=koWinner(m.m);
+      W[m.m]=actual || ((a&&b)?knockoutWinner(a,b):(a||b));
     });
     BRACKET_R16.forEach(m=>{
       const a=W[m.a],b=W[m.b];
       if(a)r16c[a]++; if(b)r16c[b]++;            // reached R16
-      W[m.m]=knockoutWinner(a,b);
+      const actual=koWinner(m.m);
+      W[m.m]=actual || knockoutWinner(a,b);
     });
     BRACKET_QF.forEach(m=>{
       const a=W[m.a],b=W[m.b];
       if(a)qfc[a]++; if(b)qfc[b]++;              // reached QF
-      W[m.m]=knockoutWinner(a,b);
+      const actual=koWinner(m.m);
+      W[m.m]=actual || knockoutWinner(a,b);
     });
     // semis
     const sfWinners=[];
     BRACKET_SF.forEach(m=>{
       const fa=W[m.a],fb=W[m.b];
       if(fa)semis[fa]++; if(fb)semis[fb]++;
-      const w=knockoutWinner(fa,fb); W[m.m]=w; sfWinners.push(w);
+      const actual=koWinner(m.m);
+      const w=actual || knockoutWinner(fa,fb); W[m.m]=w; sfWinners.push(w);
     });
     // final (M104 = winners of SF 101 & 102)
     const f1=W[101],f2=W[102];
     if(f1)finalists[f1]++; if(f2)finalists[f2]++;
-    const winner=knockoutWinner(f1,f2);
+    const actualFinal=koWinner(104);
+    const winner=actualFinal || knockoutWinner(f1,f2);
     if(winner)champ[winner]++;
   }
 
   const out={};
+  // Teams that have actually been knocked out (lost a played KO match) can't
+  // progress any further in reality, so force all their forward-looking odds to 0.
+  // This removes the small residual % that group-stage re-randomisation can leave
+  // for an eliminated team that occasionally lands in a different bracket slot.
+  const eliminated=new Set();
+  if(isLive){
+    KO_RESULTS.forEach(r=>{
+      const w=koWinner(r.m); if(!w) return;
+      eliminated.add(w===r.a ? r.b : r.a);
+    });
+  }
   // Round each probability to a stable precision here, so a one-in-thousands
   // iteration difference between devices (transcendental math like exp/pow can
   // round differently on different CPUs/browsers) can't change the displayed
   // number. Rounding to the nearest 0.1% removes that last-digit jitter while
   // keeping the values effectively unchanged.
   const snap=p=>Math.round(p*1000)/1000; // nearest 0.1%
-  allTeamsList.forEach(t=>{out[t]={champ:snap(champ[t]/iters),final:snap(finalists[t]/iters),semi:snap(semis[t]/iters),
+  allTeamsList.forEach(t=>{
+    if(eliminated.has(t)){out[t]={champ:0,final:0,semi:0,r32:snap(r32c[t]/iters),r16:snap(r16c[t]/iters),qf:snap(qfc[t]/iters)};return;}
+    out[t]={champ:snap(champ[t]/iters),final:snap(finalists[t]/iters),semi:snap(semis[t]/iters),
     r32:snap(r32c[t]/iters),r16:snap(r16c[t]/iters),qf:snap(qfc[t]/iters)};});
   if(isLive){_champCache=out;_champKey=key;}
   return out;
