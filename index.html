@@ -3102,7 +3102,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "1 July 2026";
+const RESULTS_AS_OF = "30 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -3119,90 +3119,94 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
   // ── Group B ──
-  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Qatar", b:"Switzerland", ga:1, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
-  {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
   {a:"United States", b:"Paraguay", ga:4, gb:1},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Australia", b:"Türkiye", ga:2, gb:0},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"Egypt", b:"Iran", ga:1, gb:1},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
-  {a:"New Zealand", b:"Belgium", ga:1, gb:5},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
-  {a:"Uruguay", b:"Spain", ga:0, gb:1},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
   // ── Group I ──
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
-  {a:"Senegal", b:"Iraq", ga:5, gb:0},
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
-  {a:"Norway", b:"France", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Jordan", b:"Argentina", ga:1, gb:3},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
-  {a:"Algeria", b:"Austria", ga:3, gb:3},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
-  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
-  {a:"Colombia", b:"Portugal", ga:0, gb:0},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
-  {a:"Panama", b:"England", ga:0, gb:2},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  {a:"Croatia", b:"Ghana", ga:2, gb:1},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
+  // ── Matchday 3 — Groups D, F, G, H, I, J, K, L complete (25–27 June) ──
+  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},          // F
+  {a:"Japan", b:"Sweden", ga:1, gb:1},                 // F
+  {a:"Türkiye", b:"United States", ga:3, gb:2},        // D
+  {a:"Paraguay", b:"Australia", ga:0, gb:0},           // D
+  {a:"Norway", b:"France", ga:1, gb:4},                // I
+  {a:"Senegal", b:"Iraq", ga:5, gb:0},                 // I
+  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},      // H
+  {a:"Uruguay", b:"Spain", ga:0, gb:1},                // H
+  {a:"New Zealand", b:"Belgium", ga:1, gb:5},          // G
+  {a:"Egypt", b:"Iran", ga:1, gb:1},                   // G
+  {a:"Panama", b:"England", ga:0, gb:2},               // L
+  {a:"Croatia", b:"Ghana", ga:2, gb:1},                // L
+  {a:"Colombia", b:"Portugal", ga:0, gb:0},            // K
+  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},          // K
+  {a:"Algeria", b:"Austria", ga:3, gb:3},              // J
+  {a:"Jordan", b:"Argentina", ga:1, gb:3},             // J
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3228,6 +3232,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
+  // ── Round of 32 (played) ──
   {m:73, a:"South Africa", b:"Canada", ga:0, gb:1, venue:"Los Angeles", d:"2026-06-28"},
   {m:74, a:"Germany", b:"Paraguay", ga:1, gb:1, pso:"Paraguay", psa:3, psb:4, venue:"Boston", d:"2026-06-29"},
   {m:75, a:"Netherlands", b:"Morocco", ga:1, gb:1, pso:"Morocco", psa:2, psb:3, venue:"Monterrey", d:"2026-06-30"},
@@ -3479,7 +3484,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2148,"Spain":2144,"France":2134,"England":2038,"Portugal":1990,"Brazil":2031,"Netherlands":1971,"Morocco":1886,"Belgium":1884,"Germany":1908,"Croatia":1905,"Colombia":2004,"Mexico":1943,"Senegal":1842,"United States":1781,"Uruguay":1841,"Japan":1888,"Switzerland":1914,"Korea Republic":1723,"Iran":1764,"Australia":1800,"Türkiye":1852,"Ecuador":1871,"Austria":1836,"Norway":1934,"Panama":1658,"Egypt":1742,"Algeria":1785,"Scotland":1745,"Canada":1764,"Paraguay":1823,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1622,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1622,"Iraq":1561,"Haiti":1517,"Ghana":1575,"Congo DR":1712};
+const FIFA_STRENGTH={"Argentina":1886,"Spain":1875,"France":1870,"England":1826,"Portugal":1778,"Brazil":1760,"Netherlands":1756,"Morocco":1753,"Belgium":1735,"Germany":1730,"Croatia":1716,"Colombia":1693,"Mexico":1685,"Senegal":1684,"United States":1673,"Uruguay":1673,"Japan":1660,"Switzerland":1649,"Korea Republic":1575,"Iran":1565,"Australia":1560,"Türkiye":1560,"Ecuador":1570,"Austria":1580,"Norway":1530,"Panama":1430,"Egypt":1520,"Algeria":1500,"Scotland":1490,"Canada":1530,"Paraguay":1480,"Tunisia":1500,"Cote d'Ivoire":1490,"Saudi Arabia":1460,"Qatar":1440,"South Africa":1440,"Czechia":1490,"Sweden":1530,"Curaçao":1330,"Jordan":1390,"Cabo Verde":1380,"Uzbekistan":1430,"New Zealand":1380,"Bosnia and Herzegovina":1480,"Iraq":1400,"Haiti":1310,"Ghana":1470,"Congo DR":1450};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
@@ -4268,11 +4273,19 @@ const BRACKET_SF = [
   {m:102, a:99, b:100, d:"07/15", t:"20:00"},
 ];
 
-// UK broadcaster per knockout match (by match number). The BBC/ITV split for the
-// knockouts is assigned by the broadcasters closer to each round and is still
-// "TBC" for now — only the Final (M104) is confirmed (shown on both). As selections
-// are published, add entries here (e.g. 73:"BBC One") and the bracket picks them up.
+// UK broadcaster per knockout match (by match number). BBC/ITV split the
+// tournament 50/50 and both show the Final. The Round of 32 selections are all
+// confirmed (source: BBC/ITV announcement, 29 Jun 2026). R16 onward are assigned
+// closer to each round — add entries here as they're published and the bracket
+// picks them up automatically.
 const KO_CHANNEL_UK={
+  // ── Round of 32 (confirmed) ──
+  73:"ITV1",      74:"BBC One",   75:"ITV1",      76:"ITV1",
+  77:"ITV1",      78:"BBC One",   79:"ITV1",      80:"BBC One",
+  81:"BBC One",   82:"ITV1",      83:"BBC One",   84:"BBC One",
+  85:"BBC One",   86:"ITV1",      87:"ITV1",      88:"BBC One",
+  // ── Round of 16 → Semi-finals: TBC (assigned nearer the time) ──
+  // ── Final ──
   104:"BBC One & ITV1"
 };
 function koChannelUK(mnum){return KO_CHANNEL_UK[mnum]||"TBC";}
