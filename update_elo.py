@@ -35,7 +35,7 @@ CODE_TO_NAME = {
     "BE": "Belgium", "DE": "Germany", "HR": "Croatia", "CO": "Colombia",
     "MX": "Mexico", "SN": "Senegal", "US": "United States", "UY": "Uruguay",
     "JP": "Japan", "CH": "Switzerland", "KR": "Korea Republic", "IR": "Iran",
-    "AU": "Australia", "TR": "Türkiye", "DK": "Denmark", "EC": "Ecuador",
+    "AU": "Australia", "TR": "Türkiye", "EC": "Ecuador",
     "AT": "Austria", "NO": "Norway", "PA": "Panama", "EG": "Egypt",
     "DZ": "Algeria", "SQ": "Scotland", "CA": "Canada", "PY": "Paraguay",
     "TN": "Tunisia", "CI": "Cote d'Ivoire", "SA": "Saudi Arabia", "QA": "Qatar",

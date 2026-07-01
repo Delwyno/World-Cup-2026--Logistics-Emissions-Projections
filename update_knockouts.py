@@ -232,11 +232,14 @@ def parse_knockouts(games):
         v, d = KO_SCHEDULE.get(m, (venue(g.get("venue") or g.get("stadium") or ""),
                                    to_iso_date(g.get("local_date") or g.get("date"))))
         rec = {"m": m, "a": a, "b": b, "ga": ga, "gb": gb, "venue": v, "d": d}
-        # Penalty shootout: level score after extra time.
+        # Penalty shootout: level score after extra time. worldcup26.ir reports
+        # the shootout as home_penalty_score / away_penalty_score.
         if ga == gb:
-            pa = _int(g.get("home_penalties"), g.get("home_pen"), g.get("home_pens"),
+            pa = _int(g.get("home_penalty_score"), g.get("home_penalties"),
+                      g.get("home_pen"), g.get("home_pens"),
                       g.get("home_penalty"), g.get("home_shootout"))
-            pb = _int(g.get("away_penalties"), g.get("away_pen"), g.get("away_pens"),
+            pb = _int(g.get("away_penalty_score"), g.get("away_penalties"),
+                      g.get("away_pen"), g.get("away_pens"),
                       g.get("away_penalty"), g.get("away_shootout"))
             if pa is not None and pb is not None:
                 rec["pso"] = a if pa > pb else b
