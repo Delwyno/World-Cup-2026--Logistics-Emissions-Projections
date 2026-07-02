@@ -65,6 +65,9 @@ jobs:
         continue-on-error: true
         run: python update_elo.py
 
+      - name: Validate site
+        run: python validate_site.py
+
       - name: Commit if changed
         run: |
           if [[ -n "$(git status --porcelain index.html)" ]]; then
