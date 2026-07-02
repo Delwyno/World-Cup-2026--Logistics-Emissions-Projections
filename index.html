@@ -96,6 +96,16 @@ html.docmode .tabbar{position:sticky;top:var(--hdr-h,0px);z-index:49}
 .fxr-grp{font-size:8.5px;font-weight:700;color:var(--dim);background:var(--surface2);border-radius:4px;text-align:center;padding:2px 0}
 .fxr-grp-ko{color:var(--accent);background:rgba(240,180,41,.14);font-size:8px;letter-spacing:.3px}
 .fxr-korow{box-shadow:inset 2px 0 0 rgba(240,180,41,.55)}
+/* Kick-off countdown chip (today's upcoming fixtures) */
+.fxr-cd{font-size:9px;font-weight:800;color:#06281a;background:var(--leaf);border-radius:4px;padding:2px 6px;white-space:nowrap}
+/* Bracket win-probability strip (unplayed ties, both teams known) */
+.kb-prob{position:relative;height:12px;border-radius:3px;background:var(--surface3);overflow:hidden;margin-top:1px}
+.kb-prob-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,rgba(74,222,128,.5),rgba(74,222,128,.28))}
+.kb-prob-txt{position:relative;display:block;text-align:center;font-size:8px;font-weight:800;line-height:12px;color:var(--text);letter-spacing:.4px}
+body.light .kb-prob{background:#e2e8f0}
+/* Light-theme contrast: small amber text darkens for readability */
+body.light .fxr-ko{color:#92610a}
+body.light .kb-pens{color:#92610a}
 .fxr-team.fxr-tbc{color:var(--dim);font-style:italic;font-weight:600}
 .fx-ko-tag{display:inline-block;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:#1a1205;background:var(--accent);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle}
 .fx-ko-card .grp-card-head{background:linear-gradient(90deg,rgba(240,180,41,.18),rgba(240,180,41,.04))}
@@ -698,6 +708,10 @@ body.light .drawer-game{background:#f8fafc}
 
   /* Map legend: smaller, collapsible feel */
   .mleg{bottom:8px;left:8px;padding:8px 10px;gap:4px;max-width:42%;font-size:9px}
+  /* Bracket: too wide for a phone — let it pan horizontally instead of clipping */
+  #bracketWrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Team drawer: use the whole screen on phones */
+  #teamDrawer{width:100vw !important;max-width:100vw}
   .mleg .lr{font-size:9px;gap:5px}
   .mleg .ltitle{font-size:7.5px}
   .tz-swatch{width:16px}
@@ -1366,10 +1380,10 @@ window.addEventListener("unhandledrejection",function(e){
       <button id="clrbtn" type="button" title="Clear search" aria-label="Clear search">✕</button>
     </div>
     <datalist id="teamOptions"></datalist>
-    <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme">☀️ <span class="ib-label">Theme</span></button>
-    <button class="icon-btn" id="csvBtn" title="Download data as CSV">⬇ <span class="ib-label">CSV</span></button>
-    <button class="icon-btn" id="pngBtn" title="Save map as PNG image">📷 <span class="ib-label">PNG</span></button>
-    <button class="icon-btn" id="infoBtn" title="Methodology &amp; data sources">ⓘ <span class="ib-label">About</span></button>
+    <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle light or dark theme">☀️ <span class="ib-label">Theme</span></button>
+    <button class="icon-btn" id="csvBtn" title="Download data as CSV" aria-label="Download the data as a CSV file">⬇ <span class="ib-label">CSV</span></button>
+    <button class="icon-btn" id="pngBtn" title="Save map as PNG image" aria-label="Save the map as a PNG image">📷 <span class="ib-label">PNG</span></button>
+    <button class="icon-btn" id="infoBtn" title="Methodology &amp; data sources" aria-label="About: methodology and data sources">ⓘ <span class="ib-label">About</span></button>
   </div>
 </header>
 
@@ -2306,7 +2320,29 @@ function renderHeaderStats(){
   // those. Superlatives are combined where they share a team to keep this row
   // tight: hero travel totals first, then one pill per remaining insight.
   const mostDis=allTeams.slice().sort((a,b)=>b.disScore-a.disScore)[0];
+  // Latest result chip — most recent knockout game if any, else the data date.
+  // Gives a returning visitor an instant "what's new" without opening a tab.
+  let latestPill=null;
+  try{
+    if(KO_RESULTS.length){
+      const last=[...KO_RESULTS].sort((a,b)=>(a.d||"").localeCompare(b.d||"")||a.m-b.m).pop();
+      const roundLbl=last.m<=88?"R32":last.m<=96?"R16":last.m<=100?"QF":last.m<=102?"SF":last.m===103?"3rd place":"Final";
+      const pen=last.pso?` (${last.pso} on pens)`:"";
+      latestPill={v:`${last.a} ${last.ga}–${last.gb} ${last.b}${pen}`,l:`Latest result · ${roundLbl}`};
+    }
+  }catch(e){}
+  // Post-tournament mode: once the Final has a result, lead with the champions.
+  let championPill=null;
+  try{
+    const champTeam=koWinner(104);
+    if(champTeam){
+      championPill={v:`🏆 ${champTeam}`,l:"World Champions 2026",hero:true};
+      document.title=`${champTeam} — World Cup 2026 Champions · Logistics & Emissions`;
+    }
+  }catch(e){}
   const items=[
+    ...(championPill?[championPill]:[]),
+    ...(latestPill?[latestPill]:[]),
     // ── Headline travel tablets (update after every known knockout flight) ──
     {v:`${Math.round(totalTeamKm).toLocaleString()} km · ${(totalTeamCo2/1000).toFixed(1)} t`,l:"Total team travel (group + knockout)",hero:true},
     ...(koStarted?[
@@ -3011,7 +3047,14 @@ function buildTable(data){
       <span class="rdis" id="rdis_${i}" data-dis="${td.disScore}">${td.disScore.toFixed(1)}<div class="rdis-sub">dis. score</div></span>`;
     // Hover previews the team's flight paths (group + knockout); CLICK pins the
     // highlight (so the paths stay lit while the drawer is open) and opens the
-    // team drawer. Clicking the same row again unpins.
+    // team drawer. Clicking the same row again unpins. Rows are also reachable
+    // by keyboard: Tab to focus, Enter/Space to open.
+    div.setAttribute("tabindex","0");
+    div.setAttribute("role","button");
+    div.setAttribute("aria-label",`${td.team}: ${td.total.toLocaleString()} km, ${fco2(td.totalCo2)}. Open team profile.`);
+    div.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();div.click();}});
+    div.addEventListener("focus",()=>{if(!_pinnedTeam)applyHL(td.team);});
+    div.addEventListener("blur",()=>{if(!_pinnedTeam)applyHL(null);});
     div.addEventListener("mouseenter",()=>{if(!_pinnedTeam)applyHL(td.team);});
     div.addEventListener("mouseleave",()=>{if(!_pinnedTeam)applyHL(null);});
     div.addEventListener("click",()=>{
@@ -3173,7 +3216,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "2 July 2026";
+const RESULTS_AS_OF = "30 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -3192,88 +3235,92 @@ const RESULTS = [
   // ── Group A ──
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
   {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
   // ── Group B ──
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
   {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
   {a:"United States", b:"Paraguay", ga:4, gb:1},
   {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
   // ── Group E ──
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
   {a:"Sweden", b:"Tunisia", ga:5, gb:1},
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
   // ── Group G ──
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Egypt", b:"Iran", ga:1, gb:1},
-  {a:"New Zealand", b:"Belgium", ga:1, gb:5},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
-  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
-  {a:"Uruguay", b:"Spain", ga:0, gb:1},
   // ── Group I ──
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
-  {a:"Senegal", b:"Iraq", ga:5, gb:0},
-  {a:"Norway", b:"France", ga:1, gb:4},
   // ── Group J ──
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
   {a:"Austria", b:"Jordan", ga:3, gb:1},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Algeria", b:"Austria", ga:3, gb:3},
-  {a:"Jordan", b:"Argentina", ga:1, gb:3},
   // ── Group K ──
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
-  {a:"Colombia", b:"Portugal", ga:0, gb:0},
-  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  {a:"Panama", b:"England", ga:0, gb:2},
-  {a:"Croatia", b:"Ghana", ga:2, gb:1},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
+  // ── Matchday 3 — Groups D, F, G, H, I, J, K, L complete (25–27 June) ──
+  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},          // F
+  {a:"Japan", b:"Sweden", ga:1, gb:1},                 // F
+  {a:"Türkiye", b:"United States", ga:3, gb:2},        // D
+  {a:"Paraguay", b:"Australia", ga:0, gb:0},           // D
+  {a:"Norway", b:"France", ga:1, gb:4},                // I
+  {a:"Senegal", b:"Iraq", ga:5, gb:0},                 // I
+  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},      // H
+  {a:"Uruguay", b:"Spain", ga:0, gb:1},                // H
+  {a:"New Zealand", b:"Belgium", ga:1, gb:5},          // G
+  {a:"Egypt", b:"Iran", ga:1, gb:1},                   // G
+  {a:"Panama", b:"England", ga:0, gb:2},               // L
+  {a:"Croatia", b:"Ghana", ga:2, gb:1},                // L
+  {a:"Colombia", b:"Portugal", ga:0, gb:0},            // K
+  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},          // K
+  {a:"Algeria", b:"Austria", ga:3, gb:3},              // J
+  {a:"Jordan", b:"Argentina", ga:1, gb:3},             // J
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3299,6 +3346,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
+  // ── Round of 32 (played) ──
   {m:73, a:"South Africa", b:"Canada", ga:0, gb:1, venue:"Los Angeles", d:"2026-06-28"},
   {m:74, a:"Germany", b:"Paraguay", ga:1, gb:1, pso:"Paraguay", psa:3, psb:4, venue:"Boston", d:"2026-06-29"},
   {m:75, a:"Netherlands", b:"Morocco", ga:1, gb:1, pso:"Morocco", psa:2, psb:3, venue:"Monterrey", d:"2026-06-30"},
@@ -3306,9 +3354,6 @@ const KO_RESULTS = [
   {m:77, a:"France", b:"Sweden", ga:3, gb:0, venue:"Atlanta", d:"2026-06-30"},
   {m:78, a:"Cote d'Ivoire", b:"Norway", ga:1, gb:2, venue:"Guadalajara", d:"2026-06-30"},
   {m:79, a:"Mexico", b:"Ecuador", ga:2, gb:0, venue:"Mexico City", d:"2026-07-01"},
-  {m:80, a:"England", b:"Congo DR", ga:2, gb:1, venue:"New York / New Jersey", d:"2026-07-01"},
-  {m:81, a:"United States", b:"Bosnia and Herzegovina", ga:2, gb:0, venue:"San Francisco Bay Area", d:"2026-07-02"},
-  {m:82, a:"Belgium", b:"Senegal", ga:3, gb:2, venue:"Seattle", d:"2026-07-01"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3553,7 +3598,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2148,"Spain":2144,"France":2134,"England":2046,"Portugal":1990,"Brazil":2031,"Netherlands":1971,"Morocco":1886,"Belgium":1910,"Germany":1908,"Croatia":1905,"Colombia":2004,"Mexico":1943,"Senegal":1816,"United States":1798,"Uruguay":1841,"Japan":1888,"Switzerland":1914,"Korea Republic":1723,"Iran":1764,"Australia":1800,"Türkiye":1852,"Ecuador":1871,"Austria":1836,"Norway":1934,"Panama":1658,"Egypt":1742,"Algeria":1785,"Scotland":1745,"Canada":1764,"Paraguay":1823,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1622,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1575,"Congo DR":1704};
+const FIFA_STRENGTH={"Argentina":1886,"Spain":1875,"France":1870,"England":1826,"Portugal":1778,"Brazil":1760,"Netherlands":1756,"Morocco":1753,"Belgium":1735,"Germany":1730,"Croatia":1716,"Colombia":1693,"Mexico":1685,"Senegal":1684,"United States":1673,"Uruguay":1673,"Japan":1660,"Switzerland":1649,"Korea Republic":1575,"Iran":1565,"Australia":1560,"Türkiye":1560,"Ecuador":1570,"Austria":1580,"Norway":1530,"Panama":1430,"Egypt":1520,"Algeria":1500,"Scotland":1490,"Canada":1530,"Paraguay":1480,"Tunisia":1500,"Cote d'Ivoire":1490,"Saudi Arabia":1460,"Qatar":1440,"South Africa":1440,"Czechia":1490,"Sweden":1530,"Curaçao":1330,"Jordan":1390,"Cabo Verde":1380,"Uzbekistan":1430,"New Zealand":1380,"Bosnia and Herzegovina":1480,"Iraq":1400,"Haiti":1310,"Ghana":1470,"Congo DR":1450};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
@@ -3921,6 +3966,24 @@ function _fxSortKey(fx){
   if(mins==null) return 99999;
   return mins < _AM_CUTOFF_MIN ? mins + 24*60 : mins;
 }
+// "in 3h 20m" countdown for an upcoming fixture, using the real UK clock.
+// Only returned when kick-off is between now and 24h away, so past games and
+// far-future rounds don't show noise. fx.d is the fixture's calendar date and
+// _fxMins gives its UK kick-off minutes (early-hours games are small hours OF
+// that date, so no display-day adjustment is needed here).
+function _fxCountdown(fx){
+  try{
+    const mins=_fxMins(fx);
+    if(mins==null||!fx.d)return null;
+    const hh=String(Math.floor(mins%1440/60)).padStart(2,"0");
+    const mm=String(mins%60).padStart(2,"0");
+    const ko=new Date(`${fx.d}T${hh}:${mm}:00+01:00`);   // UK is BST in June/July
+    const diff=ko-Date.now();
+    if(diff<=0||diff>24*3600*1000)return null;
+    const h=Math.floor(diff/3600000),m=Math.floor(diff%3600000/60000);
+    return h>0?`in ${h}h ${m}m`:`in ${m}m`;
+  }catch(e){return null;}
+}
 function buildFixturesPanel(){
   const wrap=document.getElementById("fixturesWrap");
   if(!wrap)return;
@@ -3959,7 +4022,10 @@ function buildFixturesPanel(){
     const chCell = ch && ch!=="TBC" ? `<span class="fxr-ch ${ch.startsWith("BBC")?"fxr-ch-bbc":ch.startsWith("ITV")?"fxr-ch-itv":""}" title="Live in the UK on ${ch}">${ch}</span>` : "";
     let statusInner;
     if(played){statusInner=koT+'<span class="fxr-ft">FT</span>'+chCell;}
-    else{statusInner=koT+chCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;}
+    else{
+      const cd=_fxCountdown(fx);
+      statusInner=koT+(cd?`<span class="fxr-cd">${cd}</span>`:"")+chCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;
+    }
     const clickTeam = (fx.a||"").replace(/'/g,"\\'");
     const clickAttr = fx.a ? ` onclick="gotoTeamOnMap('${clickTeam}')"` : "";
     return `<div class="fxr fxr-row fxr-korow ${played?'played':'upcoming'}"${clickAttr}>
@@ -4002,7 +4068,10 @@ function buildFixturesPanel(){
       let statusInner;
       if(live){statusInner=`<span class="fxr-live"><span class="fxr-live-dot"></span>LIVE</span>`+chCell;}
       else if(played){statusInner=koCell+'<span class="fxr-ft">FT</span>'+chCell;}
-      else{statusInner=koCell+chCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;}
+      else{
+        const cd=_fxCountdown(fx);
+        statusInner=koCell+(cd?`<span class="fxr-cd">${cd}</span>`:"")+chCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;
+      }
       return `<div class="fxr fxr-row ${played?'played':'upcoming'}${live?' fxr-livecard':''}" data-team="${fx.a}" onclick="gotoTeamOnMap('${safeA}')">
         <span class="fxr-grp">${grp}</span>
         <span class="fxr-team ${aCls}">${fa} ${fx.a}</span>
@@ -4634,6 +4703,12 @@ function knockoutWinner(a,b){
   const pa=1/(1+Math.pow(10,-diff/400));
   return rng()<pa ? a : b;
 }
+// Elo win probability for a single knockout tie (same formula the Monte-Carlo
+// uses to simulate it, so the bracket popover and the Title Contenders agree).
+function matchWinProb(a,b){
+  const diff=teamStrength(a)-teamStrength(b);
+  return 1/(1+Math.pow(10,-diff/400));
+}
 
 // ── KNOCKOUT-PATH TRAVEL PROJECTION ───────────────────────────────
 // For a team, project the venues it would visit IF it keeps advancing along the
@@ -4725,33 +4800,29 @@ function venueRT(cityA,cityB){
   if(!A||!B)return 0;
   return hav(A.lat,A.lng,B.lat,B.lng)*2;
 }
-// Returns {qualified, path:[{round,venue,rtKm,rco2}], extraKm, extraCo2} or {qualified:false}
+// ── Projected knockout journey (probability-weighted) ─────────────────────
+// UNIFIED with knockoutTravel: this no longer computes its own round-trip
+// itinerary — it takes the same one-way tour legs as the actual travel model
+// and probability-weights only the legs the team has NOT yet secured:
+//   • legs already REACHED count in full (p = 1) — they've happened;
+//   • remaining legs use the Monte-Carlo reach probability for that round;
+//   • an eliminated team has no onward legs, so its projection stops exactly
+//     where its tournament did (no phantom travel).
+// Returns {qualified, path:[{round,venue,rtKm,rco2,reachP,expKm,expCo2,vElev}],
+//          extraKm, extraCo2, expKm, expCo2} or {qualified:false}.
 function knockoutPath(team){
-  const r32=teamR32Match(team);
-  if(!r32)return{qualified:false};
-  const td=allTeams.find(t=>t.team===team);
-  // starting point: the team's last group venue
-  let prevCity=td&&td.legs.length?td.legs[td.legs.length-1].venue:td?.tc;
-  // reach probabilities for each knockout round (from the title Monte-Carlo)
+  const kt=knockoutTravel(team);
+  if(!kt.inKO)return{qualified:false};
   const cp=championProbabilities(3000)[team]||{};
   const reachP={R32:cp.r32||0,R16:cp.r16||0,QF:cp.qf||0,SF:cp.semi||0,Final:cp.final||0};
-  const path=[];
-  const addLeg=(round,city)=>{
-    const rt=venueRT(prevCity,city);
-    const ow=rt/2;                       // one-way hop distance for banding
-    const legCo2=teamLegCo2(ow)*2;       // round-trip banded emissions
-    const p=reachP[round]!=null?reachP[round]:0;
-    path.push({round,venue:city,rtKm:Math.round(rt),rco2:legCo2,reachP:p,expKm:rt*p,expCo2:legCo2*p,vElev:elev(city)});
-    prevCity=city;
-  };
-  addLeg("R32",r32.venue);
-  const r16=_R16_OF[r32.m]; if(r16)addLeg("R16",LATER_VENUE[r16.m]);
-  const qf=r16&&_QF_OF[r16.m]; if(qf)addLeg("QF",LATER_VENUE[qf.m]);
-  const sf=qf&&_SF_OF[qf.m]; if(sf)addLeg("SF",LATER_VENUE[sf.m]);
-  if(sf)addLeg("Final",LATER_VENUE.FINAL);
-  const extraKm=path.reduce((s,p)=>s+p.rtKm,0);          // if they go all the way (max)
+  const path=kt.legs.map(l=>{
+    const p=l.reached?1:(reachP[l.round]||0);
+    return{round:l.round,venue:l.to,rtKm:Math.round(l.km),rco2:l.co2,reachP:p,
+      expKm:l.km*p,expCo2:l.co2*p,vElev:elev(l.to)};
+  });
+  const extraKm=path.reduce((s,p)=>s+p.rtKm,0);   // if they go all the way (max)
   const extraCo2=path.reduce((s,p)=>s+p.rco2,0);
-  const expKm=path.reduce((s,p)=>s+p.expKm,0);            // probability-weighted (expected)
+  const expKm=path.reduce((s,p)=>s+p.expKm,0);    // probability-weighted (expected)
   const expCo2=path.reduce((s,p)=>s+p.expCo2,0);
   return{qualified:true,path,extraKm,extraCo2,expKm,expCo2};
 }
@@ -5480,6 +5551,19 @@ function buildBracket(){
     const cls=ch.startsWith("BBC")?(ch.includes("ITV")?"kb-ch-both":"kb-ch-bbc"):"kb-ch-itv";
     return `<span class="kb-ch ${cls}" title="Live in the UK on ${ch}">${ch}</span>`;
   }
+  // Win-probability strip for an unplayed tie with both teams known — the same
+  // Elo formula the Monte-Carlo simulates with, surfaced per match.
+  function probLine(mnum){
+    if(koResultByMatch(mnum))return"";
+    const t=koMatchTeams(mnum);
+    if(!t.home||!t.away)return"";
+    const p=matchWinProb(t.home,t.away);
+    const ph=Math.round(p*100),pa=100-ph;
+    return `<div class="kb-prob" title="Elo win probability: ${t.home} ${ph}% — ${t.away} ${pa}% (model, not a prediction)">
+      <span class="kb-prob-fill" style="width:${ph}%"></span>
+      <span class="kb-prob-txt">${ph}% · ${pa}%</span>
+    </div>`;
+  }
   function r32Match(m){
     const played=!!koResultByMatch(m.m);
     return `<div class="kb-match${played?' kb-played':''}" data-m="${m.m}" data-round="r32">
@@ -5487,6 +5571,7 @@ function buildBracket(){
       ${m.venue?`<div class="kb-mloc" title="${m.venue}">📍 ${m.venue}</div>`:""}
       ${teamLine(m.home, m.m, "home")}
       ${teamLine(m.away, m.m, "away")}
+      ${probLine(m.m)}
     </div>`;
   }
   function futureMatch(m,aRef,bRef,round){
@@ -5497,6 +5582,7 @@ function buildBracket(){
       ${city?`<div class="kb-mloc" title="${city}">📍 ${city}</div>`:""}
       ${futureLine(aRef, m.m, "home")}
       ${futureLine(bRef, m.m, "away")}
+      ${probLine(m.m)}
     </div>`;
   }
 
