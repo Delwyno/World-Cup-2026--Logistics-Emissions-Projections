@@ -95,6 +95,7 @@ html.docmode .tabbar{position:sticky;top:var(--hdr-h,0px);z-index:49}
 .fxr-row:hover{background:var(--surface2)}
 .fxr-grp{font-size:8.5px;font-weight:700;color:var(--dim);background:var(--surface2);border-radius:4px;text-align:center;padding:2px 0}
 .fxr-grp-ko{color:var(--accent);background:rgba(240,180,41,.14);font-size:8px;letter-spacing:.3px}
+.fxr-korow{box-shadow:inset 2px 0 0 rgba(240,180,41,.55)}
 .fxr-team.fxr-tbc{color:var(--dim);font-style:italic;font-weight:600}
 .fx-ko-tag{display:inline-block;font-size:8.5px;font-weight:800;letter-spacing:.7px;color:#1a1205;background:var(--accent);border-radius:4px;padding:2px 6px;margin-left:6px;vertical-align:middle}
 .fx-ko-card .grp-card-head{background:linear-gradient(90deg,rgba(240,180,41,.18),rgba(240,180,41,.04))}
@@ -383,6 +384,9 @@ table.ctable td.gold{color:var(--accent);font-weight:600;font-variant-numeric:ta
 .ldate{font-size:8.5px;color:var(--dim);white-space:nowrap;font-style:italic}
 /* Leg grid: gamenum | venue | date | km | co2 | tz */
 .legrow{display:grid;grid-template-columns:22px 1fr auto auto auto auto;gap:3px;align-items:center;font-size:9px;color:var(--dim)}
+.legrow.ko{box-shadow:inset 2px 0 0 rgba(240,180,41,.5);padding-left:4px}
+.lgn-ko{color:var(--accent);opacity:1}
+.legrow.ko-sub{border-top:1px dashed var(--border);margin-top:2px;padding-top:2px;font-weight:700;color:var(--muted)}
 
 /* Flight animation */
 @keyframes dash {to{stroke-dashoffset:0}}
@@ -1416,14 +1420,14 @@ window.addEventListener("unhandledrejection",function(e){
         <svg width="24" height="8" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="18" y2="4" stroke="#555" stroke-width="1.2" stroke-dasharray="3,2"/><polygon points="17,1.5 23,4 17,6.5" fill="#555"/></svg>Return
       </div>
       <div class="lr">
-        <svg width="24" height="8" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="18" y2="4" stroke="#f0b429" stroke-width="2.2" stroke-dasharray="5,3"/><polygon points="17,1 23,4 17,7" fill="#f0b429"/></svg>Knockout (played)
+        <svg width="24" height="8" style="display:block;flex-shrink:0"><line x1="2" y1="4" x2="18" y2="4" stroke="#4ade80" stroke-width="2.2" stroke-dasharray="5,3"/><polygon points="17,1 23,4 17,7" fill="#f0b429"/></svg>Knockout hop (team colour)
       </div>
       <div class="ltitle">Timezone Bands (June/July DST)</div>
       <div class="lr"><span class="tz-swatch" style="background:#7c3aed"></span>UTC−4 Eastern</div>
       <div class="lr"><span class="tz-swatch" style="background:#1d4ed8"></span>UTC−5 Central</div>
       <div class="lr"><span class="tz-swatch" style="background:#0f766e"></span>UTC−6 Mountain</div>
       <div class="lr"><span class="tz-swatch" style="background:#166534"></span>UTC−7 Pacific/AZ</div>
-      <div class="lr" style="font-size:9px;color:var(--dim);margin-top:3px;border-top:1px solid var(--border);padding-top:4px">🌿 UK DESNZ 2025 · 0.14253 kgCO₂e/pax-km<br>International avg · with RF · 45 pax</div>
+      <div class="lr" style="font-size:9px;color:var(--dim);margin-top:3px;border-top:1px solid var(--border);padding-top:4px">🌿 UK DESNZ 2025 · banded by leg distance<br>≤1,000 km 0.22928 · &lt;3,700 km 0.12786 · ≥3,700 km 0.15282<br>kgCO₂e/pax-km · with RF · 45 pax</div>
       </div>
     </div>
     <div class="mhint">Hover flight arcs for km + tz shift · Hover dots for info</div>
@@ -2298,22 +2302,24 @@ function renderHeaderStats(){
   const totalTeamKm  = totalKm + koFlownKm;                 // group + knockout (reached)
   const totalTeamCo2 = totalCo2All + koFlownCo2;
 
+  // "48 teams · 16 host cities" already lives in the subtitle, so no pills for
+  // those. Superlatives are combined where they share a team to keep this row
+  // tight: hero travel totals first, then one pill per remaining insight.
+  const mostDis=allTeams.slice().sort((a,b)=>b.disScore-a.disScore)[0];
   const items=[
-    {v:"48",l:"Teams"},{v:"16",l:"Host cities"},
-    // ── Headline travel tablets (these update after every known knockout flight) ──
-    {v:Math.round(totalTeamKm).toLocaleString()+" km",l:"Total team travel",hero:true},
-    {v:(totalTeamCo2/1000).toFixed(1)+" tCO\u2082e",l:"Total team tCO₂e (group + knockout)",hero:true},
+    // ── Headline travel tablets (update after every known knockout flight) ──
+    {v:`${Math.round(totalTeamKm).toLocaleString()} km · ${(totalTeamCo2/1000).toFixed(1)} t`,l:"Total team travel (group + knockout)",hero:true},
     ...(koStarted?[
-      {v:Math.round(koFlownKm).toLocaleString()+" km",l:"Knockout km (teams reached)",hero:true},
-      {v:(koFlownCo2/1000).toFixed(1)+" tCO\u2082e",l:"Knockout tCO₂e (teams reached)",hero:true},
+      {v:`${Math.round(koFlownKm).toLocaleString()} km · ${(koFlownCo2/1000).toFixed(1)} t`,l:"Knockout total (teams reached)",hero:true},
     ]:[]),
-    {v:Math.round(totalKm).toLocaleString()+" km",l:"Group-stage km flown"},
-    {v:(totalCo2All/1000).toFixed(1)+" tCO\u2082e",l:"Group-stage tCO₂e"},
-    {v:allTeams[allTeams.length-1].team,l:"Least tCO\u2082e team"},
-    {v:allTeams[0].team,l:"Most tCO\u2082e team"},
+    {v:`${Math.round(totalKm).toLocaleString()} km · ${(totalCo2All/1000).toFixed(1)} t`,l:"Group stage"},
+    {v:`${allTeams[0].team} ↑ · ${allTeams[allTeams.length-1].team} ↓`,l:"Most / least tCO\u2082e team"},
     {v:cityCo2[0].city,l:"Most tCO\u2082e city"},
-    {v:`${mostTZ.team} (${mostTZ.totalTZ}h)`,l:"Most TZ hours crossed"},
-    {v:allTeams.slice().sort((a,b)=>b.disScore-a.disScore)[0].team,l:"Most disadvantaged"},
+    // Jet lag + disadvantage often point at the same team — merge when they do.
+    ...(mostTZ.team===mostDis.team
+      ? [{v:`${mostTZ.team} (${mostTZ.totalTZ}h)`,l:"Most jet lag & most disadvantaged"}]
+      : [{v:`${mostTZ.team} (${mostTZ.totalTZ}h)`,l:"Most TZ hours crossed"},
+         {v:mostDis.team,l:"Most disadvantaged"}]),
   ];
   document.getElementById("hstats").innerHTML=items.map(s=>`<div class="spill${s.hero?' spill-hero':''}"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
 }
@@ -2329,6 +2335,9 @@ const mapWrap=document.getElementById("mapWrap");
 const svgEl=d3.select("#mapSvg");
 const tip=document.getElementById("tip");
 let proj,pathGen,flSel,retSel,hlTeam=null,koFlightG=null,mapView="both";
+// Team whose flight paths are PINNED on the map (set by clicking a table row;
+// cleared by clicking the row again or any action that calls applyHL(null)).
+let _pinnedTeam=null;
 // Full round names for knockout-flight tooltips.
 function ROUND_FULL(r){return {R32:"Round of 32",R16:"Round of 16",QF:"Quarter-final",SF:"Semi-final",Final:"Final"}[r]||r;}
 
@@ -2555,25 +2564,39 @@ async function initMap(){
 
 
   /* ── KNOCKOUT FLIGHTS ───────────────────────────────────────────────────
-     Only legs that have ACTUALLY been played (a KO_RESULTS entry exists) are
-     drawn — never projected ones — so the map stays factual. These are one-way
-     hops between host cities, styled distinctly from the group-stage arcs:
-     a brighter amber, heavier dashed line with its own arrowhead. Rebuilt by
-     refreshKnockoutFlights() whenever results change or the view toggles. */
+     One-way hops between host cities for every round a team has REACHED.
+     Design notes (the old uniform-amber version turned into a tangle):
+       • each arc is drawn in its TEAM's colour (same visual language as the
+         group arcs) with a dash + amber arrowhead marking it as a knockout hop;
+       • several teams often fly the SAME route (or converge on one R16 city),
+         so duplicate routes fan out at different arc heights instead of
+         overprinting each other;
+       • zero-km "hops" (the team is already in the host city) are skipped —
+         they drew as meaningless dots;
+       • line weight grows with the round (R32 lightest → Final heaviest) so
+         deep runs read at a glance;
+       • the leg into the round where a team was knocked out is slightly dimmed.
+     Rebuilt by refreshKnockoutFlights() whenever results change or the view
+     toggles. */
   koFlightG=svgEl.append("g").attr("class","ko-flight-layer");
+  const KO_ROUND_W={R32:1.5,R16:2.0,QF:2.5,SF:3.0,Final:3.6};
   function buildKoLegs(){
     const out=[];
+    const routeCount={};                       // unordered route -> #arcs so far
     for(const td of allTeams){
       const kt=knockoutTravel(td.team);
       if(!kt.inKO)continue;
       for(const leg of kt.legs){
-        if(!leg.reached)continue;             // count legs to rounds the team REACHED (qualified for), played or not
+        if(!leg.reached)continue;              // only rounds the team has reached
+        if(leg.from===leg.to)continue;         // zero-km hop — nothing to draw
         const A=CITY_DATA[leg.from],B=CITY_DATA[leg.to];
         if(!A||!B)continue;
         const pa=proj([A.lng,A.lat]),pb=proj([B.lng,B.lat]);
         if(!pa||!pb)continue;
+        const key=[leg.from,leg.to].sort().join("|");
+        const dupIdx=routeCount[key]||0; routeCount[key]=dupIdx+1;
         out.push({team:td.team,color:td.color,round:leg.round,from:leg.from,to:leg.to,
-          km:Math.round(leg.km),co2:leg.co2,won:leg.won,
+          km:Math.round(leg.km),co2:leg.co2,won:leg.won,played:leg.played,dupIdx,
           x1:pa[0],y1:pa[1],x2:pb[0],y2:pb[1]});
       }
     }
@@ -2584,34 +2607,45 @@ async function initMap(){
     koFlightG.selectAll("*").remove();
     if(mapView==="group"){return;}            // hidden in group-only view
     const koLegs=buildKoLegs();
-    // slightly higher arc so KO flights sit visually above group arcs
+    const koOnly = mapView==="knockout";      // bolder when group arcs are hidden
+    const baseW=d=>(KO_ROUND_W[d.round]||1.6)*(koOnly?1.15:1);
+    const baseOp=d=>{
+      if(hlTeam&&hlTeam!==d.team)return .08;
+      let o=koOnly?.95:.85;
+      if(d.won===false)o*= .55;               // hop into the round they lost
+      return o;
+    };
     koFlightG.selectAll("path").data(koLegs).join("path")
-      .attr("d",d=>arc(d.x1,d.y1,d.x2,d.y2,42))
+      // duplicate routes fan out: 30 / 44 / 58 / 72px arc heights
+      .attr("d",d=>arc(d.x1,d.y1,d.x2,d.y2,30+d.dupIdx*14))
       .attr("fill","none")
-      .attr("stroke","#f0b429")
-      .attr("stroke-width",d=>(hlTeam&&hlTeam!==d.team)?1.1:2.4)
-      .attr("stroke-opacity",d=>(hlTeam&&hlTeam!==d.team)?.12:.92)
+      .attr("stroke",d=>d.color)
+      .attr("stroke-width",d=>(hlTeam&&hlTeam!==d.team)?0.8:baseW(d))
+      .attr("stroke-opacity",baseOp)
       .attr("stroke-dasharray","7,4")
+      .attr("stroke-linecap","round")
       .attr("marker-end","url(#arrKo)")
       .attr("class","ko-arc")
       .style("cursor","pointer")
       .on("mouseenter",(e,d)=>{
         if(hlTeam&&hlTeam!==d.team)return;
-        d3.select(e.target).attr("stroke-width",3.4).attr("stroke-opacity",1);
-        showArcLabel({x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2,km:d.km,tz:0,color:"#f0b429"});
-        const resStr=d.won===false?"Lost — eliminated":d.won?"Won — advanced":"";
+        d3.select(e.target).attr("stroke-width",baseW(d)+1.4).attr("stroke-opacity",1);
+        const koTz=Math.abs((CITY_TZ[d.to]||0)-(CITY_TZ[d.from]||0));
+        showArcLabel({x1:d.x1,y1:d.y1,x2:d.x2,y2:d.y2,km:d.km,tz:koTz,color:d.color});
+        const resStr=d.won===false?"Lost — eliminated":d.won?"Won — advanced":"Qualified — awaiting kick-off";
         showTip(e,`<div class="th">${flagOf(d.team)} ${d.team}</div><div class="tdiv"></div>
           <div class="tr"><span>🏆 ${ROUND_FULL(d.round)}</span><span>${resStr}</span></div>
           <div class="tr"><span>✈ ${d.from} → ${d.to}</span><span></span></div>
           <div class="tdiv"></div>
           <div class="tr"><span>One-way</span><span class="tk">${d.km.toLocaleString()} km</span></div>
+          <div class="tr"><span>⏰ Timezone shift</span><span class="ttz">${koTz>0?`+${koTz}h`:"Same timezone"}</span></div>
           <div class="tr"><span>🌿 tCO₂e</span><span class="tc2">${fco2(d.co2)}</span></div>`);
       })
       .on("click",(e,d)=>openDrawer(d.team))
       .on("mousemove",moveTip)
       .on("mouseleave",(e,d)=>{
-        const hl=hlTeam===d.team;
-        d3.select(e.target).attr("stroke-width",hl?2.8:2.4).attr("stroke-opacity",hl?1:.92);
+        d3.select(e.target).attr("stroke-width",(hlTeam&&hlTeam!==d.team)?0.8:baseW(d))
+          .attr("stroke-opacity",baseOp(d));
         hideArcLabel();hideTip();
       });
   }
@@ -2724,6 +2758,7 @@ function setMapView(view){
 /* ═══════════════ HIGHLIGHT ═══════════════ */
 function applyHL(team){
   hlTeam=team||null;
+  if(!team)_pinnedTeam=null;   // clearing the highlight also unpins
   if(flSel){
     flSel.attr("stroke-opacity",d=>!team?(routeFreq(d.tc,d.gc)>=4?.7:.4):(d.team===team?.95:.03))
        .attr("stroke-width",d=>!team?(routeFreq(d.tc,d.gc)>=4?2.8:1.0):(d.team===team?3.2:.6));
@@ -2933,21 +2968,57 @@ function buildTable(data){
         <span class="ltz ${tzCls}">${tzTxt}</span>
       </div>`;
     }).join("");
+    // Knockout legs (rounds the team has REACHED) appended under the group legs,
+    // so the expanded row tells the whole travel story, not just the group stage.
+    let koHtml="",koSubKm=0,koSubCo2=0;
+    try{
+      const kt=knockoutTravel(td.team);
+      if(kt.inKO&&kt.legs.length){
+        const reached=kt.legs.filter(l=>l.reached);
+        koHtml=reached.map(l=>{
+          const icon=l.played?(l.won?"✓":"✗"):"✈";
+          const stat=l.played?(l.won?"won":"lost"):"qualified";
+          koSubKm+=l.km;koSubCo2+=l.co2;
+          return`<div class="legrow ko">
+            <span class="lgn lgn-ko">${l.round}</span>
+            <span class="lvc" title="${l.from} → ${l.to}">${l.from===l.to?l.to:l.from+" → "+l.to}</span>
+            <span class="ldate">${icon} ${stat}</span>
+            <span class="lkm">→${Math.round(l.km).toLocaleString()}km</span>
+            <span class="lco2">${fco2(l.co2)}</span>
+            <span class="ltz same">1-way</span>
+          </div>`;
+        }).join("");
+        if(reached.length){
+          koHtml+=`<div class="legrow ko ko-sub">
+            <span class="lgn lgn-ko">KO</span>
+            <span class="lvc">Knockout so far</span><span class="ldate"></span>
+            <span class="lkm">${Math.round(koSubKm).toLocaleString()}km</span>
+            <span class="lco2">${fco2(koSubCo2)}</span><span class="ltz same"></span>
+          </div>`;
+        }
+      }
+    }catch(e){/* knockout model not ready at first table paint */}
     div.innerHTML=`
       <span class="rrank">${i+1}</span>
       <span class="rteam">
         <span class="rth"><span class="rsw" style="background:${td.color}"></span><span class="rname">${flagOf(td.team)} ${td.team}</span></span>
         <span class="rbase">⛺ ${td.tc} (UTC${CITY_TZ[td.tc]||'?'})</span>
-        <span class="rlegs">${legsHtml}</span>
+        <span class="rlegs">${legsHtml}${koHtml}</span>
       </span>
       <span class="rbar"><div class="btrack"><div class="bfill" style="width:${pct}%;background:${td.color}"></div></div></span>
       <span class="rkm">${td.total.toLocaleString()} km<div class="rco2">${fco2(td.totalCo2)}</div></span>
       <span class="rtz ${tzHigh?"high":"low"}">${td.totalTZ}h<div class="rtz-sub">${td.totalTZ===0?"no shift":td.totalTZ===1?"1 cross":""+td.totalTZ+" cross"}</div></span>
       <span class="rdis" id="rdis_${i}" data-dis="${td.disScore}">${td.disScore.toFixed(1)}<div class="rdis-sub">dis. score</div></span>`;
-    let pinned=false;
-    div.addEventListener("mouseenter",()=>{if(!pinned)applyHL(td.team);});
-    div.addEventListener("mouseleave",()=>{if(!pinned)applyHL(null);});
-    div.addEventListener("click",()=>openDrawer(td.team));
+    // Hover previews the team's flight paths (group + knockout); CLICK pins the
+    // highlight (so the paths stay lit while the drawer is open) and opens the
+    // team drawer. Clicking the same row again unpins.
+    div.addEventListener("mouseenter",()=>{if(!_pinnedTeam)applyHL(td.team);});
+    div.addEventListener("mouseleave",()=>{if(!_pinnedTeam)applyHL(null);});
+    div.addEventListener("click",()=>{
+      if(_pinnedTeam===td.team){_pinnedTeam=null;applyHL(null);}
+      else{_pinnedTeam=td.team;applyHL(td.team);}
+      openDrawer(td.team);
+    });
     tbody.appendChild(div);
     // colour dis cell after insertion (avoids template literal quote issues)
     const disCell=div.querySelector('.rdis');
@@ -3102,7 +3173,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "2 July 2026";
+const RESULTS_AS_OF = "30 June 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -3121,88 +3192,92 @@ const RESULTS = [
   // ── Group A ──
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
   {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
-  {a:"Czechia", b:"South Africa", ga:1, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
   // ── Group B ──
   {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
   {a:"Qatar", b:"Switzerland", ga:1, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
-  {a:"Canada", b:"Qatar", ga:6, gb:0},
-  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Canada", ga:2, gb:1},
   // ── Group C ──
-  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
-  {a:"Brazil", b:"Haiti", ga:3, gb:0},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Haiti", b:"Scotland", ga:0, gb:1},
   // ── Group D ──
   {a:"United States", b:"Paraguay", ga:4, gb:1},
   {a:"Australia", b:"Türkiye", ga:2, gb:0},
-  {a:"United States", b:"Australia", ga:2, gb:0},
-  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Paraguay", b:"Australia", ga:0, gb:0},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
   // ── Group E ──
-  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
-  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
-  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   // ── Group F ──
   {a:"Netherlands", b:"Japan", ga:2, gb:2},
   {a:"Sweden", b:"Tunisia", ga:5, gb:1},
-  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
-  {a:"Japan", b:"Sweden", ga:1, gb:1},
-  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
   // ── Group G ──
-  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
-  {a:"Egypt", b:"Iran", ga:1, gb:1},
-  {a:"New Zealand", b:"Belgium", ga:1, gb:5},
+  {a:"Iran", b:"New Zealand", ga:2, gb:2},
   // ── Group H ──
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
-  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
-  {a:"Uruguay", b:"Spain", ga:0, gb:1},
   // ── Group I ──
   {a:"France", b:"Senegal", ga:3, gb:1},
   {a:"Iraq", b:"Norway", ga:1, gb:4},
-  {a:"France", b:"Iraq", ga:3, gb:0},
-  {a:"Norway", b:"Senegal", ga:3, gb:2},
-  {a:"Senegal", b:"Iraq", ga:5, gb:0},
-  {a:"Norway", b:"France", ga:1, gb:4},
   // ── Group J ──
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
   {a:"Austria", b:"Jordan", ga:3, gb:1},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Algeria", b:"Austria", ga:3, gb:3},
-  {a:"Jordan", b:"Argentina", ga:1, gb:3},
   // ── Group K ──
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
   {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
-  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
-  {a:"Colombia", b:"Portugal", ga:0, gb:0},
-  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  // ── Matchday 2 ──
+  {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
+  {a:"Canada", b:"Qatar", ga:6, gb:0},
+  {a:"United States", b:"Australia", ga:2, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
+  {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"France", b:"Iraq", ga:3, gb:0},
+  {a:"Norway", b:"Senegal", ga:3, gb:2},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"England", b:"Ghana", ga:0, gb:0},
-  {a:"Panama", b:"England", ga:0, gb:2},
-  {a:"Croatia", b:"Ghana", ga:2, gb:1},
-  // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
+  {a:"Colombia", b:"Congo DR", ga:1, gb:0},
+  // ── Other groups: add results here as matches are played ──,
+  // ── Matchday 3 (Groups A, B, C complete) ──
+  {a:"Switzerland", b:"Canada", ga:2, gb:1},
+  {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
+  {a:"Brazil", b:"Scotland", ga:3, gb:0},
+  {a:"Mexico", b:"Czechia", ga:3, gb:0},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  // ── Matchday 3 — Group E complete (25 June) ──
+  {a:"Ecuador", b:"Germany", ga:2, gb:1},
+  {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
+  // ── Matchday 3 — Groups D, F, G, H, I, J, K, L complete (25–27 June) ──
+  {a:"Tunisia", b:"Netherlands", ga:1, gb:3},          // F
+  {a:"Japan", b:"Sweden", ga:1, gb:1},                 // F
+  {a:"Türkiye", b:"United States", ga:3, gb:2},        // D
+  {a:"Paraguay", b:"Australia", ga:0, gb:0},           // D
+  {a:"Norway", b:"France", ga:1, gb:4},                // I
+  {a:"Senegal", b:"Iraq", ga:5, gb:0},                 // I
+  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},      // H
+  {a:"Uruguay", b:"Spain", ga:0, gb:1},                // H
+  {a:"New Zealand", b:"Belgium", ga:1, gb:5},          // G
+  {a:"Egypt", b:"Iran", ga:1, gb:1},                   // G
+  {a:"Panama", b:"England", ga:0, gb:2},               // L
+  {a:"Croatia", b:"Ghana", ga:2, gb:1},                // L
+  {a:"Colombia", b:"Portugal", ga:0, gb:0},            // K
+  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},          // K
+  {a:"Algeria", b:"Austria", ga:3, gb:3},              // J
+  {a:"Jordan", b:"Argentina", ga:1, gb:3},             // J
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -3228,6 +3303,7 @@ const RESULTS = [
 // 3rd-place = 103, Final = 104.
 // ─────────────────────────────────────────────────────────────────────────
 const KO_RESULTS = [
+  // ── Round of 32 (played) ──
   {m:73, a:"South Africa", b:"Canada", ga:0, gb:1, venue:"Los Angeles", d:"2026-06-28"},
   {m:74, a:"Germany", b:"Paraguay", ga:1, gb:1, pso:"Paraguay", psa:3, psb:4, venue:"Boston", d:"2026-06-29"},
   {m:75, a:"Netherlands", b:"Morocco", ga:1, gb:1, pso:"Morocco", psa:2, psb:3, venue:"Monterrey", d:"2026-06-30"},
@@ -3235,9 +3311,6 @@ const KO_RESULTS = [
   {m:77, a:"France", b:"Sweden", ga:3, gb:0, venue:"Atlanta", d:"2026-06-30"},
   {m:78, a:"Cote d'Ivoire", b:"Norway", ga:1, gb:2, venue:"Guadalajara", d:"2026-06-30"},
   {m:79, a:"Mexico", b:"Ecuador", ga:2, gb:0, venue:"Mexico City", d:"2026-07-01"},
-  {m:80, a:"England", b:"Congo DR", ga:2, gb:1, venue:"New York / New Jersey", d:"2026-07-01"},
-  {m:81, a:"United States", b:"Bosnia and Herzegovina", ga:2, gb:0, venue:"San Francisco Bay Area", d:"2026-07-02"},
-  {m:82, a:"Belgium", b:"Senegal", ga:3, gb:2, venue:"Seattle", d:"2026-07-01"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3482,7 +3555,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2148,"Spain":2144,"France":2134,"England":2046,"Portugal":1990,"Brazil":2031,"Netherlands":1971,"Morocco":1886,"Belgium":1910,"Germany":1908,"Croatia":1905,"Colombia":2004,"Mexico":1943,"Senegal":1816,"United States":1798,"Uruguay":1841,"Japan":1888,"Switzerland":1914,"Korea Republic":1723,"Iran":1764,"Australia":1800,"Türkiye":1852,"Ecuador":1871,"Austria":1836,"Norway":1934,"Panama":1658,"Egypt":1742,"Algeria":1785,"Scotland":1745,"Canada":1764,"Paraguay":1823,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1622,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1575,"Congo DR":1704};
+const FIFA_STRENGTH={"Argentina":1886,"Spain":1875,"France":1870,"England":1826,"Portugal":1778,"Brazil":1760,"Netherlands":1756,"Morocco":1753,"Belgium":1735,"Germany":1730,"Croatia":1716,"Colombia":1693,"Mexico":1685,"Senegal":1684,"United States":1673,"Uruguay":1673,"Japan":1660,"Switzerland":1649,"Korea Republic":1575,"Iran":1565,"Australia":1560,"Türkiye":1560,"Ecuador":1570,"Austria":1580,"Norway":1530,"Panama":1430,"Egypt":1520,"Algeria":1500,"Scotland":1490,"Canada":1530,"Paraguay":1480,"Tunisia":1500,"Cote d'Ivoire":1490,"Saudi Arabia":1460,"Qatar":1440,"South Africa":1440,"Czechia":1490,"Sweden":1530,"Curaçao":1330,"Jordan":1390,"Cabo Verde":1380,"Uzbekistan":1430,"New Zealand":1380,"Bosnia and Herzegovina":1480,"Iraq":1400,"Haiti":1310,"Ghana":1470,"Congo DR":1450};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
@@ -3891,7 +3964,7 @@ function buildFixturesPanel(){
     else{statusInner=koT+chCell+`<span class="fxr-venue" title="${fx.v}">${fx.v}</span>`;}
     const clickTeam = (fx.a||"").replace(/'/g,"\\'");
     const clickAttr = fx.a ? ` onclick="gotoTeamOnMap('${clickTeam}')"` : "";
-    return `<div class="fxr fxr-row fxr-ko ${played?'played':'upcoming'}"${clickAttr}>
+    return `<div class="fxr fxr-row fxr-korow ${played?'played':'upcoming'}"${clickAttr}>
       <span class="fxr-grp fxr-grp-ko" title="${rndTag}">${rndShort}</span>
       <span class="fxr-team ${aCls}${fx.a?'':' fxr-tbc'}">${faF} ${nameA}</span>
       <span class="fxr-mid">${scoreCell}</span>
