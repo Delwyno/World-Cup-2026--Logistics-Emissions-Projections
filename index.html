@@ -3216,7 +3216,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "4 July 2026";
+const RESULTS_AS_OF = "5 July 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -3358,6 +3358,8 @@ const KO_RESULTS = [
   {m:86, a:"Argentina", b:"Cabo Verde", ga:3, gb:2, venue:"Miami", d:"2026-07-03"},
   {m:87, a:"Colombia", b:"Ghana", ga:1, gb:0, venue:"Kansas City", d:"2026-07-04"},
   {m:88, a:"Australia", b:"Egypt", ga:1, gb:1, pso:"Egypt", psa:2, psb:4, venue:"Dallas", d:"2026-07-03"},
+  {m:89, a:"Paraguay", b:"France", ga:0, gb:1, venue:"Los Angeles", d:"2026-07-04"},
+  {m:90, a:"Canada", b:"Morocco", ga:0, gb:3, venue:"Boston", d:"2026-07-04"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3602,7 +3604,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2151,"Spain":2159,"France":2134,"England":2046,"Portugal":2013,"Brazil":2031,"Netherlands":1971,"Morocco":1886,"Belgium":1910,"Germany":1908,"Croatia":1882,"Colombia":2009,"Mexico":1943,"Senegal":1816,"United States":1798,"Uruguay":1841,"Japan":1888,"Switzerland":1943,"Korea Republic":1723,"Iran":1764,"Australia":1795,"Türkiye":1852,"Ecuador":1871,"Austria":1821,"Norway":1934,"Panama":1658,"Egypt":1747,"Algeria":1756,"Scotland":1745,"Canada":1764,"Paraguay":1823,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1619,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1570,"Congo DR":1704};
+const FIFA_STRENGTH={"Argentina":2151,"Spain":2159,"France":2143,"England":2046,"Portugal":2013,"Brazil":2031,"Netherlands":1971,"Morocco":1921,"Belgium":1910,"Germany":1908,"Croatia":1882,"Colombia":2009,"Mexico":1943,"Senegal":1816,"United States":1798,"Uruguay":1841,"Japan":1888,"Switzerland":1943,"Korea Republic":1723,"Iran":1764,"Australia":1795,"Türkiye":1852,"Ecuador":1871,"Austria":1821,"Norway":1934,"Panama":1658,"Egypt":1747,"Algeria":1756,"Scotland":1745,"Canada":1729,"Paraguay":1814,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1619,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1570,"Congo DR":1704};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
