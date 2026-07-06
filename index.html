@@ -3216,7 +3216,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "5 July 2026";
+const RESULTS_AS_OF = "6 July 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -3233,88 +3233,88 @@ const TODAY_ISO = (()=>{
 })();
 const RESULTS = [
   // ── Group A ──
-  {a:"Czechia", b:"Mexico", ga:0, gb:3},
-  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
-  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
-  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Mexico", b:"South Africa", ga:2, gb:0},
+  {a:"Korea Republic", b:"Czechia", ga:2, gb:1},
+  {a:"Mexico", b:"Korea Republic", ga:1, gb:0},
   {a:"Czechia", b:"South Africa", ga:1, gb:1},
+  {a:"South Africa", b:"Korea Republic", ga:1, gb:0},
+  {a:"Czechia", b:"Mexico", ga:0, gb:3},
   // ── Group B ──
+  {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
   {a:"Qatar", b:"Switzerland", ga:1, gb:1},
+  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
   {a:"Canada", b:"Qatar", ga:6, gb:0},
   {a:"Bosnia and Herzegovina", b:"Qatar", ga:3, gb:1},
-  {a:"Switzerland", b:"Bosnia and Herzegovina", ga:4, gb:1},
-  {a:"Canada", b:"Bosnia and Herzegovina", ga:1, gb:1},
   {a:"Switzerland", b:"Canada", ga:2, gb:1},
   // ── Group C ──
   {a:"Haiti", b:"Scotland", ga:0, gb:1},
-  {a:"Morocco", b:"Haiti", ga:4, gb:2},
-  {a:"Scotland", b:"Morocco", ga:0, gb:1},
-  {a:"Scotland", b:"Brazil", ga:0, gb:3},
   {a:"Brazil", b:"Morocco", ga:1, gb:1},
   {a:"Brazil", b:"Haiti", ga:3, gb:0},
+  {a:"Scotland", b:"Morocco", ga:0, gb:1},
+  {a:"Scotland", b:"Brazil", ga:0, gb:3},
+  {a:"Morocco", b:"Haiti", ga:4, gb:2},
   // ── Group D ──
+  {a:"United States", b:"Paraguay", ga:4, gb:1},
   {a:"Australia", b:"Türkiye", ga:2, gb:0},
   {a:"United States", b:"Australia", ga:2, gb:0},
-  {a:"United States", b:"Paraguay", ga:4, gb:1},
   {a:"Türkiye", b:"Paraguay", ga:0, gb:1},
-  {a:"Türkiye", b:"United States", ga:3, gb:2},
   {a:"Paraguay", b:"Australia", ga:0, gb:0},
+  {a:"Türkiye", b:"United States", ga:3, gb:2},
   // ── Group E ──
-  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
   {a:"Cote d'Ivoire", b:"Ecuador", ga:1, gb:0},
   {a:"Germany", b:"Curaçao", ga:7, gb:1},
+  {a:"Germany", b:"Cote d'Ivoire", ga:2, gb:1},
+  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
   {a:"Curaçao", b:"Cote d'Ivoire", ga:0, gb:2},
   {a:"Ecuador", b:"Germany", ga:2, gb:1},
-  {a:"Ecuador", b:"Curaçao", ga:0, gb:0},
   // ── Group F ──
+  {a:"Netherlands", b:"Japan", ga:2, gb:2},
+  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
   {a:"Netherlands", b:"Sweden", ga:5, gb:1},
+  {a:"Tunisia", b:"Japan", ga:0, gb:4},
   {a:"Japan", b:"Sweden", ga:1, gb:1},
   {a:"Tunisia", b:"Netherlands", ga:1, gb:3},
-  {a:"Sweden", b:"Tunisia", ga:5, gb:1},
-  {a:"Netherlands", b:"Japan", ga:2, gb:2},
-  {a:"Tunisia", b:"Japan", ga:0, gb:4},
   // ── Group G ──
-  {a:"Belgium", b:"Iran", ga:0, gb:0},
-  {a:"Egypt", b:"Iran", ga:1, gb:1},
-  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
   {a:"Iran", b:"New Zealand", ga:2, gb:2},
   {a:"Belgium", b:"Egypt", ga:1, gb:1},
+  {a:"Belgium", b:"Iran", ga:0, gb:0},
+  {a:"New Zealand", b:"Egypt", ga:1, gb:3},
+  {a:"Egypt", b:"Iran", ga:1, gb:1},
   {a:"New Zealand", b:"Belgium", ga:1, gb:5},
   // ── Group H ──
-  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
-  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
-  {a:"Uruguay", b:"Spain", ga:0, gb:1},
-  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
   {a:"Spain", b:"Cabo Verde", ga:0, gb:0},
   {a:"Saudi Arabia", b:"Uruguay", ga:1, gb:1},
+  {a:"Spain", b:"Saudi Arabia", ga:4, gb:0},
+  {a:"Uruguay", b:"Cabo Verde", ga:2, gb:2},
+  {a:"Cabo Verde", b:"Saudi Arabia", ga:0, gb:0},
+  {a:"Uruguay", b:"Spain", ga:0, gb:1},
   // ── Group I ──
+  {a:"France", b:"Senegal", ga:3, gb:1},
+  {a:"Iraq", b:"Norway", ga:1, gb:4},
   {a:"France", b:"Iraq", ga:3, gb:0},
   {a:"Norway", b:"Senegal", ga:3, gb:2},
   {a:"Senegal", b:"Iraq", ga:5, gb:0},
-  {a:"France", b:"Senegal", ga:3, gb:1},
-  {a:"Iraq", b:"Norway", ga:1, gb:4},
   {a:"Norway", b:"France", ga:1, gb:4},
   // ── Group J ──
-  {a:"Jordan", b:"Algeria", ga:1, gb:2},
-  {a:"Argentina", b:"Austria", ga:2, gb:0},
-  {a:"Jordan", b:"Argentina", ga:1, gb:3},
-  {a:"Austria", b:"Jordan", ga:3, gb:1},
   {a:"Argentina", b:"Algeria", ga:3, gb:0},
+  {a:"Austria", b:"Jordan", ga:3, gb:1},
+  {a:"Argentina", b:"Austria", ga:2, gb:0},
+  {a:"Jordan", b:"Algeria", ga:1, gb:2},
   {a:"Algeria", b:"Austria", ga:3, gb:3},
+  {a:"Jordan", b:"Argentina", ga:1, gb:3},
   // ── Group K ──
-  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
-  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},
   {a:"Portugal", b:"Congo DR", ga:1, gb:1},
+  {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
+  {a:"Portugal", b:"Uzbekistan", ga:5, gb:0},
   {a:"Colombia", b:"Congo DR", ga:1, gb:0},
   {a:"Colombia", b:"Portugal", ga:0, gb:0},
-  {a:"Uzbekistan", b:"Colombia", ga:1, gb:3},
+  {a:"Congo DR", b:"Uzbekistan", ga:3, gb:1},
   // ── Group L ──
   {a:"England", b:"Croatia", ga:4, gb:2},
-  {a:"Panama", b:"Croatia", ga:0, gb:1},
-  {a:"Panama", b:"England", ga:0, gb:2},
   {a:"Ghana", b:"Panama", ga:1, gb:0},
+  {a:"Panama", b:"Croatia", ga:0, gb:1},
   {a:"England", b:"Ghana", ga:0, gb:0},
+  {a:"Panama", b:"England", ga:0, gb:2},
   {a:"Croatia", b:"Ghana", ga:2, gb:1},
   // ── Auto-updated from API; knockouts stay in KO_RESULTS ──
 ];
@@ -3360,6 +3360,8 @@ const KO_RESULTS = [
   {m:88, a:"Australia", b:"Egypt", ga:1, gb:1, pso:"Egypt", psa:2, psb:4, venue:"Dallas", d:"2026-07-03"},
   {m:89, a:"Paraguay", b:"France", ga:0, gb:1, venue:"Los Angeles", d:"2026-07-04"},
   {m:90, a:"Canada", b:"Morocco", ga:0, gb:3, venue:"Boston", d:"2026-07-04"},
+  {m:91, a:"Brazil", b:"Norway", ga:1, gb:2, venue:"Dallas", d:"2026-07-05"},
+  {m:92, a:"Mexico", b:"England", ga:2, gb:3, venue:"Mexico City", d:"2026-07-06"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3604,7 +3606,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2151,"Spain":2159,"France":2143,"England":2046,"Portugal":2013,"Brazil":2031,"Netherlands":1971,"Morocco":1921,"Belgium":1910,"Germany":1908,"Croatia":1882,"Colombia":2009,"Mexico":1943,"Senegal":1816,"United States":1798,"Uruguay":1841,"Japan":1888,"Switzerland":1943,"Korea Republic":1723,"Iran":1764,"Australia":1795,"Türkiye":1852,"Ecuador":1871,"Austria":1821,"Norway":1934,"Panama":1658,"Egypt":1747,"Algeria":1756,"Scotland":1745,"Canada":1729,"Paraguay":1814,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1619,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1570,"Congo DR":1704};
+const FIFA_STRENGTH={"Argentina":2151,"Spain":2159,"France":2143,"England":2046,"Portugal":2013,"Brazil":1993,"Netherlands":1971,"Morocco":1921,"Belgium":1910,"Germany":1908,"Croatia":1882,"Colombia":2009,"Mexico":1943,"Senegal":1816,"United States":1798,"Uruguay":1841,"Japan":1888,"Switzerland":1943,"Korea Republic":1723,"Iran":1764,"Australia":1795,"Türkiye":1852,"Ecuador":1871,"Austria":1821,"Norway":1972,"Panama":1658,"Egypt":1747,"Algeria":1756,"Scotland":1745,"Canada":1729,"Paraguay":1814,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1559,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1619,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1570,"Congo DR":1704};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
