@@ -65,18 +65,27 @@ jobs:
         continue-on-error: true
         run: python update_elo.py
 
+      # Snapshot current title odds into title_history.json (one entry per UTC
+      # day, overwritten in place on same-day re-runs) so the dashboard can plot
+      # a real trend line instead of only a Day-1-vs-now comparison. Soft-fails
+      # (exits 0) if it can't compute odds, so a snapshot miss never blocks a
+      # score commit.
+      - name: Snapshot title-odds history
+        run: python update_history.py
+
       - name: Validate site
         run: python validate_site.py
 
       - name: Commit if changed
         run: |
-          if [[ -n "$(git status --porcelain index.html)" ]]; then
+          if [[ -n "$(git status --porcelain index.html title_history.json)" ]]; then
             git config user.name  "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add index.html
+            git add index.html title_history.json
             git commit -m "Auto-update results and ratings ($(date -u '+%Y-%m-%d %H:%M UTC'))"
             git push
             echo "Committed updates."
           else
             echo "No changes to commit."
           fi
+
