@@ -1,0 +1,42 @@
+name: Backfill title-odds history
+
+# One-off, manually-triggered job to reconstruct title_history.json from git
+# history. Run it once (Actions tab -> Backfill title-odds history -> Run
+# workflow), check the result, then delete this file — it has no schedule
+# and update_history.py takes over ongoing snapshots from here on.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo (full history)
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0   # backfill_history.py needs the whole git log, not just the latest commit
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Run backfill
+        run: python backfill_history.py
+
+      - name: Commit if changed
+        run: |
+          if [[ -n "$(git status --porcelain title_history.json)" ]]; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add title_history.json
+            git commit -m "Backfill title-odds history from git log"
+            git push
+            echo "Committed backfilled history."
+          else
+            echo "No changes to commit."
+          fi
