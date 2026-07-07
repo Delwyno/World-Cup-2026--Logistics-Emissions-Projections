@@ -3366,6 +3366,7 @@ const KO_RESULTS = [
   {m:92, a:"Mexico", b:"England", ga:2, gb:3, venue:"Mexico City", d:"2026-07-06"},
   {m:93, a:"Portugal", b:"Spain", ga:0, gb:1, venue:"Seattle", d:"2026-07-06"},
   {m:94, a:"United States", b:"Belgium", ga:1, gb:4, venue:"Atlanta", d:"2026-07-07"},
+  {m:95, a:"Argentina", b:"Egypt", ga:3, gb:2, venue:"Houston", d:"2026-07-05"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
@@ -3610,7 +3611,7 @@ function standingsFor(teams, results){
 /* ═══════════════ GROUPS TABLE ═══════════════ */
 // ═══════════════ QUALIFICATION PROBABILITY MODEL ═══════════════
 // Team strength seeded from FIFA World Rankings (June 2026, Elo-style points)
-const FIFA_STRENGTH={"Argentina":2151,"Spain":2177,"France":2143,"England":2076,"Portugal":1995,"Brazil":1993,"Netherlands":1971,"Morocco":1921,"Belgium":1961,"Germany":1907,"Croatia":1881,"Colombia":2009,"Mexico":1913,"Senegal":1816,"United States":1747,"Uruguay":1841,"Japan":1888,"Switzerland":1943,"Korea Republic":1723,"Iran":1764,"Australia":1795,"Türkiye":1852,"Ecuador":1871,"Austria":1821,"Norway":1972,"Panama":1658,"Egypt":1747,"Algeria":1756,"Scotland":1745,"Canada":1729,"Paraguay":1814,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1560,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1619,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1570,"Congo DR":1704};
+const FIFA_STRENGTH={"Argentina":2151,"Spain":2177,"France":2143,"England":2076,"Portugal":1995,"Brazil":1993,"Netherlands":1971,"Morocco":1921,"Belgium":1961,"Germany":1907,"Croatia":1882,"Colombia":2009,"Mexico":1913,"Senegal":1816,"United States":1747,"Uruguay":1841,"Japan":1888,"Switzerland":1943,"Korea Republic":1723,"Iran":1764,"Australia":1795,"Türkiye":1852,"Ecuador":1871,"Austria":1821,"Norway":1972,"Panama":1658,"Egypt":1747,"Algeria":1756,"Scotland":1745,"Canada":1729,"Paraguay":1814,"Tunisia":1562,"Cote d'Ivoire":1727,"Saudi Arabia":1596,"Qatar":1411,"South Africa":1560,"Czechia":1680,"Sweden":1731,"Curaçao":1714,"Jordan":1628,"Cabo Verde":1619,"Uzbekistan":1631,"New Zealand":1534,"Bosnia and Herzegovina":1605,"Iraq":1561,"Haiti":1517,"Ghana":1570,"Congo DR":1704};
 function teamStrength(t){return FIFA_STRENGTH[t]||1450;}
 
 // World-ranking position among the 48 finalists (by Elo strength), for team profiles.
