@@ -3218,7 +3218,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "15 July 2026";
+const RESULTS_AS_OF = "16 July 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -3373,6 +3373,7 @@ const KO_RESULTS = [
   {m:99, a:"Norway", b:"England", ga:1, gb:2, venue:"Boston", d:"2026-07-11"},
   {m:100, a:"Argentina", b:"Switzerland", ga:3, gb:1, venue:"Los Angeles", d:"2026-07-12"},
   {m:101, a:"France", b:"Spain", ga:0, gb:2, venue:"Dallas", d:"2026-07-14"},
+  {m:102, a:"England", b:"Argentina", ga:1, gb:2, venue:"Atlanta", d:"2026-07-15"},
 ];
 // Quick lookup: match number -> knockout result (or undefined)
 function koResultByMatch(m){return KO_RESULTS.find(r=>r.m===m);}
