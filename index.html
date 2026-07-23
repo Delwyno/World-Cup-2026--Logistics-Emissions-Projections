@@ -66,7 +66,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 html.docmode,html.docmode body{height:auto;min-height:100%;overflow:visible}
 html.docmode{overflow-y:auto;overflow-x:hidden}
 html.docmode .panel.on{flex:none;overflow:visible;min-height:0}
-html.docmode #pStandings,html.docmode #pTravel,html.docmode #pFairness,html.docmode #pFixtures{height:auto}
+html.docmode #pStandings,html.docmode #pTravel,html.docmode #pFairness,html.docmode #pFixtures,html.docmode #pSummary{height:auto}
 html.docmode .grp-wrap{flex:none;overflow:visible;height:auto}
 html.docmode .cit-body{flex:none;overflow:visible;height:auto}
 html.docmode header{position:sticky;top:0;z-index:50}
@@ -868,6 +868,38 @@ body.light .bracket-slot.q2{background:rgba(37,99,235,.05)}
 .bs-pts{font-size:10px;font-variant-numeric:tabular-nums;color:var(--muted)}
 
 /* ═══ COMPARE ═══ */
+/* ── Summary tab ── */
+.sum-section{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.sum-h{font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sum-note{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.sum-progress{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(251,146,60,.15);color:#ea8a3c;border:1px solid rgba(251,146,60,.35)}
+.sum-final{background:rgba(74,222,128,.14);color:var(--leaf);border-color:rgba(74,222,128,.35)}
+.sum-table{width:100%;border-collapse:collapse;font-size:12px}
+.sum-table th{text-align:right;font-size:10px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);padding:5px 8px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+.sum-table th:first-child,.sum-table td:first-child{text-align:left}
+.sum-table th.sorted{color:var(--text)}
+.sum-table td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sum-table td.team-cell{text-align:left;font-weight:600;color:var(--text)}
+.sum-table tr:hover td{background:var(--surface3)}
+.sum-table td.dim{color:var(--muted)}
+.sum-table .tot-row td{font-weight:800;border-top:2px solid var(--line);border-bottom:none;color:var(--text)}
+.sum-qatar-strip{display:flex;flex-wrap:wrap;gap:12px;align-items:stretch}
+.sum-qatar-cell{flex:1;min-width:130px;background:var(--surface3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:center}
+.sum-qatar-cell .v{display:block;font-size:19px;font-weight:800;color:var(--text)}
+.sum-qatar-cell .l{display:block;font-size:9.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.sum-qatar-cell.mult .v{color:#ef6b6b}
+.sum-chart-wrap{position:relative;width:100%;overflow-x:auto}
+.sum-chart-legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:10.5px;margin-top:8px}
+.sum-chart-legend span{display:inline-flex;align-items:center;gap:5px;color:var(--muted);cursor:pointer}
+.sum-chart-legend span.off{opacity:.35}
+.sum-chart-legend i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.sum-cf-headline{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+.sum-cf-swap{font-size:11.5px;padding:3px 0;color:var(--muted)}
+.sum-cf-swap b{color:var(--text)}
+.sum-cf-arrow{color:var(--leaf);font-weight:700}
+#pSummary{flex-direction:column;background:var(--bg)}
+@media(max-width:820px){.sum-table{font-size:11px}.sum-table th,.sum-table td{padding:4px 5px}}
+
 #pCompare{flex-direction:column;background:var(--bg)}
 .cmp-hero{display:grid;grid-template-columns:1fr auto 1fr;gap:0;margin-bottom:18px;border-radius:14px;overflow:hidden;border:1px solid var(--border2);box-shadow:0 4px 20px rgba(0,0,0,.18)}
 .cmp-side{padding:18px 22px;position:relative}
@@ -1115,6 +1147,8 @@ body.light .qa-team-row:hover,body.light .qa-team-row.active{background:#e2e8f0}
 .cont-delta.down{color:#f87171}
 .cont-delta.flat{color:var(--dim)}
 .cont-meta{grid-column:3/8;font-size:9px;color:var(--dim);margin-top:-2px}
+.fs-round{font-size:9.5px;color:var(--muted);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fs-row .cont-rank{font-weight:800}
 .cont-spark{display:flex;align-items:center;justify-content:center;height:18px;opacity:.9}
 .cont-spark svg{display:block}
 @media(max-width:820px){.contenders-grid{grid-template-columns:1fr}.cont-meta{display:none}.cont-spark{display:none}}
@@ -1401,6 +1435,7 @@ window.addEventListener("unhandledrejection",function(e){
     <div class="tab" data-tab="bracket"><span class="tab-full">🏆 WC Bracket</span><span class="tab-short">🏆 Bracket</span></div>
     <div class="tab" data-tab="kotravel"><span class="tab-full">🛫 Knockout Travel</span><span class="tab-short">🛫 KO Travel</span></div>
     <div class="tab" data-tab="compare"><span class="tab-full">📊 Qatar Comparison</span><span class="tab-short">📊 Qatar</span></div>
+    <div class="tab" data-tab="summary"><span class="tab-full">📋 Tournament Summary</span><span class="tab-short">📋 Summary</span></div>
   </div>
 </div>
 
@@ -1655,6 +1690,18 @@ window.addEventListener("unhandledrejection",function(e){
     <div class="cit-pills" id="comparePills"></div>
   </div>
   <div class="cit-body" id="compareWrap"></div>
+</div>
+
+<!-- SUMMARY TAB -->
+<div class="panel" id="pSummary">
+  <div class="cit-header" style="flex-shrink:0">
+    <div>
+      <div class="cit-h1">📋 Tournament Summary</div>
+      <div class="cit-sub" id="summarySub">The tournament's full travel &amp; emissions picture: every country's totals, the Qatar 2022 comparison, how title odds evolved, and what an optimised tournament could have saved.</div>
+    </div>
+    <div class="cit-pills" id="summaryPills"></div>
+  </div>
+  <div class="cit-body" id="summaryWrap"></div>
 </div>
 
 <!-- FAIRNESS TAB -->
@@ -5189,6 +5236,62 @@ function championBaseline(iters){
   return _champBaseline;
 }
 
+// ── Final tournament standings ──
+// Once the final (M104) is played, the Title Contenders panel stops showing
+// model odds and shows how the tournament actually finished instead.
+//   1-4  decided on the pitch: final winner/loser, third-place winner/loser.
+//   5+   grouped by the round a team went out in (QF > R16 > R32 > groups),
+//        then ranked within that group by tournament record — points, then
+//        goal difference, then goals scored — the standard FIFA convention.
+// Teams that never played a knockout match still rank by their group record,
+// so nobody is arbitrarily ordered. Returns null before the final is played.
+function finalStandings(){
+  const fin=koResultByMatch(104);
+  if(!fin)return null;
+  const champ=koWinner(104);
+  const runner=(champ===fin.a)?fin.b:fin.a;
+  const third3=koResultByMatch(103);
+  const third=third3?koWinner(103):null;
+  const fourth=third3?((third===third3.a)?third3.b:third3.a):null;
+
+  // Tournament record across every match a team played (group + knockout).
+  // Knockout games level after 90/120 count as draws — the shootout decides
+  // who advances but doesn't change the result on record, per FIFA.
+  const rec={};
+  const bump=(t,gf,ga)=>{
+    if(!t)return;
+    const r=rec[t]||(rec[t]={pts:0,gf:0,ga:0,pld:0});
+    r.pld++; r.gf+=gf; r.ga+=ga;
+    r.pts += gf>ga?3 : gf===ga?1 : 0;
+  };
+  RESULTS.forEach(m=>{bump(m.a,m.ga,m.gb);bump(m.b,m.gb,m.ga);});
+  KO_RESULTS.forEach(m=>{bump(m.a,m.ga,m.gb);bump(m.b,m.gb,m.ga);});
+
+  // Deepest round each team reached, as a sortable rank.
+  const roundOf={};
+  KO_RESULTS.forEach(m=>{
+    const r = m.m>=101?4 : m.m>=97?3 : m.m>=89?2 : 1;  // SF / QF / R16 / R32
+    [m.a,m.b].forEach(t=>{ if(t) roundOf[t]=Math.max(roundOf[t]||0,r); });
+  });
+
+  const byRecord=(a,b)=>{
+    const ra=rec[a]||{pts:0,gf:0,ga:0}, rb=rec[b]||{pts:0,gf:0,ga:0};
+    return rb.pts-ra.pts || (rb.gf-rb.ga)-(ra.gf-ra.ga) || rb.gf-ra.gf || a.localeCompare(b);
+  };
+
+  const top=[champ,runner,third,fourth].filter(Boolean);
+  const rest=teamList.filter(t=>!top.includes(t))
+    .sort((a,b)=>(roundOf[b]||0)-(roundOf[a]||0) || byRecord(a,b));
+
+  return top.concat(rest).map((team,i)=>{
+    const r=rec[team]||{pts:0,gf:0,ga:0,pld:0};
+    return {team,pos:i+1,...r,gd:r.gf-r.ga,
+      round: i===0?"Champions" : i===1?"Runners-up" : i===2?"Third place" : i===3?"Fourth place"
+           : (roundOf[team]===3?"Quarter-final" : roundOf[team]===2?"Round of 16"
+           : roundOf[team]===1?"Round of 32" : "Group stage")};
+  });
+}
+
 // ── Title-odds trend (sparklines in the contenders panel) ──
 // title_history.json is written by update_history.py on every automation run
 // (one entry per UTC day; same-day re-runs overwrite that day's entry rather
@@ -5205,15 +5308,21 @@ function fetchTitleHistory(){
 // a visible line rather than collapsing to a dot.
 function sparklineSVG(values,color){
   const w=46,h=18,pad=2;
-  const lo=Math.min(...values),hi=Math.max(...values);
-  const span=(hi-lo)||1;
-  const x=i=>pad+(i/(values.length-1))*(w-pad*2);
-  const y=v=>h-pad-((v-lo)/span)*(h-pad*2);
+  // Anchor the baseline at 0 rather than the series minimum. A team knocked out
+  // sits at 0% for its final days: with a min-based scale that flat run would be
+  // drawn mid-height (or, if the whole series is 0, floated in the middle by the
+  // ||1 guard). Anchoring at 0 makes elimination read correctly as a line that
+  // falls to the floor, and keeps every team's line on a comparable scale.
+  const hi=Math.max(...values,0);
+  const span=hi||1;
+  const x=i=>values.length<2?w/2:pad+(i/(values.length-1))*(w-pad*2);
+  const y=v=>h-pad-(v/span)*(h-pad*2);
   const pts=values.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
   const lastX=x(values.length-1),lastY=y(values[values.length-1]);
+  const dead=values[values.length-1]===0;
   return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">
     <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
-    <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="1.8" fill="${color}"/>
+    <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="1.8" fill="${color}" opacity="${dead?0.45:1}"/>
   </svg>`;
 }
 // Fetch history (once, cached) and fill in any .cont-spark placeholders under `root`.
@@ -5229,9 +5338,237 @@ function renderTitleSparklines(root){
       if(pts.length<2)return;
       const td=allTeams.find(t=>t.team===team);
       el.innerHTML=sparklineSVG(pts,td?td.color:"#888");
-      el.title="Title odds trend ("+pts.length+" days): "+pts.map(v=>v.toFixed(1)+"%").join(" → ");
+      // Summarise rather than listing every day: once the history runs to a few
+      // weeks the full series is unreadable in a tooltip. Peak → final (and the
+      // drop between them) is the story, especially on the final standings.
+      const peak=Math.max(...pts), last=pts[pts.length-1];
+      const peakDay=hist[pts.indexOf(peak)];
+      const drop=peak-last;
+      el.title=`Title odds over ${pts.length} days\n`
+        +`Peak ${peak.toFixed(1)}%${peakDay?" ("+peakDay.date+")":""}\n`
+        +`Final ${last.toFixed(1)}%`
+        +(drop>0.05?`\nFell ${drop.toFixed(1)}pp from peak`:"");
     });
   }).catch(()=>{});
+}
+
+/* ═══════════════ TOURNAMENT SUMMARY TAB ═══════════════ */
+// Teams whose title odds ever exceeded this % get a line on the trend chart.
+const SUMMARY_ODDS_THRESHOLD=2;
+
+// Optimised-tournament counterfactual. null until optimise_counterfactual.py has
+// run — the script replaces this whole assignment with computed results. It is a
+// static bake (not live) because the optimisation is expensive and its inputs
+// (fixtures, results, bases) only change when the updaters commit anyway.
+const COUNTERFACTUAL={"computed": "23 Jul 2026", "note": "Fan figures are recomputed here from first principles (home → each venue, DESNZ banded factors) for both scenarios, so before/after is like-for-like.", "bases": {"nCamps": 37, "teamKmBefore": 498626, "teamCo2Before": 3258.1, "teamKmAfter": 426444, "teamCo2After": 2756.6, "assignments": [{"team": "Portugal", "flag": "🇵🇹", "from": "Palm Beach Gardens", "to": "Houston", "saveKm": 8544, "saveT": 56.3}, {"team": "England", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "from": "Kansas City", "to": "New York New Jersey", "saveKm": 8740, "saveT": 51.8}, {"team": "Austria", "flag": "🇦🇹", "from": "Goleta", "to": "Kansas City", "saveKm": 7170, "saveT": 46.7}, {"team": "Norway", "flag": "🇳🇴", "from": "Greensboro", "to": "New York New Jersey", "saveKm": 3140, "saveT": 44.3}, {"team": "Jordan", "flag": "🇯🇴", "from": "Portland", "to": "San Francisco Bay Area", "saveKm": 4194, "saveT": 40.6}, {"team": "Japan", "flag": "🇯🇵", "from": "Nashville", "to": "Dallas", "saveKm": 7256, "saveT": 30.6}, {"team": "Curaçao", "flag": "🇨🇼", "from": "Boca Raton", "to": "Kansas City", "saveKm": 4712, "saveT": 27.1}, {"team": "Qatar", "flag": "🇶🇦", "from": "Santa Barbara", "to": "Renton", "saveKm": 4400, "saveT": 26.8}, {"team": "France", "flag": "🇫🇷", "from": "Boston", "to": "Charlotte", "saveKm": 4912, "saveT": 26.1}, {"team": "Uruguay", "flag": "🇺🇾", "from": "Cancun", "to": "Boca Raton", "saveKm": 1784, "saveT": 25.1}, {"team": "Iraq", "flag": "🇮🇶", "from": "Greenbrier County", "to": "Boston", "saveKm": 1936, "saveT": 20.0}, {"team": "Argentina", "flag": "🇦🇷", "from": "Kansas City", "to": "Dallas", "saveKm": 2432, "saveT": 17.3}, {"team": "Türkiye", "flag": "🇹🇷", "from": "Mesa", "to": "Goleta", "saveKm": 2834, "saveT": 17.0}, {"team": "Scotland", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "from": "Charlotte", "to": "Boston", "saveKm": 2626, "saveT": 15.1}, {"team": "New Zealand", "flag": "🇳🇿", "from": "San Diego", "to": "Portland", "saveKm": 3624, "saveT": 14.8}, {"team": "Ecuador", "flag": "🇪🇨", "from": "Columbus", "to": "Greenbrier County", "saveKm": 124, "saveT": 12.4}, {"team": "Croatia", "flag": "🇭🇷", "from": "Alexandria", "to": "Nashville", "saveKm": 900, "saveT": 12.2}, {"team": "Egypt", "flag": "🇪🇬", "from": "Spokane", "to": "Vancouver", "saveKm": 382, "saveT": 12.1}, {"team": "Czechia", "flag": "🇨🇿", "from": "Dallas", "to": "Guadalajara", "saveKm": 2654, "saveT": 10.9}, {"team": "Colombia", "flag": "🇨🇴", "from": "Guadalajara", "to": "Pachuca", "saveKm": 1654, "saveT": 8.5}, {"team": "Germany", "flag": "🇩🇪", "from": "Winston-Salem", "to": "Columbus", "saveKm": 622, "saveT": 6.5}, {"team": "Saudi Arabia", "flag": "🇸🇦", "from": "Austin", "to": "Tampa", "saveKm": 2138, "saveT": 5.5}, {"team": "Ghana", "flag": "🇬🇭", "from": "Boston", "to": "New York New Jersey", "saveKm": 728, "saveT": 5.4}, {"team": "Bosnia and Herzegovina", "flag": "🇧🇦", "from": "Sandy", "to": "San Diego", "saveKm": -706, "saveT": 5.2}, {"team": "Canada", "flag": "🇨🇦", "from": "Vancouver", "to": "Spokane", "saveKm": 200, "saveT": 1.9}, {"team": "Cabo Verde", "flag": "🇨🇻", "from": "Tampa", "to": "Palm Beach Gardens", "saveKm": -50, "saveT": 1.8}, {"team": "Haiti", "flag": "🇭🇹", "from": "New York New Jersey", "to": "Philadelphia", "saveKm": 268, "saveT": 1.6}, {"team": "Sweden", "flag": "🇸🇪", "from": "Dallas", "to": "Austin", "saveKm": 12, "saveT": 1.3}, {"team": "Congo DR", "flag": "🇨🇩", "from": "Houston", "to": "Atlanta", "saveKm": 0, "saveT": 0.0}, {"team": "Paraguay", "flag": "🇵🇾", "from": "San Francisco Bay Area", "to": "Santa Barbara", "saveKm": 14, "saveT": -0.2}, {"team": "Brazil", "flag": "🇧🇷", "from": "New York New Jersey", "to": "Greensboro", "saveKm": 1444, "saveT": -2.3}, {"team": "Belgium", "flag": "🇧🇪", "from": "Renton", "to": "Sandy", "saveKm": -1464, "saveT": -3.1}, {"team": "Cote d'Ivoire", "flag": "🇨🇮", "from": "Philadelphia", "to": "Alexandria", "saveKm": -462, "saveT": -6.6}, {"team": "Uzbekistan", "flag": "🇺🇿", "from": "Atlanta", "to": "Cancun", "saveKm": -1384, "saveT": -8.0}, {"team": "Morocco", "flag": "🇲🇦", "from": "New York New Jersey", "to": "Winston-Salem", "saveKm": -632, "saveT": -9.5}, {"team": "South Africa", "flag": "🇿🇦", "from": "Pachuca", "to": "Mesa", "saveKm": -2564, "saveT": -13.6}]}, "fixtures": {"matchesMoved": 45, "teamKmAfter": 418588, "teamCo2After": 2661.2, "fanKmBefore": 14582496500, "fanCo2Before": 2137235, "fanKmAfter": 13130075000, "fanCo2After": 1944582}}; /* COUNTERFACTUAL_INJECT */
+
+// Actuals-only totals for one team: matches actually played, no return-home leg.
+function summaryCountryTotals(team){
+  const td=allTeams.find(t=>t.team===team);
+  if(!td)return null;
+  const groupPlayed=RESULTS.filter(r=>r.a===team||r.b===team).length;
+  let gKm=0,gCo2=0;
+  td.legs.forEach((l,i)=>{ if(i<groupPlayed){gKm+=l.rt;gCo2+=l.rco2;} });
+  let koKm=0,koCo2=0,koPlayed=0;
+  try{
+    const k=knockoutTravel(team);
+    if(k.inKO){koKm=k.actualKm;koCo2=k.actualCo2;}
+    koPlayed=KO_RESULTS.filter(r=>r.a===team||r.b===team).length;
+  }catch(e){}
+  const ft=fanTravel(team);
+  let fanKm=ft.has?ft.totalKm:0, fanCo2t=ft.has?ft.co2t:0;
+  try{
+    const fk=fanKnockout(team);
+    if(fk.has&&fk.inKO){fanKm+=fk.actualKm*fk.fans;fanCo2t+=fk.actualCo2t;}
+  }catch(e){}
+  const teamCo2t=(gCo2+koCo2)/1000;
+  return{team,flag:td.flag,games:groupPlayed+koPlayed,
+    teamKm:gKm+koKm,teamCo2t,fanKm,fanCo2t,combinedCo2t:teamCo2t+fanCo2t};
+}
+
+let _sumSort={key:"combinedCo2t",dir:-1};
+function buildSummaryPanel(){
+  const wrap=document.getElementById("summaryWrap");
+  if(!wrap)return;
+  const complete=!!koResultByMatch(104);
+  const rows=teamList.map(summaryCountryTotals).filter(Boolean);
+  rows.sort((a,b)=>( b[_sumSort.key]-a[_sumSort.key] )*(-_sumSort.dir));
+  const T={games:0,teamKm:0,teamCo2t:0,fanKm:0,fanCo2t:0,combinedCo2t:0};
+  rows.forEach(r=>{for(const k in T)T[k]+=r[k];});
+  T.games=Math.round(T.games/2);
+
+  const pills=document.getElementById("summaryPills");
+  if(pills)pills.innerHTML=[
+    {v:Math.round(T.teamKm+T.fanKm).toLocaleString()+" km",l:"Total travel (teams + fans)"},
+    {v:Math.round(T.combinedCo2t).toLocaleString()+" t",l:"Total tCO₂e"},
+    {v:T.games+" matches",l:complete?"Final tournament figures":"Played so far"},
+  ].map(s=>`<div class="spill"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
+
+  const status=complete
+    ?`<span class="sum-progress sum-final">✓ Tournament complete — final figures</span>`
+    :`<span class="sum-progress">Tournament in progress — totals cover the ${T.games} matches played so far</span>`;
+
+  const cols=[
+    {key:"teamKm",label:"Team km"},{key:"teamCo2t",label:"Team tCO₂e"},
+    {key:"fanKm",label:"Fan km"},{key:"fanCo2t",label:"Fan tCO₂e"},
+    {key:"combinedCo2t",label:"Combined tCO₂e"}];
+  const th=cols.map(c=>`<th data-sort="${c.key}" class="${_sumSort.key===c.key?"sorted":""}">${c.label} ${_sumSort.key===c.key?(_sumSort.dir<0?"▼":"▲"):""}</th>`).join("");
+  const tr=rows.map(r=>`<tr>
+    <td class="team-cell">${r.flag} ${r.team}</td><td class="dim">${r.games}</td>
+    <td>${Math.round(r.teamKm).toLocaleString()}</td><td>${r.teamCo2t.toFixed(1)}</td>
+    <td>${Math.round(r.fanKm).toLocaleString()}</td><td>${Math.round(r.fanCo2t).toLocaleString()}</td>
+    <td><b>${Math.round(r.combinedCo2t).toLocaleString()}</b></td></tr>`).join("");
+  const totRow=`<tr class="tot-row"><td>All 48 teams</td><td>${T.games*2}</td>
+    <td>${Math.round(T.teamKm).toLocaleString()}</td><td>${T.teamCo2t.toFixed(1)}</td>
+    <td>${Math.round(T.fanKm).toLocaleString()}</td><td>${Math.round(T.fanCo2t).toLocaleString()}</td>
+    <td>${Math.round(T.combinedCo2t).toLocaleString()}</td></tr>`;
+
+  const qaTeams=Object.keys(QA_TEAM_STADIUMS).map(t=>qaTeamStats(t));
+  const qaKm=qaTeams.reduce((s,t)=>s+t.km,0);
+  const qaCo2t=qaTeams.reduce((s,t)=>s+t.co2,0)/1000;
+  const mult=qaCo2t>0?(T.teamCo2t/qaCo2t):0;
+  const qatarStrip=`<div class="sum-qatar-strip">
+    <div class="sum-qatar-cell"><span class="v">${Math.round(T.teamKm).toLocaleString()} km</span><span class="l">2026 team travel</span></div>
+    <div class="sum-qatar-cell"><span class="v">${Math.round(qaKm).toLocaleString()} km</span><span class="l">Qatar 2022 team travel</span></div>
+    <div class="sum-qatar-cell"><span class="v">${T.teamCo2t.toFixed(1)} t</span><span class="l">2026 team tCO₂e (flights)</span></div>
+    <div class="sum-qatar-cell"><span class="v">${qaCo2t.toFixed(1)} t</span><span class="l">Qatar 2022 tCO₂e (coach)</span></div>
+    <div class="sum-qatar-cell mult"><span class="v">×${mult>=100?Math.round(mult):mult.toFixed(1)}</span><span class="l">2026 vs Qatar multiplier</span></div>
+  </div>
+  <div class="sum-note" style="margin-top:8px;margin-bottom:0">Qatar 2022's 32 squads travelled by coach between 8 venues within 75 km of Doha (DESNZ coach factor, 0.02776 kgCO₂e/pax-km). Full breakdown on the <a href="#" onclick="switchTab('compare');return false">Qatar Comparison</a> tab.</div>`;
+
+  wrap.innerHTML=`
+  <div class="sum-section">
+    <div class="sum-h">🌍 Travel &amp; emissions by country ${status}</div>
+    <div class="sum-note">Matches actually played only — no projections, no return-home legs. Team legs are camp→game→camp flights (DESNZ banded factors, 45-person party). Fan legs follow each nation's supporters on a one-way tour, home → each venue. Click a column to sort.</div>
+    <div style="overflow-x:auto"><table class="sum-table" id="sumTable"><thead><tr><th>Team</th><th>Games</th>${th}</tr></thead><tbody>${tr}${totRow}</tbody></table></div>
+  </div>
+  <div class="sum-section">
+    <div class="sum-h">📊 2026 vs Qatar 2022</div>
+    ${qatarStrip}
+  </div>
+  <div class="sum-section">
+    <div class="sum-h">📈 Title odds through the tournament</div>
+    <div class="sum-note">Daily Monte-Carlo title probability for every team that ever exceeded ${SUMMARY_ODDS_THRESHOLD}% — the story of the tournament in one chart. ✕ marks the day a team's chance hit zero. Click a legend entry to hide/show its line.</div>
+    <div class="sum-chart-wrap" id="sumChartWrap"><div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Loading trend data…</div></div>
+  </div>
+  <div class="sum-section">
+    <div class="sum-h">🔁 The optimised tournament (counterfactual)</div>
+    <div id="sumCfWrap"></div>
+  </div>`;
+
+  document.querySelectorAll("#sumTable th[data-sort]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const k=el.dataset.sort;
+      if(_sumSort.key===k)_sumSort.dir*=-1; else _sumSort={key:k,dir:-1};
+      buildSummaryPanel();
+    });
+  });
+
+  renderSummaryChart();
+  renderCounterfactual();
+}
+
+// ── Multi-line odds trend chart ──
+let _sumHiddenTeams={};
+function renderSummaryChart(){
+  const box=document.getElementById("sumChartWrap");
+  if(!box)return;
+  fetchTitleHistory().then(hist=>{
+    if(!Array.isArray(hist)||hist.length<2){
+      box.innerHTML=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">Not enough history yet — the chart appears once <code>title_history.json</code> has at least two days of snapshots. Run the backfill workflow to reconstruct the trend from tournament start.</div>`;
+      return;
+    }
+    const teams={};
+    hist.forEach((day,di)=>{ for(const t in (day.champ||{})){
+      if(!teams[t])teams[t]=new Array(hist.length).fill(null);
+      teams[t][di]=day.champ[t];
+    }});
+    const lines=Object.entries(teams)
+      .map(([t,vals])=>({team:t,vals,peak:Math.max(...vals.filter(v=>v!=null))}))
+      .filter(l=>l.peak>SUMMARY_ODDS_THRESHOLD)
+      .sort((a,b)=>b.peak-a.peak);
+    if(!lines.length){box.innerHTML="";return;}
+
+    const W=Math.max(560,Math.min(940,hist.length*46)),H=300;
+    const padL=38,padR=110,padT=12,padB=26;
+    const maxY=Math.max(5,Math.ceil(Math.max(...lines.map(l=>l.peak))/5)*5);
+    const x=i=>padL+(i/(hist.length-1))*(W-padL-padR);
+    const y=v=>H-padB-(v/maxY)*(H-padT-padB);
+
+    let grid="",xlab="";
+    for(let g=0;g<=maxY;g+=Math.max(5,Math.round(maxY/6/5)*5)){
+      grid+=`<line x1="${padL}" y1="${y(g)}" x2="${W-padR}" y2="${y(g)}" stroke="var(--line)" stroke-width="1" opacity=".6"/>
+             <text x="${padL-6}" y="${y(g)+3}" text-anchor="end" font-size="9" fill="var(--muted)">${g}%</text>`;
+    }
+    const step=Math.max(1,Math.round(hist.length/7));
+    hist.forEach((d,i)=>{ if(i%step===0||i===hist.length-1){
+      xlab+=`<text x="${x(i)}" y="${H-padB+14}" text-anchor="middle" font-size="9" fill="var(--muted)">${d.date.slice(5).replace("-","/")}</text>`;
+    }});
+
+    let paths="",marks="",endLabels="";
+    const usedLabelY=[];
+    lines.forEach(l=>{
+      if(_sumHiddenTeams[l.team])return;
+      const td=allTeams.find(t=>t.team===l.team);
+      const col=td?td.color:"#888";
+      const pts=[];let elimIdx=null;
+      l.vals.forEach((v,i)=>{
+        if(v==null)return;
+        pts.push(`${x(i).toFixed(1)},${y(v).toFixed(1)}`);
+        if(elimIdx===null&&v===0&&i>0&&l.vals[i-1]>0)elimIdx=i;
+      });
+      paths+=`<polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" opacity=".85"><title>${l.team}</title></polyline>`;
+      if(elimIdx!==null){
+        marks+=`<text x="${x(elimIdx)}" y="${y(0)-4}" text-anchor="middle" font-size="10" font-weight="800" fill="${col}">✕<title>${l.team} eliminated (${hist[elimIdx].date})</title></text>`;
+      }
+      const lastVal=l.vals[l.vals.length-1];
+      if(lastVal!=null&&lastVal>0){
+        let ly=y(lastVal);
+        while(usedLabelY.some(u=>Math.abs(u-ly)<11))ly+=11;
+        usedLabelY.push(ly);
+        endLabels+=`<text x="${W-padR+6}" y="${ly+3}" font-size="10" font-weight="700" fill="${col}">${l.team} ${lastVal.toFixed(1)}%</text>`;
+      }
+    });
+
+    const legend=lines.map(l=>{
+      const td=allTeams.find(t=>t.team===l.team);
+      return `<span data-team="${l.team}" class="${_sumHiddenTeams[l.team]?"off":""}"><i style="background:${td?td.color:"#888"}"></i>${l.team}</span>`;
+    }).join("");
+    box.innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px" role="img" aria-label="Title odds trend chart">${grid}${xlab}${paths}${marks}${endLabels}</svg>
+      <div class="sum-chart-legend" id="sumLegend">${legend}</div>`;
+    document.querySelectorAll("#sumLegend span").forEach(el=>{
+      el.addEventListener("click",()=>{
+        _sumHiddenTeams[el.dataset.team]=!_sumHiddenTeams[el.dataset.team];
+        renderSummaryChart();
+      });
+    });
+  }).catch(()=>{ box.innerHTML=""; });
+}
+
+// ── Counterfactual section (data injected by optimise_counterfactual.py) ──
+function renderCounterfactual(){
+  const el=document.getElementById("sumCfWrap");
+  if(!el)return;
+  if(!COUNTERFACTUAL){
+    el.innerHTML=`<div class="sum-note" style="margin-bottom:0">What if teams had been assigned to base camps that minimised their travel — and fixtures placed in the venues that minimised everyone's? This analysis is computed offline by <code>optimise_counterfactual.py</code> (same camps, same match calendar, hosts kept in their own country) and baked in here once run. Not yet computed for the current results.</div>`;
+    return;
+  }
+  const C=COUNTERFACTUAL;
+  const pct=(a,b)=>b>0?((b-a)/b*100).toFixed(1):"0";
+  const cells=[
+    {v:Math.round(C.bases.teamKmAfter).toLocaleString()+" km",l:`Team travel, optimised bases (−${pct(C.bases.teamKmAfter,C.bases.teamKmBefore)}%)`},
+    {v:C.bases.teamCo2After.toFixed(1)+" t",l:`Team tCO₂e, optimised bases (−${pct(C.bases.teamCo2After,C.bases.teamCo2Before)}%)`}];
+  if(C.fixtures){
+    cells.push({v:Math.round(C.fixtures.teamKmAfter).toLocaleString()+" km",l:`Team travel, optimised fixtures too (−${pct(C.fixtures.teamKmAfter,C.bases.teamKmBefore)}%)`});
+    cells.push({v:Math.round(C.fixtures.fanCo2After).toLocaleString()+" t",l:`Fan tCO₂e, optimised fixtures (−${pct(C.fixtures.fanCo2After,C.fixtures.fanCo2Before)}%)`});
+  }
+  const headline=cells.map(s=>`<div class="sum-qatar-cell"><span class="v">${s.v}</span><span class="l">${s.l}</span></div>`).join("");
+  const swaps=(C.bases.assignments||[]).filter(a=>a.to!==a.from&&(a.saveT||0)>0).slice(0,12)
+    .map(a=>`<div class="sum-cf-swap">${a.flag||""} <b>${a.team}</b>: ${a.from} <span class="sum-cf-arrow">→</span> ${a.to} <span style="color:var(--muted)">(saves ${a.saveT} tCO₂e)</span></div>`).join("");
+  el.innerHTML=`
+    <div class="sum-note">${C.note||""} Computed ${C.computed||""} · same ${C.bases.nCamps||48} camps, same match calendar, host nations kept in-country.</div>
+    <div class="sum-cf-headline">${headline}</div>
+    ${swaps?`<div class="sum-h" style="font-size:12.5px;margin-top:6px">Biggest base reassignments</div>${swaps}`:""}`;
 }
 
 // ─────── KNOCKOUT TRAVEL TAB ───────
@@ -5543,6 +5880,7 @@ function buildBracket(){
   const contenders=Object.entries(champOdds).map(([team,p])=>({team,...p})).sort((a,b)=>b.champ-a.champ).slice(0,10);
   const maxChamp=contenders[0]?contenders[0].champ:1;
   const anyPlayed=RESULTS.length>0;
+  const standings=finalStandings();   // non-null only once the final (M104) is played
 
   // Render one team line within an R32 match (shows source slot + team if resolved)
   function teamLine(slot, mnum, side){
@@ -5670,11 +6008,26 @@ function buildBracket(){
   <div class="kb-title">Knockout Bracket <span class="kb-legend"><span class="kb-qmark conf">✓</span> position locked · <span class="kb-qmark prov">~</span> provisional (3rd-place & unconfirmed) · <span class="kb-ch kb-ch-tbc" style="margin:0">UK: TBC</span> UK channel announced nearer each round</span></div>
   <div class="contenders">
     <div class="contenders-head">
-      <span class="contenders-title">🏆 Title Contenders</span>
-      <span class="contenders-sub">% chance to win the World Cup · pp = change since the tournament started · ${(3000).toLocaleString()} simulations · model estimate</span>
+      <span class="contenders-title">${standings?"🏆 Final Standings":"🏆 Title Contenders"}</span>
+      <span class="contenders-sub">${standings
+        ?"How the tournament finished · top 4 decided on the pitch · the rest ranked by round reached, then points, goal difference and goals scored"
+        :`% chance to win the World Cup · pp = change since the tournament started · ${(3000).toLocaleString()} simulations · model estimate`}</span>
     </div>
     <div class="contenders-grid">
-      ${contenders.map((c,i)=>{
+      ${standings ? standings.slice(0,10).map(s=>{
+        const td=allTeams.find(t=>t.team===s.team);
+        const medal=s.pos===1?"🥇":s.pos===2?"🥈":s.pos===3?"🥉":"";
+        return `<div class="cont-row fs-row" onclick="openDrawer('${s.team.replace(/'/g,"\\'")}')" title="${s.round} — played ${s.pld}, ${s.pts} pts, ${s.gf} scored, ${s.ga} conceded">
+          <span class="cont-rank">${s.pos}</span>
+          <span class="cont-sw" style="background:${td?td.color:'#888'}"></span>
+          <span class="cont-name">${td?flagOf(s.team):''} ${s.team} ${medal}</span>
+          <span class="fs-round">${s.round}</span>
+          <span class="cont-pct">${s.pts} pts</span>
+          <span class="cont-spark" data-team="${s.team}"></span>
+          <span class="cont-delta ${s.gd>0?"up":s.gd<0?"down":"flat"}">${s.gd>0?"+":""}${s.gd} GD</span>
+          <span class="cont-meta">Played ${s.pld} · ${s.gf} scored · ${s.ga} conceded</span>
+        </div>`;
+      }).join("") : contenders.map((c,i)=>{
         const td=allTeams.find(t=>t.team===c.team);
         const nowPct=c.champ*100, basePct=(champBase[c.team]?.champ||0)*100;
         // Display title odds to the nearest 0.5% so the same number shows on every
@@ -6504,7 +6857,7 @@ function buildFairness(){
 
 
 /* ═══════════════ TABS ═══════════════ */
-let _builtStandings=false,_builtTravel=false,_builtKoTravel=false,_builtFanTravel=false;
+let _builtStandings=false,_builtTravel=false,_builtKoTravel=false,_builtFanTravel=false,_builtSummary=false;
 // Placeholder shown while the prediction simulations run on first tab open.
 function shimmerHTML(){
   let cards="";
@@ -6536,7 +6889,7 @@ function switchTab(tabName){
   if(panel)panel.classList.add("on");
   // Document mode for table-heavy tabs: let the page grow/scroll so zooming keeps
   // tables full-size. Other tabs (map especially) use the fixed-height layout.
-  const docTabs=["standings","fixtures","travel","fairness","kotravel","fantravel"];
+  const docTabs=["standings","fixtures","travel","fairness","kotravel","fantravel","summary"];
   if(docTabs.includes(tabName)){
     document.documentElement.classList.add("docmode");
   }else{
@@ -6562,6 +6915,7 @@ function switchTab(tabName){
   if(tabName==="kotravel"){_rafBuild("kotravelWrap",buildKnockoutTravelPanel,_builtKoTravel);_builtKoTravel=true;}
   if(tabName==="fantravel"){_rafBuild("fantravelWrap",buildFanTravelPanel,_builtFanTravel);_builtFanTravel=true;}
   if(tabName==="compare")buildCompare();
+  if(tabName==="summary"){_rafBuild("summaryWrap",buildSummaryPanel,_builtSummary);_builtSummary=true;}
   if(tabName==="fairness")buildFairness();
   // Returning to the map: the container may have been resized while hidden — the
   // document-mode tabs add a page scrollbar, which narrows the viewport, and the
