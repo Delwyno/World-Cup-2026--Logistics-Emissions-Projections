@@ -49,7 +49,8 @@ from update_history import HARNESS_PREFIX, extract_scripts
 HTML_FILE = "index.html"
 SEED = 26  # fixed seed: deterministic output for a given set of results
 ANNEAL_ITERS = 60000
-PAX = 45
+# PAX and the emission-factor bands are read from index.html at runtime — see
+# install_factors() below. Nothing about the emissions model is duplicated here.
 
 # ── Home-city coordinates for fan journeys (FAN_DATA carries only names) ──
 HOME_COORDS = {
@@ -92,7 +93,27 @@ try {
   const cities = {};
   for (const c in CITY_DATA) cities[c] = {lat: CITY_DATA[c].lat, lng: CITY_DATA[c].lng, ctry: CITY_DATA[c].ctry||null};
   const fans = FAN_DATA.map(f => ({team:f.team, fans:f.fans, home:f.home}));
-  const out = {matches: playedGroup.concat(playedKO), teams, cities, fans};
+  // Emission factors are read out of the page rather than duplicated here, so
+  // retuning the bands in index.html can never leave this script out of sync.
+  // We sample the real functions across the band boundaries and rebuild the
+  // step function from the results — no assumption about how many bands there
+  // are or where they break.
+  const probe = [];
+  for (let km = 1; km <= 20000; km += 1) probe.push(km);
+  const sample = fn => {
+    const out = []; let prev = null;
+    for (const km of probe) {
+      const v = fn(km);
+      if (prev === null || v !== prev) { out.push({from: km, ef: v}); prev = v; }
+    }
+    return out;
+  };
+  const factors = {
+    team: sample(teamBandEF),
+    fan: sample(typeof bandEF === "function" ? bandEF : fanLegEF),
+    pax: (typeof PAX !== "undefined" ? PAX : 45)
+  };
+  const out = {matches: playedGroup.concat(playedKO), teams, cities, fans, factors};
   process.stdout.write("__CF_JSON__" + JSON.stringify(out) + "__CF_JSON__");
   process.exit(0);
 } catch (e) { process.stderr.write("DUMP_ERROR: " + (e&&e.stack||e)); process.exit(1); }
@@ -106,21 +127,49 @@ def hav(a, b):
     return round(2*R*math.asin(math.sqrt(x)))
 
 
-def band_ef(km):        # fan legs: coach band applies under 300 km
-    if km <= 300:  return 0.02776
-    if km <= 1000: return 0.22928
-    if km < 3700:  return 0.12786
-    return 0.15282
+# ── Emission factors ──────────────────────────────────────────────────────
+# These are NOT hardcoded: they're sampled from index.html's own teamBandEF()
+# and bandEF() at runtime (see DUMP_SUFFIX) and installed here by
+# install_factors(). Retuning the bands in index.html automatically retunes
+# this script — the two can't drift apart. The module-level defaults below are
+# only a fallback if extraction somehow yields nothing.
+_TEAM_BANDS = [{"from": 1, "ef": 0.22928}]
+_FAN_BANDS = [{"from": 1, "ef": 0.02776}]
+PAX = 45
+
+
+def install_factors(factors):
+    """Adopt the emission factors sampled from index.html."""
+    global _TEAM_BANDS, _FAN_BANDS, PAX
+    if factors.get("team"): _TEAM_BANDS = factors["team"]
+    if factors.get("fan"):  _FAN_BANDS = factors["fan"]
+    PAX = factors.get("pax", 45)
+
+
+def _lookup(bands, km):
+    ef = bands[0]["ef"]
+    for b in bands:
+        if km >= b["from"]: ef = b["ef"]
+        else: break
+    return ef
+
+
+def band_ef(km):        # fan legs (includes the coach band for short hops)
+    return _lookup(_FAN_BANDS, km)
 
 
 def team_band_ef(km):   # squads always fly: no coach band
-    if km <= 1000: return 0.22928
-    if km < 3700:  return 0.12786
-    return 0.15282
+    return _lookup(_TEAM_BANDS, km)
 
 
 def team_leg_co2(km):
     return PAX * team_band_ef(km) * km  # kg, one-way
+
+
+def describe_factors():
+    def fmt(bands):
+        return ", ".join(f"{b['from']}km+ → {b['ef']}" for b in bands)
+    return f"team: {fmt(_TEAM_BANDS)}\n  fan:  {fmt(_FAN_BANDS)}\n  PAX:  {PAX}"
 
 
 def dump_site_data():
@@ -293,9 +342,12 @@ def main():
     dry = "--dry-run" in sys.argv
     print("[1] Extracting played matches, camps, coordinates from index.html")
     data, html = dump_site_data()
+    install_factors(data.get("factors", {}))
     model = Model(data)
     print(f"  ✓ {len(model.matches)} played matches, {len(model.teams)} teams, "
           f"{len(set(model.camp_slots))} distinct camps ({len(model.camp_slots)} slots)")
+    print("  ✓ emission factors read from index.html —")
+    print("  " + describe_factors())
 
     actual_assign = list(range(len(model.teams)))  # identity: team i in its own camp
     venues0 = model.venues[:]
