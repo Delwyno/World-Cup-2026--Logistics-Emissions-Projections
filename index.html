@@ -217,11 +217,10 @@ body.light .tab.on{color:#1a1205}
 @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.panel.on{animation:none}}
 /* Honour reduced-motion for the remaining decorative animations: the loading
-   spinner, the animated knockout flight-arc dashes, and the Qatar multiplier
+   spinner and the Qatar-comparison multiplier
    pop. The spinner keeps a static ring so it still reads as a loading state. */
 @media (prefers-reduced-motion: reduce){
   .spin{animation:none}
-  .ko-arc-anim{animation:none;stroke-dashoffset:0}
   .cmp-mid-mult.pop{animation:none}
 }
 #pMap{flex-direction:column;position:relative}
@@ -257,6 +256,14 @@ body.light .tab.on{color:#1a1205}
 .mapview-toggle button{font-family:inherit;font-size:11px;font-weight:600;color:var(--dim);background:transparent;border:none;border-radius:6px;padding:4px 11px;cursor:pointer;transition:all .12s}
 .mapview-toggle button:hover{color:var(--text);background:rgba(255,255,255,.06)}
 .mapview-toggle button.on{background:#f0b429;color:#1a1205}
+.flight-count{position:absolute;top:10px;left:196px;display:flex;align-items:center;gap:9px;background:rgba(8,17,30,.92);backdrop-filter:blur(8px);border:1px solid var(--border2);border-radius:8px;padding:5px 11px;z-index:5;font-size:11px;white-space:nowrap;pointer-events:none}
+.flight-count .fc-i{display:inline-flex;align-items:center;gap:4px;color:var(--dim)}
+.flight-count .fc-i b{color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+.flight-count .fc-dot{width:7px;height:7px;border-radius:2px;display:inline-block;flex-shrink:0}
+.flight-count .fc-sep{width:1px;height:12px;background:var(--border2)}
+.flight-count .fc-i.off{opacity:.32}
+body.light .flight-count{background:rgba(255,255,255,.95)}
+@media(max-width:820px){.flight-count{display:none}}
 body.light .mapview-toggle{background:rgba(255,255,255,.95)}
 body.light .mapview-toggle button.on{background:#f0b429;color:#1a1205}
 
@@ -398,14 +405,11 @@ table.ctable td.gold{color:var(--accent);font-weight:600;font-variant-numeric:ta
 .lgn-ko{color:var(--accent);opacity:1}
 .legrow.ko-sub{border-top:1px dashed var(--border);margin-top:2px;padding-top:2px;font-weight:700;color:var(--muted)}
 
-/* Flight animation — knockout arcs only. The group layer is static: it used to
-   carry a decorative shimmer overlay, removed for performance (it duplicated
-   all 144 group arcs as continuously-animating paths). */
-@keyframes koDash {to{stroke-dashoffset:-110}}
-.ko-arc-anim{animation:koDash 3.2s linear infinite}
-/* Dim the whole map's arc layers while a team is highlighted, so the selected
-   team's route reads clearly against everything else. */
-#mapSvg.focus-team .ko-arc-anim{animation-play-state:paused}
+/* Flight arcs are static. Both the group shimmer overlay and the knockout dash
+   animation were removed for performance: they kept hundreds of SVG paths
+   continuously compositing for a purely decorative effect. The dashed
+   stroke-dasharray on knockout arcs remains — it distinguishes them from group
+   arcs visually without costing anything per frame. */
 
 /* GROUPS / STANDINGS / TRAVEL PANELS */
 #pStandings,#pTravel,#pFixtures,#pKotravel,#pFantravel{flex-direction:column;background:var(--bg)}
@@ -1454,6 +1458,7 @@ window.addEventListener("unhandledrejection",function(e){
       <button data-view="both" class="on" onclick="setMapView('both')">Both</button>
       <button data-view="knockout" onclick="setMapView('knockout')">Knockout</button>
     </div>
+    <div class="flight-count" id="flightCount"></div>
     <div id="loader"><div class="spin"></div><div class="load-txt">Loading map…</div></div>
     <div class="mleg collapsed" id="mleg">
       <button class="mleg-toggle" id="mlegToggle" title="Show/hide map key">Key <span class="mleg-chev">▾</span></button>
@@ -2584,9 +2589,8 @@ async function initMap(){
   // NOTE: a decorative "shimmer" layer used to be drawn here — a second copy of
   // all 144 group arcs in translucent white, each running an infinite CSS dash
   // animation. It was purely cosmetic and cost 144 continuously-compositing SVG
-  // paths, which measurably slowed the map. Removed. The knockout arcs still
-  // animate (.ko-arc-anim), but they animate their own single path rather than
-  // needing a duplicate layer.
+  // paths, which measurably slowed the map. Removed, along with the knockout
+  // dash animation — all flight arcs are now static.
   retSel=svgEl.append("g").selectAll("path").data(legs).join("path")
     .attr("d",d=>arc(d.x2,d.y2,d.x1,d.y1))
     .attr("fill","none").attr("stroke",d=>d.color)
@@ -2719,7 +2723,7 @@ async function initMap(){
       .attr("stroke-dasharray","7,4")
       .attr("stroke-linecap","round")
       .attr("marker-end","url(#arrKo)")
-      .attr("class","ko-arc ko-arc-anim")
+      .attr("class","ko-arc")
       .style("cursor","pointer")
       .on("mouseenter",(e,d)=>{
         if(hlTeam&&hlTeam!==d.team)return;
@@ -2746,6 +2750,7 @@ async function initMap(){
   // expose so the view toggle / result entry can re-draw without a full re-init
   window._refreshKnockoutFlights=refreshKnockoutFlights;
   refreshKnockoutFlights();
+  renderFlightCount();
 
   /* Training camps */
   const seenTc=new Set();
@@ -2833,6 +2838,39 @@ function showTip(e,h){tip.style.display="block";tip.innerHTML=h;moveTip(e);}
 function moveTip(e){const x=e.clientX+15,y=e.clientY-10,tw=tip.offsetWidth||250;tip.style.left=Math.min(x,window.innerWidth-tw-8)+"px";tip.style.top=y+"px";}
 function hideTip(){tip.style.display="none";}
 
+/* ═══════════════ FLIGHT COUNT PILL ═══════════════ */
+// Counts the flight legs actually drawn on the map, split group vs knockout.
+// Group legs are round trips (camp→game→camp), so each played group match
+// contributes two flights per team; the map draws them as an outbound and a
+// return arc. Knockout legs are one-way hops between venues — teams relocate
+// rather than returning to camp — so each is a single flight.
+function renderFlightCount(){
+  const el=document.getElementById("flightCount");
+  if(!el)return;
+  let groupLegs=0;
+  teamList.forEach(t=>{
+    const td=allTeams.find(x=>x.team===t); if(!td)return;
+    const played=RESULTS.filter(r=>r.a===t||r.b===t).length;
+    groupLegs+=Math.min(td.legs.length,played);
+  });
+  const groupFlights=groupLegs*2;                 // out + back per match
+  let koFlights=0;
+  teamList.forEach(t=>{
+    try{ const k=knockoutTravel(t); if(k.inKO) koFlights+=k.legs.filter(l=>l.actual).length; }
+    catch(e){}
+  });
+  const groupOn=(mapView==="group"||mapView==="both");
+  const koOn=(mapView==="knockout"||mapView==="both");
+  el.innerHTML=`
+    <span class="fc-i ${groupOn?"":"off"}" title="${groupLegs} round trips — camp to venue and back for each group match played">
+      <span class="fc-dot" style="background:var(--accent2,#60a5fa)"></span><b>${groupFlights}</b> group</span>
+    <span class="fc-sep"></span>
+    <span class="fc-i ${koOn?"":"off"}" title="One-way hops between venues — knockout squads relocate rather than returning to base">
+      <span class="fc-dot" style="background:var(--accent,#f0b429)"></span><b>${koFlights}</b> knockout</span>
+    <span class="fc-sep"></span>
+    <span class="fc-i"><b>${groupFlights+koFlights}</b> total</span>`;
+}
+
 /* ═══════════════ MAP VIEW TOGGLE (group / knockout / both) ═══════════════ */
 function setMapView(view){
   mapView=view;
@@ -2853,6 +2891,7 @@ function setMapView(view){
   if(typeof window._refreshKnockoutFlights==="function")window._refreshKnockoutFlights();
   // Button states
   document.querySelectorAll("#mapviewToggle button").forEach(b=>b.classList.toggle("on",b.dataset.view===view));
+  renderFlightCount();   // re-dim the categories the new view hides
 }
 
 /* ═══════════════ HIGHLIGHT ═══════════════ */
