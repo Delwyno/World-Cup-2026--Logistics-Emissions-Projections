@@ -3265,7 +3265,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "24 July 2026";
+const RESULTS_AS_OF = "23 July 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -5459,18 +5459,32 @@ function buildSummaryPanel(){
     <td>${Math.round(T.fanKm).toLocaleString()}</td><td>${Math.round(T.fanCo2t).toLocaleString()}</td>
     <td>${Math.round(T.combinedCo2t).toLocaleString()}</td></tr>`;
 
+  // Qatar comparison — GROUP STAGE ONLY on both sides.
+  // QA_TEAM_STADIUMS lists exactly three venues per team (32 teams × 3 group
+  // games); there is no knockout travel in the Qatar dataset at all. Comparing
+  // it against 2026's full 104-match total would be comparing 104 matches with
+  // 96 and inflating the multiplier. So we recompute the 2026 side here from
+  // group legs alone, matching the Qatar model's scope exactly.
+  let gTeamKm=0,gTeamCo2=0;
+  teamList.forEach(t=>{
+    const td=allTeams.find(x=>x.team===t); if(!td)return;
+    const played=RESULTS.filter(r=>r.a===t||r.b===t).length;
+    td.legs.forEach((l,i)=>{ if(i<played){gTeamKm+=l.rt;gTeamCo2+=l.rco2;} });
+  });
+  const gTeamCo2t=gTeamCo2/1000;
   const qaTeams=Object.keys(QA_TEAM_STADIUMS).map(t=>qaTeamStats(t));
   const qaKm=qaTeams.reduce((s,t)=>s+t.km,0);
   const qaCo2t=qaTeams.reduce((s,t)=>s+t.co2,0)/1000;
-  const mult=qaCo2t>0?(T.teamCo2t/qaCo2t):0;
+  const mult=qaCo2t>0?(gTeamCo2t/qaCo2t):0;
+  const qaTeamCount=qaTeams.length;
   const qatarStrip=`<div class="sum-qatar-strip">
-    <div class="sum-qatar-cell"><span class="v">${Math.round(T.teamKm).toLocaleString()} km</span><span class="l">2026 team travel</span></div>
-    <div class="sum-qatar-cell"><span class="v">${Math.round(qaKm).toLocaleString()} km</span><span class="l">Qatar 2022 team travel</span></div>
-    <div class="sum-qatar-cell"><span class="v">${T.teamCo2t.toFixed(1)} t</span><span class="l">2026 team tCO₂e (flights)</span></div>
-    <div class="sum-qatar-cell"><span class="v">${qaCo2t.toFixed(1)} t</span><span class="l">Qatar 2022 tCO₂e (coach)</span></div>
+    <div class="sum-qatar-cell"><span class="v">${Math.round(gTeamKm).toLocaleString()} km</span><span class="l">2026 team travel (group stage)</span></div>
+    <div class="sum-qatar-cell"><span class="v">${Math.round(qaKm).toLocaleString()} km</span><span class="l">Qatar 2022 team travel (group stage)</span></div>
+    <div class="sum-qatar-cell"><span class="v">${gTeamCo2t.toFixed(1)} t</span><span class="l">2026 group tCO₂e (flights)</span></div>
+    <div class="sum-qatar-cell"><span class="v">${qaCo2t.toFixed(1)} t</span><span class="l">Qatar 2022 group tCO₂e (coach)</span></div>
     <div class="sum-qatar-cell mult"><span class="v">×${mult>=100?Math.round(mult):mult.toFixed(1)}</span><span class="l">2026 vs Qatar multiplier</span></div>
   </div>
-  <div class="sum-note" style="margin-top:8px;margin-bottom:0">Qatar 2022's 32 squads travelled by coach between 8 venues within 75 km of Doha (DESNZ coach factor, 0.02776 kgCO₂e/pax-km). Full breakdown on the <a href="#" onclick="switchTab('compare');return false">Qatar Comparison</a> tab.</div>`;
+  <div class="sum-note" style="margin-top:8px;margin-bottom:0">Group stage only on both sides — the Qatar dataset covers each team's three group fixtures, so 2026's knockout legs are excluded here to keep the comparison like-for-like. Note the two tournaments differ in size regardless: 48 teams playing ${Math.round(T.games*72/104)} group matches in 2026 against ${qaTeamCount} teams playing 48 in 2022, which is part of why the totals diverge. Qatar's squads travelled by coach between 8 venues all within 75 km of Doha (DESNZ coach factor, ${bandEF(100)} kgCO₂e/pax-km); 2026's flew between 16 venues across a continent. Full breakdown on the <a href="#" onclick="switchTab('compare');return false">Qatar Comparison</a> tab.</div>`;
 
   const fanShare=T.combinedCo2t>0?(T.fanCo2t/T.combinedCo2t*100):0;
   const scaleCallout=`<div class="sum-section" style="border-color:rgba(239,107,107,.4)">
@@ -5492,7 +5506,7 @@ function buildSummaryPanel(){
     <div style="overflow-x:auto"><table class="sum-table" id="sumTable"><thead><tr><th>Team</th><th>Games</th>${th}</tr></thead><tbody>${tr}${totRow}</tbody></table></div>
   </div>
   <div class="sum-section">
-    <div class="sum-h">📊 2026 vs Qatar 2022</div>
+    <div class="sum-h">📊 2026 vs Qatar 2022 <span class="sum-progress" style="background:rgba(96,165,250,.15);color:#60a5fa;border-color:rgba(96,165,250,.35)">Group stage only</span></div>
     ${qatarStrip}
   </div>
   <div class="sum-section">
