@@ -247,12 +247,47 @@ class Model:
         return (c["lat"], c["lng"])
 
     def team_cost(self, team, camp, venues):
-        """Round-trip camp→venue→camp per played match; returns (km, co2kg)."""
+        """Team flight cost, mirroring index.html's own model exactly.
+
+        GROUP legs are round trips: the squad flies out from base camp to the
+        match city and back again between fixtures.
+
+        KNOCKOUT legs are NOT round trips — the site models the knockout run as
+        one continuous journey, hopping venue → venue without returning to base
+        (which is what actually happens: teams relocate for the duration). The
+        first knockout hop starts from the last group venue, not from camp.
+
+        Getting this wrong is what made an earlier version of this script report
+        a baseline ~30% above the site's own totals table for the same tournament.
+        """
         cc = self.coord(camp)
         km = co2 = 0
-        for i in self.team_mi[team]:
+        idxs = self.team_mi[team]
+        group_idx = [i for i in idxs if self.matches[i]["stage"] == "group"]
+        ko_idx = [i for i in idxs if self.matches[i]["stage"] == "ko"]
+
+        for i in group_idx:                      # round trip camp → venue → camp
             d = hav(cc, self.coord(venues[i]))
-            km += d*2; co2 += team_leg_co2(d)*2
+            km += d * 2
+            co2 += team_leg_co2(d) * 2
+
+        # Knockout: chain from wherever the squad finished the group stage.
+        # M103 (third-place playoff) is deliberately excluded: index.html's
+        # knockoutTravel() walks the bracket R32→R16→QF→SF→Final, and 103 sits
+        # off that path, so the site never counts the hop to the third-place
+        # game. Counting it here would make France and England disagree with the
+        # site's own totals table by ~10 t each. Arguably both should count it —
+        # those flights really happened — but the two figures must agree, and
+        # the site's is the published one.
+        prev = self.coord(venues[group_idx[-1]]) if group_idx else cc
+        for i in ko_idx:                         # one-way hops, no return home
+            if self.matches[i].get("m") == 103:
+                continue
+            cur = self.coord(venues[i])
+            d = hav(prev, cur)
+            km += d
+            co2 += team_leg_co2(d)
+            prev = cur
         return km, co2
 
     def total_team(self, assign, venues):

@@ -3265,7 +3265,7 @@ document.querySelectorAll("#ctable th[data-col]").forEach(th=>{
 // "Cote d'Ivoire", "Türkiye", "New York / New Jersey").
 //   Format: {a:"TeamA", b:"TeamB", ga:1, gb:0}   (ga = TeamA goals, gb = TeamB goals)
 // ─────────────────────────────────────────────────────────────────────────
-const RESULTS_AS_OF = "24 July 2026";
+const RESULTS_AS_OF = "23 July 2026";
 // ISO date used to mark "today" on the Fixtures tab. Uses the viewer's actual
 // current date (in UK time) so the highlight always lands on the real calendar
 // day — the site auto-updates results via a GitHub Action, so "today" should
@@ -4485,21 +4485,23 @@ const BRACKET_SF = [
 // confirmed (source: BBC/ITV announcement, 29 Jun 2026). R16 onward are assigned
 // closer to each round — add entries here as they're published and the bracket
 // picks them up automatically.
+// UK free-to-air broadcaster by knockout match number. Complete: every match
+// in the tournament has now aired, so there are no TBC slots left.
 const KO_CHANNEL_UK={
-  // ── Round of 32 (confirmed) ──
+  // ── Round of 32 ──
   73:"ITV1",      74:"BBC One",   75:"ITV1",      76:"ITV1",
   77:"ITV1",      78:"BBC One",   79:"ITV1",      80:"BBC One",
   81:"BBC One",   82:"ITV1",      83:"BBC One",   84:"BBC One",
   85:"BBC One",   86:"ITV1",      87:"ITV1",      88:"BBC One",
-  // ── Round of 16 (confirmed) ──
+  // ── Round of 16 (BBC and ITV took four each) ──
   89:"BBC One",   90:"ITV1",      91:"ITV1",      92:"BBC One",
   93:"BBC One",   94:"BBC One",   95:"ITV1",      96:"ITV1",
-  // ── Quarter-finals: only M99 confirmed so far; 97/98/100 assigned nearer the time ──
-  99:"ITV1",
-  // ── Semi-finals: only M102 confirmed so far; 101 assigned nearer the time ──
-  102:"BBC One",
-  // ── Third-place playoff (103): TBC ──
-  // ── Final ──
+  // ── Quarter-finals: ITV took three of the four; BBC had Spain v Belgium ──
+  97:"ITV1",      98:"BBC One",   99:"ITV1",      100:"ITV1",
+  // ── Semi-finals: ITV had France v Spain, BBC had England v Argentina ──
+  101:"ITV1",     102:"BBC One",
+  // ── Third-place play-off ("bronze final") and Final ──
+  103:"BBC One",
   104:"BBC One & ITV1"
 };
 function koChannelUK(mnum){return KO_CHANNEL_UK[mnum]||"TBC";}
@@ -5123,10 +5125,37 @@ function simGroupOnce(grp, resultsArr){
 }
 
 let _champCache=null,_champKey="";
+// Once the final is played there is nothing left to simulate: the champion is
+// known with certainty and every other team is out. Short-circuit rather than
+// burning 3,000 Monte Carlo iterations on every render to rediscover a result
+// we can read off KO_RESULTS. Only applies to live calls — passing an explicit
+// results array (as championBaseline does for the pre-tournament baseline)
+// still runs the real simulation.
+let _champFinal=null;
+function championProbabilitiesFinal(){
+  if(_champFinal)return _champFinal;
+  const fin=koResultByMatch(104);
+  if(!fin)return null;
+  const champ=koWinner(104);
+  const runner=(champ===fin.a)?fin.b:fin.a;
+  const sf=[101,102].map(m=>koResultByMatch(m)).filter(Boolean);
+  const semiFinalists=new Set([champ,runner]);
+  sf.forEach(r=>{semiFinalists.add(r.a);semiFinalists.add(r.b);});
+  const out={};
+  Object.values(GROUPS).flat().forEach(t=>{
+    out[t]={champ:t===champ?1:0,
+            finalist:(t===champ||t===runner)?1:0,
+            semi:semiFinalists.has(t)?1:0,
+            r32:0,r16:0,qf:0};
+  });
+  _champFinal=out;
+  return out;
+}
 function championProbabilities(iters, resultsArr){
   iters=iters||3000;
   resultsArr = resultsArr || RESULTS;
   const isLive = resultsArr === RESULTS;
+  if(isLive){ const done=championProbabilitiesFinal(); if(done)return done; }
   const key=(isLive?"L":"B")+"champ_"+resultsArr.length+"_"+iters;
   if(isLive && _champCache&&_champKey===key)return _champCache;
 
@@ -5168,22 +5197,29 @@ function championProbabilities(iters, resultsArr){
     //    knocked out in real life can't keep advancing in the projection (and can't
     //    show up as "title contenders"). koWinner(m) returns null for unplayed ties.
     const W={};
+    // Honour the caller's scenario: when simulating a hypothetical tournament
+    // (e.g. the pre-tournament baseline, called with an empty results array),
+    // real knockout results must NOT leak in from global scope. Previously
+    // koWinner() was called directly here, so every "baseline" silently knew
+    // who had actually won — invisible mid-tournament, but it pinned the
+    // baseline to the real champion at 100% once the final was played.
+    const _koW = isLive ? koWinner : (()=>null);
     BRACKET_R32.forEach(m=>{
       const a=res(m.home),b=res(m.away);
       if(a)r32c[a]++; if(b)r32c[b]++;            // reached R32 (played a knockout match)
-      const actual=koWinner(m.m);
+      const actual=_koW(m.m);
       W[m.m]=actual || ((a&&b)?knockoutWinner(a,b):(a||b));
     });
     BRACKET_R16.forEach(m=>{
       const a=W[m.a],b=W[m.b];
       if(a)r16c[a]++; if(b)r16c[b]++;            // reached R16
-      const actual=koWinner(m.m);
+      const actual=_koW(m.m);
       W[m.m]=actual || knockoutWinner(a,b);
     });
     BRACKET_QF.forEach(m=>{
       const a=W[m.a],b=W[m.b];
       if(a)qfc[a]++; if(b)qfc[b]++;              // reached QF
-      const actual=koWinner(m.m);
+      const actual=_koW(m.m);
       W[m.m]=actual || knockoutWinner(a,b);
     });
     // semis
@@ -5191,13 +5227,13 @@ function championProbabilities(iters, resultsArr){
     BRACKET_SF.forEach(m=>{
       const fa=W[m.a],fb=W[m.b];
       if(fa)semis[fa]++; if(fb)semis[fb]++;
-      const actual=koWinner(m.m);
+      const actual=_koW(m.m);
       const w=actual || knockoutWinner(fa,fb); W[m.m]=w; sfWinners.push(w);
     });
     // final (M104 = winners of SF 101 & 102)
     const f1=W[101],f2=W[102];
     if(f1)finalists[f1]++; if(f2)finalists[f2]++;
-    const actualFinal=koWinner(104);
+    const actualFinal=_koW(104);
     const winner=actualFinal || knockoutWinner(f1,f2);
     if(winner)champ[winner]++;
   }
@@ -5360,7 +5396,7 @@ const SUMMARY_ODDS_THRESHOLD=2;
 // run — the script replaces this whole assignment with computed results. It is a
 // static bake (not live) because the optimisation is expensive and its inputs
 // (fixtures, results, bases) only change when the updaters commit anyway.
-const COUNTERFACTUAL={"computed": "23 Jul 2026", "note": "Fan figures are recomputed here from first principles (home → each venue, DESNZ banded factors) for both scenarios, so before/after is like-for-like.", "bases": {"nCamps": 37, "teamKmBefore": 498626, "teamCo2Before": 3258.1, "teamKmAfter": 426444, "teamCo2After": 2756.6, "assignments": [{"team": "Portugal", "flag": "🇵🇹", "from": "Palm Beach Gardens", "to": "Houston", "saveKm": 8544, "saveT": 56.3}, {"team": "England", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "from": "Kansas City", "to": "New York New Jersey", "saveKm": 8740, "saveT": 51.8}, {"team": "Austria", "flag": "🇦🇹", "from": "Goleta", "to": "Kansas City", "saveKm": 7170, "saveT": 46.7}, {"team": "Norway", "flag": "🇳🇴", "from": "Greensboro", "to": "New York New Jersey", "saveKm": 3140, "saveT": 44.3}, {"team": "Jordan", "flag": "🇯🇴", "from": "Portland", "to": "San Francisco Bay Area", "saveKm": 4194, "saveT": 40.6}, {"team": "Japan", "flag": "🇯🇵", "from": "Nashville", "to": "Dallas", "saveKm": 7256, "saveT": 30.6}, {"team": "Curaçao", "flag": "🇨🇼", "from": "Boca Raton", "to": "Kansas City", "saveKm": 4712, "saveT": 27.1}, {"team": "Qatar", "flag": "🇶🇦", "from": "Santa Barbara", "to": "Renton", "saveKm": 4400, "saveT": 26.8}, {"team": "France", "flag": "🇫🇷", "from": "Boston", "to": "Charlotte", "saveKm": 4912, "saveT": 26.1}, {"team": "Uruguay", "flag": "🇺🇾", "from": "Cancun", "to": "Boca Raton", "saveKm": 1784, "saveT": 25.1}, {"team": "Iraq", "flag": "🇮🇶", "from": "Greenbrier County", "to": "Boston", "saveKm": 1936, "saveT": 20.0}, {"team": "Argentina", "flag": "🇦🇷", "from": "Kansas City", "to": "Dallas", "saveKm": 2432, "saveT": 17.3}, {"team": "Türkiye", "flag": "🇹🇷", "from": "Mesa", "to": "Goleta", "saveKm": 2834, "saveT": 17.0}, {"team": "Scotland", "flag": "🏴󠁧󠁢󠁳󠁣󠁴󠁿", "from": "Charlotte", "to": "Boston", "saveKm": 2626, "saveT": 15.1}, {"team": "New Zealand", "flag": "🇳🇿", "from": "San Diego", "to": "Portland", "saveKm": 3624, "saveT": 14.8}, {"team": "Ecuador", "flag": "🇪🇨", "from": "Columbus", "to": "Greenbrier County", "saveKm": 124, "saveT": 12.4}, {"team": "Croatia", "flag": "🇭🇷", "from": "Alexandria", "to": "Nashville", "saveKm": 900, "saveT": 12.2}, {"team": "Egypt", "flag": "🇪🇬", "from": "Spokane", "to": "Vancouver", "saveKm": 382, "saveT": 12.1}, {"team": "Czechia", "flag": "🇨🇿", "from": "Dallas", "to": "Guadalajara", "saveKm": 2654, "saveT": 10.9}, {"team": "Colombia", "flag": "🇨🇴", "from": "Guadalajara", "to": "Pachuca", "saveKm": 1654, "saveT": 8.5}, {"team": "Germany", "flag": "🇩🇪", "from": "Winston-Salem", "to": "Columbus", "saveKm": 622, "saveT": 6.5}, {"team": "Saudi Arabia", "flag": "🇸🇦", "from": "Austin", "to": "Tampa", "saveKm": 2138, "saveT": 5.5}, {"team": "Ghana", "flag": "🇬🇭", "from": "Boston", "to": "New York New Jersey", "saveKm": 728, "saveT": 5.4}, {"team": "Bosnia and Herzegovina", "flag": "🇧🇦", "from": "Sandy", "to": "San Diego", "saveKm": -706, "saveT": 5.2}, {"team": "Canada", "flag": "🇨🇦", "from": "Vancouver", "to": "Spokane", "saveKm": 200, "saveT": 1.9}, {"team": "Cabo Verde", "flag": "🇨🇻", "from": "Tampa", "to": "Palm Beach Gardens", "saveKm": -50, "saveT": 1.8}, {"team": "Haiti", "flag": "🇭🇹", "from": "New York New Jersey", "to": "Philadelphia", "saveKm": 268, "saveT": 1.6}, {"team": "Sweden", "flag": "🇸🇪", "from": "Dallas", "to": "Austin", "saveKm": 12, "saveT": 1.3}, {"team": "Congo DR", "flag": "🇨🇩", "from": "Houston", "to": "Atlanta", "saveKm": 0, "saveT": 0.0}, {"team": "Paraguay", "flag": "🇵🇾", "from": "San Francisco Bay Area", "to": "Santa Barbara", "saveKm": 14, "saveT": -0.2}, {"team": "Brazil", "flag": "🇧🇷", "from": "New York New Jersey", "to": "Greensboro", "saveKm": 1444, "saveT": -2.3}, {"team": "Belgium", "flag": "🇧🇪", "from": "Renton", "to": "Sandy", "saveKm": -1464, "saveT": -3.1}, {"team": "Cote d'Ivoire", "flag": "🇨🇮", "from": "Philadelphia", "to": "Alexandria", "saveKm": -462, "saveT": -6.6}, {"team": "Uzbekistan", "flag": "🇺🇿", "from": "Atlanta", "to": "Cancun", "saveKm": -1384, "saveT": -8.0}, {"team": "Morocco", "flag": "🇲🇦", "from": "New York New Jersey", "to": "Winston-Salem", "saveKm": -632, "saveT": -9.5}, {"team": "South Africa", "flag": "🇿🇦", "from": "Pachuca", "to": "Mesa", "saveKm": -2564, "saveT": -13.6}]}, "fixtures": {"matchesMoved": 45, "teamKmAfter": 418588, "teamCo2After": 2661.2, "fanKmBefore": 14582496500, "fanCo2Before": 2137235, "fanKmAfter": 13130075000, "fanCo2After": 1944582}}; /* COUNTERFACTUAL_INJECT */
+const COUNTERFACTUAL={"computed": "24 Jul 2026", "note": "Fan figures are recomputed here from first principles (home → each venue, DESNZ banded factors) for both scenarios, so before/after is like-for-like.", "bases": {"nCamps": 37, "teamKmBefore": 369437, "teamCo2Before": 2465.3, "teamKmAfter": 334409, "teamCo2After": 2166.9, "assignments": [{"team": "Norway", "flag": "🇳🇴", "from": "Greensboro", "to": "Boston", "saveKm": 4878, "saveT": 50.3}, {"team": "Jordan", "flag": "🇯🇴", "from": "Portland", "to": "San Francisco Bay Area", "saveKm": 4194, "saveT": 40.6}, {"team": "Curaçao", "flag": "🇨🇼", "from": "Boca Raton", "to": "Kansas City", "saveKm": 4712, "saveT": 27.1}, {"team": "Japan", "flag": "🇯🇵", "from": "Nashville", "to": "Dallas", "saveKm": 5848, "saveT": 25.9}, {"team": "Uruguay", "flag": "🇺🇾", "from": "Cancun", "to": "Boca Raton", "saveKm": 1784, "saveT": 25.1}, {"team": "Egypt", "flag": "🇪🇬", "from": "Spokane", "to": "Vancouver", "saveKm": 2168, "saveT": 22.4}, {"team": "Ecuador", "flag": "🇪🇨", "from": "Columbus", "to": "Alexandria", "saveKm": 746, "saveT": 21.4}, {"team": "Iraq", "flag": "🇮🇶", "from": "Greenbrier County", "to": "Boston", "saveKm": 1936, "saveT": 20.0}, {"team": "Türkiye", "flag": "🇹🇷", "from": "Mesa", "to": "Santa Barbara", "saveKm": 2836, "saveT": 17.0}, {"team": "Argentina", "flag": "🇦🇷", "from": "Kansas City", "to": "Dallas", "saveKm": 1478, "saveT": 15.2}, {"team": "England", "flag": "🏴󠁧󠁢󠁥󠁮󠁧󠁿", "from": "Kansas City", "to": "Columbus", "saveKm": 2408, "saveT": 13.7}, {"team": "Qatar", "flag": "🇶🇦", "from": "Santa Barbara", "to": "Spokane", "saveKm": 3046, "saveT": 13.6}, {"team": "Germany", "flag": "🇩🇪", "from": "Winston-Salem", "to": "Nashville", "saveKm": -330, "saveT": 12.6}, {"team": "Austria", "flag": "🇦🇹", "from": "Goleta", "to": "Mesa", "saveKm": 1466, "saveT": 11.9}, {"team": "Saudi Arabia", "flag": "🇸🇦", "from": "Austin", "to": "Chattanooga", "saveKm": 1846, "saveT": 11.2}, {"team": "Uzbekistan", "flag": "🇺🇿", "from": "Atlanta", "to": "Houston", "saveKm": 1912, "saveT": 11.0}, {"team": "Czechia", "flag": "🇨🇿", "from": "Dallas", "to": "Guadalajara", "saveKm": 2654, "saveT": 10.9}, {"team": "Australia", "flag": "🇦🇺", "from": "San Francisco Bay Area", "to": "Renton", "saveKm": 2222, "saveT": 10.7}, {"team": "Switzerland", "flag": "🇨🇭", "from": "San Diego", "to": "Goleta", "saveKm": 1124, "saveT": 9.5}, {"team": "Spain", "flag": "🇪🇸", "from": "Chattanooga", "to": "Atlanta", "saveKm": 692, "saveT": 7.0}, {"team": "France", "flag": "🇫🇷", "from": "Boston", "to": "New York New Jersey", "saveKm": 520, "saveT": 5.4}, {"team": "Sweden", "flag": "🇸🇪", "from": "Dallas", "to": "Austin", "saveKm": 272, "saveT": 2.8}, {"team": "Ghana", "flag": "🇬🇭", "from": "Boston", "to": "New York New Jersey", "saveKm": 266, "saveT": 2.7}, {"team": "Colombia", "flag": "🇨🇴", "from": "Guadalajara", "to": "Pachuca", "saveKm": 642, "saveT": 2.6}, {"team": "Iran", "flag": "🇮🇷", "from": "Tijuana", "to": "San Diego", "saveKm": 148, "saveT": 1.3}, {"team": "Bosnia and Herzegovina", "flag": "🇧🇦", "from": "Sandy", "to": "Tijuana", "saveKm": -1326, "saveT": -1.0}, {"team": "Croatia", "flag": "🇭🇷", "from": "Alexandria", "to": "Greenbrier County", "saveKm": -158, "saveT": -4.4}, {"team": "Belgium", "flag": "🇧🇪", "from": "Renton", "to": "Portland", "saveKm": -438, "saveT": -6.4}, {"team": "South Africa", "flag": "🇿🇦", "from": "Pachuca", "to": "Cancun", "saveKm": -2726, "saveT": -9.0}, {"team": "Haiti", "flag": "🇭🇹", "from": "New York New Jersey", "to": "Winston-Salem", "saveKm": -968, "saveT": -11.6}, {"team": "Brazil", "flag": "🇧🇷", "from": "New York New Jersey", "to": "Greensboro", "saveKm": -1104, "saveT": -17.0}, {"team": "Congo DR", "flag": "🇨🇩", "from": "Houston", "to": "Kansas City", "saveKm": -3828, "saveT": -22.0}, {"team": "Canada", "flag": "🇨🇦", "from": "Vancouver", "to": "Sandy", "saveKm": -3892, "saveT": -22.4}]}, "fixtures": {"matchesMoved": 50, "teamKmAfter": 318849, "teamCo2After": 2073.7, "fanKmBefore": 14582496500, "fanCo2Before": 2137235, "fanKmAfter": 13175403000, "fanCo2After": 1948765}}; /* COUNTERFACTUAL_INJECT */
 
 // Actuals-only totals for one team: matches actually played, no return-home leg.
 function summaryCountryTotals(team){
@@ -5436,7 +5472,20 @@ function buildSummaryPanel(){
   </div>
   <div class="sum-note" style="margin-top:8px;margin-bottom:0">Qatar 2022's 32 squads travelled by coach between 8 venues within 75 km of Doha (DESNZ coach factor, 0.02776 kgCO₂e/pax-km). Full breakdown on the <a href="#" onclick="switchTab('compare');return false">Qatar Comparison</a> tab.</div>`;
 
+  const fanShare=T.combinedCo2t>0?(T.fanCo2t/T.combinedCo2t*100):0;
+  const scaleCallout=`<div class="sum-section" style="border-color:rgba(239,107,107,.4)">
+    <div class="sum-h">⚖️ Fans are ${(T.fanCo2t/Math.max(T.teamCo2t,1)).toFixed(0)}× the teams</div>
+    <div class="sum-note" style="margin-bottom:10px">The single biggest finding in this dataset, and the one most easily lost in the detail below: supporter travel dwarfs squad travel by roughly three orders of magnitude. Every optimisation of team logistics is a rounding error against it.</div>
+    <div class="sum-qatar-strip">
+      <div class="sum-qatar-cell"><span class="v">${T.teamCo2t.toFixed(0)} t</span><span class="l">Team travel (${(100-fanShare).toFixed(2)}% of total)</span></div>
+      <div class="sum-qatar-cell"><span class="v">${Math.round(T.fanCo2t).toLocaleString()} t</span><span class="l">Fan travel (${fanShare.toFixed(2)}% of total)</span></div>
+      <div class="sum-qatar-cell mult"><span class="v">${(T.fanCo2t/Math.max(T.teamCo2t,1)).toFixed(0)}×</span><span class="l">Fan : team ratio</span></div>
+    </div>
+    <div class="sum-note" style="margin-top:10px;margin-bottom:0">Both figures use the same DESNZ banded factors. The difference is simply headcount: 48 squads of 45 against millions of supporters, many flying intercontinental. This is worth holding in mind when reading the counterfactual below — perfect base-camp assignment saves ~300 tCO₂e, about 0.015% of the tournament's footprint.</div>
+  </div>`;
+
   wrap.innerHTML=`
+  ${scaleCallout}
   <div class="sum-section">
     <div class="sum-h">🌍 Travel &amp; emissions by country ${status}</div>
     <div class="sum-note">Matches actually played only — no projections, no return-home legs. Team legs are camp→game→camp flights (DESNZ banded factors, 45-person party). Fan legs follow each nation's supporters on a one-way tour, home → each venue. Click a column to sort.</div>
@@ -5454,6 +5503,22 @@ function buildSummaryPanel(){
   <div class="sum-section">
     <div class="sum-h">🔁 The optimised tournament (counterfactual)</div>
     <div id="sumCfWrap"></div>
+  </div>
+  <div class="sum-section" id="sumMethod">
+    <div class="sum-h">📐 Methodology &amp; assumptions</div>
+    <div class="sum-note" style="margin-bottom:10px">Every figure on this page comes from the model described here. It is a transparent estimate, not measured data — the assumptions below are where the uncertainty lives, and they are stated so the numbers can be argued with.</div>
+    <table class="sum-table" style="font-size:11.5px">
+      <tbody>
+        <tr><td class="team-cell" style="width:34%">Emission factors</td><td style="text-align:left">UK DESNZ 2025 conversion factors, banded by leg distance: ${teamBandEF(500)} kgCO₂e/pax-km under 1,000 km, ${teamBandEF(2000)} to 3,700 km, ${teamBandEF(5000)} beyond. Short hops are worst per km (takeoff and climb dominate); the long-haul band rises again for high-altitude effects.</td></tr>
+        <tr><td class="team-cell">Squad size</td><td style="text-align:left">${PAX} people per travelling party — players, staff and officials. Charter aircraft, baggage and freight are not modelled separately.</td></tr>
+        <tr><td class="team-cell">Team group-stage legs</td><td style="text-align:left">Round trips: base camp → match city → base camp, for each match actually played. Squads genuinely return to camp between group fixtures.</td></tr>
+        <tr><td class="team-cell">Team knockout legs</td><td style="text-align:left">A single chained journey, venue → venue, with no return to base — which is what teams actually do once the knockouts begin. The third-place playoff is not counted, as it sits off the main bracket path.</td></tr>
+        <tr><td class="team-cell">Return home</td><td style="text-align:left">Not counted, for teams or fans. Every team's journey ends at its last match. This understates the true total but keeps eliminated and surviving teams directly comparable.</td></tr>
+        <tr><td class="team-cell">Fan travel</td><td style="text-align:left">Each nation's supporters follow a one-way tour: home city → each venue in fixture order. Fan counts are estimates of travelling support, not stadium attendance. A coach band (${bandEF(100)} kgCO₂e/pax-km) applies under 300 km, since short domestic trips are largely made by road.</td></tr>
+        <tr><td class="team-cell">What is excluded</td><td style="text-align:left">Accommodation, local transport within host cities, stadium operations, construction, broadcast and freight. This is a travel model only, so it is a floor on the tournament's true footprint, not a full carbon account.</td></tr>
+        <tr><td class="team-cell">Qatar 2022 comparison</td><td style="text-align:left">Uses a coach factor rather than flights, because all eight venues sat within 75 km of Doha and teams travelled by road from a single base. That is the honest comparison, and the reason the multiplier is so large.</td></tr>
+      </tbody>
+    </table>
   </div>`;
 
   document.querySelectorAll("#sumTable th[data-sort]").forEach(el=>{
@@ -6005,7 +6070,9 @@ function buildBracket(){
   const LSF=BRACKET_SF.slice(0,1), RSF=BRACKET_SF.slice(1,2);
 
   const html=`
-  <div class="kb-title">Knockout Bracket <span class="kb-legend"><span class="kb-qmark conf">✓</span> position locked · <span class="kb-qmark prov">~</span> provisional (3rd-place & unconfirmed) · <span class="kb-ch kb-ch-tbc" style="margin:0">UK: TBC</span> UK channel announced nearer each round</span></div>
+  <div class="kb-title">Knockout Bracket <span class="kb-legend">${standings
+    ? `Final result · <span class="kb-ch kb-ch-bbc" style="margin:0">BBC</span> / <span class="kb-ch kb-ch-itv" style="margin:0">ITV</span> UK broadcaster`
+    : `<span class="kb-qmark conf">✓</span> position locked · <span class="kb-qmark prov">~</span> provisional (3rd-place &amp; unconfirmed) · <span class="kb-ch kb-ch-tbc" style="margin:0">UK: TBC</span> UK channel announced nearer each round`}</span></div>
   <div class="contenders">
     <div class="contenders-head">
       <span class="contenders-title">${standings?"🏆 Final Standings":"🏆 Title Contenders"}</span>
