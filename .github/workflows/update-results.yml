@@ -1,34 +1,24 @@
 name: Update results
 
-# Auto-updates index.html with finished match results (group stage AND knockouts)
-# from the worldcup26.ir API, then commits the change back so GitHub Pages
-# redeploys. Two independent scripts run in sequence:
-#   • update_results.py    rewrites the group-stage RESULTS array
-#   • update_knockouts.py  rewrites the KO_RESULTS array
-# Each only ever touches its own array and has a no-shrink guard, so a bad API
-# response can't wipe entered scores.
+# Post-tournament: manual-only maintenance workflow.
+#
+# During the tournament this ran on a schedule, pulling finished match results
+# from the worldcup26.ir API and committing them back so GitHub Pages redeployed.
+# The tournament is over, so the schedule has been removed and the steps below
+# are effectively no-ops against the API — each script has a no-shrink guard and
+# will simply report nothing to do.
+#
+# It is kept because the later steps are still genuinely useful:
+#   • update_history.py   regenerate title_history.json
+#   • validate_site.py    check index.html still parses and its data is intact
+# Run it by hand after editing any of the scripts, or to re-validate the page.
 
+# The tournament finished on 19 July 2026, so the scheduled runs have been
+# removed — there are no more results to fetch. The workflow is kept as a
+# manual-only tool: useful for re-running a script after editing it, or for
+# regenerating title_history.json / re-validating the page.
 on:
-  schedule:
-    # IMPORTANT: cron runs in UTC, and the times below are written for BST
-    # (UTC+1, British Summer Time — in effect during the tournament). If the UK
-    # moves to GMT (UTC+0) you'd shift each line +1 hour.
-    # Schedule (BST): hourly from 22:00 through 06:00, plus 09:00 and 12:00.
-    # GitHub cron is best-effort and can be delayed/dropped under load, but
-    # hourly attempts across the overnight window keep the hit-rate high.
-    - cron: "0 21 * * *"   # 22:00 BST
-    - cron: "0 22 * * *"   # 23:00 BST
-    - cron: "0 23 * * *"   # 00:00 BST
-    - cron: "0 0 * * *"    # 01:00 BST
-    - cron: "0 1 * * *"    # 02:00 BST
-    - cron: "0 2 * * *"    # 03:00 BST
-    - cron: "0 3 * * *"    # 04:00 BST
-    - cron: "0 4 * * *"    # 05:00 BST
-    - cron: "0 5 * * *"    # 06:00 BST
-    - cron: "0 8 * * *"    # 09:00 BST
-    - cron: "0 11 * * *"   # 12:00 BST
-  # Lets you trigger it by hand from the Actions tab (handy for testing or to
-  # pull a result the moment a game finishes rather than waiting for the cron).
+  # Manual trigger only (Actions tab -> Update results -> Run workflow).
   workflow_dispatch:
 
 # The job needs permission to push the commit back to the repo.
