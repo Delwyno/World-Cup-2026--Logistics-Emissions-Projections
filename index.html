@@ -217,11 +217,11 @@ body.light .tab.on{color:#1a1205}
 @keyframes panelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.panel.on{animation:none}}
 /* Honour reduced-motion for the remaining decorative animations: the loading
-   spinner, the animated flight-arc dashes, and the Qatar-comparison multiplier
+   spinner, the animated knockout flight-arc dashes, and the Qatar multiplier
    pop. The spinner keeps a static ring so it still reads as a loading state. */
 @media (prefers-reduced-motion: reduce){
   .spin{animation:none}
-  .arc-anim{animation:none;stroke-dashoffset:0}
+  .ko-arc-anim{animation:none;stroke-dashoffset:0}
   .cmp-mid-mult.pop{animation:none}
 }
 #pMap{flex-direction:column;position:relative}
@@ -398,9 +398,14 @@ table.ctable td.gold{color:var(--accent);font-weight:600;font-variant-numeric:ta
 .lgn-ko{color:var(--accent);opacity:1}
 .legrow.ko-sub{border-top:1px dashed var(--border);margin-top:2px;padding-top:2px;font-weight:700;color:var(--muted)}
 
-/* Flight animation */
-@keyframes dash {to{stroke-dashoffset:0}}
-.arc-anim{stroke-dasharray:8,4;stroke-dashoffset:120;animation:dash 2.5s linear infinite}
+/* Flight animation — knockout arcs only. The group layer is static: it used to
+   carry a decorative shimmer overlay, removed for performance (it duplicated
+   all 144 group arcs as continuously-animating paths). */
+@keyframes koDash {to{stroke-dashoffset:-110}}
+.ko-arc-anim{animation:koDash 3.2s linear infinite}
+/* Dim the whole map's arc layers while a team is highlighted, so the selected
+   team's route reads clearly against everything else. */
+#mapSvg.focus-team .ko-arc-anim{animation-play-state:paused}
 
 /* GROUPS / STANDINGS / TRAVEL PANELS */
 #pStandings,#pTravel,#pFixtures,#pKotravel,#pFantravel{flex-direction:column;background:var(--bg)}
@@ -787,7 +792,6 @@ body.light .mleg{background:rgba(255,255,255,.92)}
 body.light #tip{background:rgba(255,255,255,.98);color:#15202b}
 body.light .stat-item .si-sub{background:rgba(255,255,255,.98);color:#15202b}
 body.light .stats-box{box-shadow:-6px -6px 24px rgba(0,0,0,0.12)}
-body.light .arc-anim{stroke:rgba(0,0,0,0.12)!important}
 body.light .cbadge.USA{background:rgba(37,99,235,.15);color:#1d4ed8}
 body.light .cbadge.CAN{background:rgba(220,38,38,.15);color:#b91c1c}
 body.light .cbadge.MEX{background:rgba(22,163,74,.15);color:#15803d}
@@ -2577,13 +2581,12 @@ async function initMap(){
   function arc(x1,y1,x2,y2,l=30){const mx=(x1+x2)/2,my=Math.min(y1,y2)-l;return`M${x1},${y1} Q${mx},${my} ${x2},${y2}`;}
 
   /* Return arcs */
-  // Animated shimmer arcs (subtle, layered on outbound)
-  svgEl.append("g").attr("pointer-events","none").selectAll("path").data(legs).join("path")
-    .attr("d",d=>arc(d.x1,d.y1,d.x2,d.y2))
-    .attr("fill","none").attr("stroke","rgba(255,255,255,0.18)")
-    .attr("class","arc-anim")
-    .attr("stroke-width",d=>routeFreq(d.tc,d.gc)>=3?1.8:1.0);
-
+  // NOTE: a decorative "shimmer" layer used to be drawn here — a second copy of
+  // all 144 group arcs in translucent white, each running an infinite CSS dash
+  // animation. It was purely cosmetic and cost 144 continuously-compositing SVG
+  // paths, which measurably slowed the map. Removed. The knockout arcs still
+  // animate (.ko-arc-anim), but they animate their own single path rather than
+  // needing a duplicate layer.
   retSel=svgEl.append("g").selectAll("path").data(legs).join("path")
     .attr("d",d=>arc(d.x2,d.y2,d.x1,d.y1))
     .attr("fill","none").attr("stroke",d=>d.color)
@@ -2693,7 +2696,13 @@ async function initMap(){
     if(mapView==="group"){return;}            // hidden in group-only view
     const koLegs=buildKoLegs();
     const koOnly = mapView==="knockout";      // bolder when group arcs are hidden
-    const baseW=d=>(KO_ROUND_W[d.round]||1.6)*(koOnly?1.15:1);
+    // In "both" view the knockout arcs share the canvas with every group leg,
+    // so they are drawn thinner and fan out less aggressively — wide fanning is
+    // what produced the big sweeping loops across the whole continent. In
+    // knockout-only view they get the full spread, since there is room for it.
+    const fanStep = koOnly ? 14 : 8;
+    const fanBase = koOnly ? 30 : 22;
+    const baseW=d=>(KO_ROUND_W[d.round]||1.6)*(koOnly?1.15:0.82);
     const baseOp=d=>{
       if(hlTeam&&hlTeam!==d.team)return .08;
       let o=koOnly?.95:.85;
@@ -2701,8 +2710,8 @@ async function initMap(){
       return o;
     };
     koFlightG.selectAll("path").data(koLegs).join("path")
-      // duplicate routes fan out: 30 / 44 / 58 / 72px arc heights
-      .attr("d",d=>arc(d.x1,d.y1,d.x2,d.y2,30+d.dupIdx*14))
+      // duplicate routes fan out; spacing depends on how busy the view is
+      .attr("d",d=>arc(d.x1,d.y1,d.x2,d.y2,fanBase+d.dupIdx*fanStep))
       .attr("fill","none")
       .attr("stroke",d=>d.color)
       .attr("stroke-width",d=>(hlTeam&&hlTeam!==d.team)?0.8:baseW(d))
@@ -2710,7 +2719,7 @@ async function initMap(){
       .attr("stroke-dasharray","7,4")
       .attr("stroke-linecap","round")
       .attr("marker-end","url(#arrKo)")
-      .attr("class","ko-arc")
+      .attr("class","ko-arc ko-arc-anim")
       .style("cursor","pointer")
       .on("mouseenter",(e,d)=>{
         if(hlTeam&&hlTeam!==d.team)return;
@@ -2827,13 +2836,19 @@ function hideTip(){tip.style.display="none";}
 /* ═══════════════ MAP VIEW TOGGLE (group / knockout / both) ═══════════════ */
 function setMapView(view){
   mapView=view;
-  // Show/hide the group-stage arc layers. We toggle display so hit-testing and
-  // the animated shimmer also switch off cleanly in knockout-only view.
+  // Show/hide the group-stage arc layers via display, so hit-testing switches
+  // off cleanly too in knockout-only view.
   const groupOn = (view==="group"||view==="both");
   if(flSel) flSel.style("display",groupOn?null:"none");
   if(retSel) retSel.style("display",groupOn?null:"none");
-  const anim=document.querySelector(".arc-anim");
-  document.querySelectorAll(".arc-anim").forEach(el=>el.style.display=groupOn?"":"none");
+  // In "both" view the map is drawing every group leg AND every knockout hop
+  // for 48 teams at once, which is far too dense to read. Push the group layer
+  // back so the knockout arcs sit clearly in front of it: group flights become
+  // context rather than competing foreground detail. In group-only view they
+  // return to full strength since there is nothing to compete with.
+  const groupFade = (view==="both") ? 0.34 : 1;
+  if(flSel) flSel.style("opacity",groupFade);
+  if(retSel) retSel.style("opacity",groupFade*0.7);
   // Knockout layer is rebuilt (it internally hides itself when view==="group").
   if(typeof window._refreshKnockoutFlights==="function")window._refreshKnockoutFlights();
   // Button states
