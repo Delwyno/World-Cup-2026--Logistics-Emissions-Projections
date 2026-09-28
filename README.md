@@ -3,6 +3,8 @@
 A self-contained, single-file HTML dashboard tracking the 2026 FIFA World Cup through the lens of travel logistics and carbon emissions. The first World Cup held across three countries means teams crisscross a continent rather than staying in one city — this tool follows what that actually costs, and who it favours.
 Built with D3.js and TopoJSON, the entire application lives in one HTML file with no build step, no backend, and no API keys. Scores are updated manually as matches are played.
 
+https://github.com/user-attachments/assets/217307ef-ce4b-423d-9c8b-d69d947f8bc4
+
 **Features**
 
 Flight Map & Teams — every team's flight routes, distances, and jet-lag burden across North America, with an interactive map and sortable team table.
